@@ -79,6 +79,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        . "               <hr>\n"
                        . "               <br>\n";
                     require_once("f_readdump.phtml");
+                    require_once("f_readdump-rodbyaddr0.phtml");
                     require_once("f_readdump-rodbynam0.phtml");
                     //
                     switch ($format)
@@ -86,6 +87,15 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        case "":
                           switch ($algorithm)
                              {
+                             case "RODBYADDR0":
+                                ReadDump_RODBYADDR0
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   $mode,
+                                   'FALSE'  // for be_viewable_result
+                                   );
+                                break;
                              case "RODBYNAM0":
                                 ReadDump_RODBYNAM0
                                    (
@@ -115,8 +125,17 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        case "html":
                           switch ($algorithm)
                              {
+                             case "RODBYADDR0":
+                                ReadDump_RODBYADDR0($sql_query,$bpn,$mode);
+                                break;
                              case "RODBYNAM0":
                                 ReadDump_RODBYNAM0($sql_query,$bpn,$mode);
+                                break;
+                             case "RODBYADDRSV":
+                                $chunk_size = 1000;
+                                $sql_query = "select * from " . $mode . "rod_by_addr "
+                                   . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
+                                ReadDump($sql_query,$bpn,$mode);
                                 break;
                              case "RODBYNAMSV":
                                 $chunk_size = 1000;
