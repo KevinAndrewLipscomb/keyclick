@@ -137,6 +137,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                 break;
                              }
                           echo "<p>The analysis nicknamed '<b>$parent_enumeral</b>' is complete.</p>\n"
+                             . "<p><b>Next</b>, KEYclick will let you view or download the results of this analysis.</p>\n"
                              . "<form action=" . $mode . "form-analyze.phtml method=post>\n"
                              . "   <input type=hidden name=bpn value=$bpn>\n"
                              . "   <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$parent_enumeral'\">\n"

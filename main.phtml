@@ -18,6 +18,9 @@ require_once("f_serverstatus.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
+require_once("f_numrecsinrod.phtml");
+require_once("f_numdonationsthiscycle.phtml");
+require_once("f_amtdonationsthiscycle.phtml");
 //
 $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
 //
@@ -91,8 +94,23 @@ $border_thickness = 0;  //($mode != "");
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                            <td align=right><b><a href=<? echo $mode; ?>form-add-donation.phtml?bpn=<? echo $bpn; ?>>Log</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a new donation - <small><i><a href=<? echo $mode; ?>form-add-donation-old.phtml?bpn=<? echo $bpn; ?>>or log an old one</a></i></small>.</td></tr></table></td>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td rowspan=3 valign=top>
+                           <td rowspan=6 valign=top>
                               <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
+                              <table bgcolor=#E8E8E8>
+                                 <tr><td colspan=2><small><u>Summary</u></small></td></tr>
+                                 <tr>
+                                    <td><small># ROD records:</small></td>
+                                    <td align=right><small><?php echo number_format(NumRecsInRod($agency,$mode)); ?></small></td>
+                                 </tr>
+                                 <tr>
+                                    <td><small># Donations:</small></td>
+                                    <td align=right><small><?php echo number_format(NumDonationsThisCycle($agency,$mode)); ?></small></td>
+                                 </tr>
+                                 <tr>
+                                    <td><small>$ Donations:</small></td>
+                                    <td align=right><small>$<?php echo number_format(AmtDonationsThisCycle($agency,$mode)); ?></small></td>
+                                 </tr>
+                              </table>
                            </td>
                         </tr>
                         <?

@@ -1,0 +1,23 @@
+<?
+//
+// $Id$
+//
+function NumRecsInRod
+   (
+   $agency,
+   $mode = ""
+   )
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   $num_recs_in_rod = 0;
+   $qry = "select count(*) as num_recs_in_rod from keyclick." . $mode . "resident "
+      .  "   where agency='$agency' ";
+   $result = mysql_query($qry)
+      or die("NumRecsInRod query failed with error:  " . mysql_error());
+   if (mysql_num_rows($result)) extract(mysql_fetch_array($result));
+   //
+   error_reporting($saved_error_level);
+   return $num_recs_in_rod;
+   }
+?>
