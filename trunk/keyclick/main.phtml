@@ -85,6 +85,7 @@ $border_thickness = 0;  //($mode != "");
                         }
                      else
                         {
+                        // Log action
                         ?>
                         <tr>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -94,11 +95,17 @@ $border_thickness = 0;  //($mode != "");
                               <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
                            </td>
                         </tr>
+                        <?
+                        // Add action
+                        ?>
                         <tr>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                            <td align=right><b><a href=<? echo $mode; ?>form-add-resident.phtml?bpn=<? echo $bpn; ?>>Add</a></b></td>
                            <td><table border=<? echo $border_thickness; ?>><tr><td>a name and address to the ROD (Resident/Occupant Database).</td></tr></table></td>
                         </tr>
+                        <?
+                        // Modify action
+                        ?>
                         <tr>
                            <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                               <input type=hidden name=bpn value=<? echo $bpn; ?>>
@@ -107,6 +114,13 @@ $border_thickness = 0;  //($mode != "");
                               <td><table border=<? echo $border_thickness; ?>><tr><td>ROD record #</td><td><input type=text name=id maxlength=5 size=5><input type=submit value="Go!"></td></tr></table></td>
                            </form>
                         </tr>
+                        <?
+                        // Analyse action
+                        ?>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><font color=D0D0D0>Analyse</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>data and get reports.</td></tr></table></td></tr>
+                        <?
+                        // Export action
+                        ?>
                         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-export.phtml?bpn=<? echo $bpn; ?>>Export</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>the ROD for mailing label generation.</td></tr></table></td></tr>
                         <?
                         }
