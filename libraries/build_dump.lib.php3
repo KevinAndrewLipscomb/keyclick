@@ -471,7 +471,6 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
         // Gets the data from the database
 //        $local_query = 'SELECT * FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table) . $add_query;
         $local_query = $whole_query;
-echo "[build_dump.lib.php3:local_query=[$local_query]]";
         $result      = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $error_url);
         $fields_cnt  = mysql_num_fields($result);
 

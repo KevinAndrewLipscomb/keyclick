@@ -7,6 +7,7 @@ $mode = RunMode($PHP_SELF);
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
+$parent_enumeral_expression = stripslashes($parent_enumeral_expression);
 //
 if ($mode) error_reporting(E_ALL);
 //
@@ -58,9 +59,49 @@ require_once("f_kickoff.phtml");
               }
            else
               {
-              echo "<p>The following analyses have been configured for your agency.&nbsp; For other analyses, contact "
+              echo "<p>The following analyses are available in this context.&nbsp; For other analyses, contact "
                  . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
-                 . "<table align=center width=80%>\n";
+                 . "<table align=center width=90%>\n";
+              //
+              if (!$parent_enumeral_expression)
+                 {
+                 //
+                 // We must be at the top contextual level.  First, there are no "parent" analyses at this level.  Second,
+                 // this is the level where we want to present the analyses that must be maintained programmatically (ie,
+                 // in PHP, as opposed to those that can be maintained as records in the analyses table).  Some analyses
+                 // must be maintained programatically because of sheer complexity or because of MySQL server limitations.
+                 //
+                 $parent_enumeral_expression = 'parent_enumeral is null';
+                 //
+                 echo "   <tr>\n"
+                    . "      <td><b>Simplified ROD sorted by Name &nbsp; &nbsp; [RODBYNAM0]</b><br><i>(complex)</i></td>\n"
+                    . "      <td align=right>\n"
+                    . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "            <input type=hidden name=bpn value=$bpn>\n"
+                    . "            <input type=hidden name=algorithm value=RODBYNAM0>\n"
+                    . "            <input type=hidden name=parent_enumeral value=RODBYNAM0>\n"
+                    . "            <input type=submit value=\"Go!\">\n"
+                    . "         </form>\n"
+                    . "      </td>\n"
+                    . "   </tr>\n"
+                    . "   <tr>\n"
+                    . "      <td colspan=2><blockquote><i>\n"
+                    . "<p>Clicking this Go! button is the first step in a multi-step process that ultimately sends you a "
+                    . "simplified version of the Resident/Occupant Database (ROD) <u>sorted by name</u>.</p><p>This first "
+                    . "step performs some very intensive processing and <u>takes as long as 15-20 minutes</u>.&nbsp; Do "
+                    . "<u>not</u> close or navigate away from this window once you press the Go! button.&nbsp; (You may, "
+                    . "however, continue browsing in another window and you may run other programs.)</p><p>When this step "
+                    . "is complete, KEYclick will give you an opportunity to start downloading the data.</p><p>Sample "
+                    . "output:</p><blockquote><pre>"
+                    . "   ID     <b>NAME              </b>ADDRESS            CITY            ST  ZIP\n"
+                    . "   -----  <b>----              </b>-------            ----            --  ---\n"
+                    . "    4582  <b>AAGLAN K          </b>1222 NORTHVALE DR  VIRGINIA BEACH  VA  23459\n"
+                    . "     254  <b>ABANATHY CARLOS   </b>1411 SADLEBRED CT  VIRGINIA BEACH  VA  23510\n"
+                    . "   22004  <b>ABARCA STEWART M  </b>524 AYELSBURY LN   VIRGINIA BEACH  VA  23358\n"
+                    . "</pre>\n"
+                    . "      </blockquote></i></blockquote><hr></td>\n"
+                    . "   </tr>\n";
+                 }
               //
               $result = mysql_query
                  (
@@ -68,8 +109,11 @@ require_once("f_kickoff.phtml");
                  . "   , enumeral "
                  . "   , long_description "
                  . "   , sql "
+                 . "   , be_avail_as_html "
+                 . "   , be_avail_as_zip "
                  . "from " . $mode . "analysis "
                  . "where agency='$agency' "
+                 . "   and $parent_enumeral_expression "
                  . "order by position "
                  )
                  or die("Retrieval of analyses failed with error: " . mysql_error());
@@ -82,20 +126,33 @@ require_once("f_kickoff.phtml");
                  {
                  while ($row = mysql_fetch_array($result))
                     {
-                    $short_description = $long_description = $sql = "";
+                    $short_description = $long_description = $sql = $be_avail_as_html = $be_avail_as_zip = "";
                     extract($row);
                     echo "   <tr>\n"
-                       . "      <td><b>$short_description</b></td>\n"
+                       . "      <td><b>$short_description &nbsp; &nbsp; [$enumeral]</b></td>\n"
                        . "      <td align=right>\n"
                        . "         <form action=" . $mode . "analyze.phtml method=post>\n"
                        . "            <input type=hidden name=bpn value=$bpn>\n"
-                       . "            <input type=hidden name=filename value=$enumeral>\n"
-                       . "            <input type=hidden name=sql_query value=\"$sql\">\n"
-                       . "            <input type=radio name=format value=html checked>View on screen\n"
-                       . "               &nbsp;&nbsp;&nbsp;\n"
-                       . "            <input type=radio name=format value=zip>Download as ZIP file\n"
-                       . "               &nbsp;&nbsp;&nbsp;\n"
-                       . "            <input type=submit value=\"Go!\">\n"
+                       . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
+                       . "            <input type=hidden name=sql_query value=\"$sql\">\n";
+                    if (($be_avail_as_html == 'TRUE') and ($be_avail_as_zip == 'TRUE'))
+                       {
+                       echo "            <input type=radio name=format value=html checked>View on screen\n"
+                          . "               &nbsp;&nbsp;&nbsp;\n"
+                          . "            <input type=radio name=format value=zip>Download as ZIP file\n"
+                          . "               &nbsp;&nbsp;&nbsp;\n";
+                       }
+                    else if ($be_avail_as_html == 'TRUE')
+                       {
+                       echo "            <input type=hidden name=format value=html>(Screen view only)\n"
+                          . "               &nbsp;&nbsp;&nbsp;\n";
+                       }
+                    else if ($be_avail_as_zip == 'TRUE')
+                       {
+                       echo "            <input type=hidden name=format value=zip>(Zip file only)\n"
+                          . "               &nbsp;&nbsp;&nbsp;\n";
+                       }
+                    echo "            <input type=submit value=\"Go!\">\n"
                        . "         </form>\n"
                        . "      </td>\n"
                        . "   </tr>\n"

@@ -1,0 +1,97 @@
+<?
+//
+// $Id$ */
+//
+function ReadDump_RODBYNAM0
+   (
+   $sql_query,
+   $bpn,
+   $mode = ""
+   )
+{
+$chunk_size = 1000;
+//
+$statement_array = array();
+$statement_array[0] = "drop table if exists " . $mode . "rod_by_name";
+$statement_array[1] = "drop table if exists " . $mode . "temp";
+$statement_array[2] = "CREATE TABLE " . $mode . "temp "
+   . "("
+   . "unk1 tinytext NOT NULL,"
+   . "subdrive tinytext NOT NULL,"
+   . "id mediumint(8) unsigned NOT NULL default '0',"
+   . "unk2 tinytext NOT NULL,"
+   . "salutation tinytext NOT NULL,"
+   . "name tinytext NOT NULL,"
+   . "address1 tinytext NOT NULL,"
+   . "unk3 tinytext NOT NULL,"
+   . "city tinytext NOT NULL,"
+   . "state tinytext NOT NULL,"
+   . "zip tinytext NOT NULL,"
+   . "unk4 tinytext NOT NULL,"
+   . "unk5 tinytext NOT NULL,"
+   . "unk6 tinytext NOT NULL,"
+   . "unk7 tinytext NOT NULL,"
+   . "unk8 tinytext NOT NULL,"
+   . "agency enum('KVRS') NOT NULL default 'KVRS',"
+   . "PRIMARY KEY (id),"
+   . "KEY name (name(255))"
+   . ")"
+   . "TYPE=MyISAM";
+$statement_array[3] = "INSERT INTO " . $mode . "temp SELECT * FROM " . $mode . "resident";
+$statement_array[4] = "ALTER TABLE " . $mode . "temp DROP agency";
+$statement_array[5] = "ALTER TABLE " . $mode . "temp DROP unk8";
+$statement_array[6] = "ALTER TABLE " . $mode . "temp DROP unk7";
+$statement_array[7] = "ALTER TABLE " . $mode . "temp DROP unk6";
+$statement_array[8] = "ALTER TABLE " . $mode . "temp DROP unk5";
+$statement_array[9] = "ALTER TABLE " . $mode . "temp DROP unk4";
+$statement_array[10] = "ALTER TABLE " . $mode . "temp DROP unk3";
+$statement_array[11] = "ALTER TABLE " . $mode . "temp DROP salutation";
+$statement_array[12] = "ALTER TABLE " . $mode . "temp DROP unk2";
+$statement_array[13] = "ALTER TABLE " . $mode . "temp DROP subdrive";
+$statement_array[14] = "ALTER TABLE " . $mode . "temp DROP unk1";
+$statement_array[15] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
+//
+$num_statements = count($statement_array);
+//
+// Execute each statement in the statement array.
+//
+for ($i = 0; $i < $num_statements; $i++)
+   {
+   mysql_query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysql_error());
+   }
+//
+// Figure out how many rows are in the intermediate table.
+//
+$result = mysql_query("select count(*) as num_temp_rows from " . $mode . "temp")
+   or die("Count failed with error: " . mysql_error());
+extract(mysql_fetch_array($result));  // Sets $num_temp_rows.
+//
+// Repeatedly reduce the size of the problem by removing rows from the intermediate table that have already been
+// transferred to the target table.  Then transfer some more.
+//
+for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
+   {
+   $result = mysql_query("select id from " . $mode . "rod_by_name limit $i,$chunk_size")
+      or die("Selection of IDs newly-inserted into target table failed with error: " . mysql_error());
+   $id_list = "";
+   while ($row = mysql_fetch_array($result))
+      {
+      extract($row);  // Sets $id.
+      $id_list .= "$id,";
+      }
+   $id_list .= $id;  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
+   //
+   mysql_query("delete from " . $mode . "temp where id in ($id_list)")
+      or die("Scattered delete failed with error: " . mysql_error() . " id_list=$id_list");
+   //
+   mysql_query
+      (
+      "insert into " . $mode . "rod_by_name "
+      . "select * from " . $mode . "temp "
+      . "order by name limit $chunk_size"
+      )
+      or die("Ordered insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysql_error());
+   }
+mysql_query("drop table " . $mode . "temp") or die("Drop of temp table failed with error: " . mysql_error());
+}
+?>
