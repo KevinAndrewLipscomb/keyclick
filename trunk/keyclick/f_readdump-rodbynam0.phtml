@@ -1,4 +1,4 @@
-<?
+<?php
 //
 // $Id$ */
 //
@@ -9,47 +9,29 @@ function ReadDump_RODBYNAM0
    $mode = ""
    )
 {
-$chunk_size = 1000;
+extract(  // Sets $chunk_size
+   mysql_fetch_array(
+      mysql_query('select value as chunk_size from ' . $mode . 'tuning_parm where name=\'rodbynam0-chunk-size\'')));
 //
 $statement_array = array();
-$statement_array[0] = "drop table if exists " . $mode . "rod_by_name";
-$statement_array[1] = "drop table if exists " . $mode . "temp";
-$statement_array[2] = "CREATE TABLE " . $mode . "temp "
+$statement_array[$i = 0] = "drop table if exists " . $mode . "rod_by_name";
+$statement_array[++$i] = "drop table if exists " . $mode . "temp";
+$statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . "("
-   . "unk1 tinytext NOT NULL,"
-   . "subdrive tinytext NOT NULL,"
    . "id mediumint(8) unsigned NOT NULL default '0',"
-   . "unk2 tinytext NOT NULL,"
-   . "salutation tinytext NOT NULL,"
    . "name tinytext NOT NULL,"
    . "address1 tinytext NOT NULL,"
-   . "unk3 tinytext NOT NULL,"
    . "city tinytext NOT NULL,"
    . "state tinytext NOT NULL,"
    . "zip tinytext NOT NULL,"
-   . "unk4 tinytext NOT NULL,"
-   . "unk5 tinytext NOT NULL,"
-   . "unk6 tinytext NOT NULL,"
-   . "unk7 tinytext NOT NULL,"
-   . "unk8 tinytext NOT NULL,"
    . "agency enum('KVRS') NOT NULL default 'KVRS',"
    . "PRIMARY KEY (id),"
    . "KEY name (name(255))"
    . ")"
    . "TYPE=MyISAM";
-$statement_array[3] = "INSERT INTO " . $mode . "temp SELECT * FROM " . $mode . "resident";
-$statement_array[4] = "ALTER TABLE " . $mode . "temp DROP agency";
-$statement_array[5] = "ALTER TABLE " . $mode . "temp DROP unk8";
-$statement_array[6] = "ALTER TABLE " . $mode . "temp DROP unk7";
-$statement_array[7] = "ALTER TABLE " . $mode . "temp DROP unk6";
-$statement_array[8] = "ALTER TABLE " . $mode . "temp DROP unk5";
-$statement_array[9] = "ALTER TABLE " . $mode . "temp DROP unk4";
-$statement_array[10] = "ALTER TABLE " . $mode . "temp DROP unk3";
-$statement_array[11] = "ALTER TABLE " . $mode . "temp DROP salutation";
-$statement_array[12] = "ALTER TABLE " . $mode . "temp DROP unk2";
-$statement_array[13] = "ALTER TABLE " . $mode . "temp DROP subdrive";
-$statement_array[14] = "ALTER TABLE " . $mode . "temp DROP unk1";
-$statement_array[15] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
+$statement_array[++$i] = "INSERT INTO " . $mode . "temp SELECT * FROM " . $mode . "resident";
+$statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
+$statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
 //
 $num_statements = count($statement_array);
 //
