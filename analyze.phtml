@@ -48,7 +48,6 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
               switch ($format)
                  {
                  case "zip":
-error_reporting(E_ALL);
                     ZipDump($sql_query,$filename);
                     break;
                  default:

@@ -354,7 +354,7 @@ if ($sql_query != '') {
             $reload = 1;
         }
         require_once('f_viewquery.phtml');
-        ViewQuery($sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
+        ViewQuery($bpn,$sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
         exit();
     }
 
