@@ -8,29 +8,12 @@ function KickOff
    )
    {
    ?>
-   <html>
-   <head><title>KEYclick - Invalid boarding pass</title></head>
-   <? BodyOpen(); ?>
-   <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
-      <tr>
-         <td>
-            <h6 align="center"><a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
-            <h1 align="center">Invalid boarding pass</h1>
-            <hr>
-            <? PutLibPhotoRandomPlaced("eye-candy",1,"right"); ?>
-            <p>Your KEYclick Boarding Pass is invalid.&nbsp; Possible reasons include:</p>
-            <ul>
-               <li><p>Your KEYclick session has been idle for more than 30 minutes;</p></li>
-               <li><p>This is not the computer you used to log into KEYclick (ie, your IP address has changed).</p></li>
-            </ul>
-            <p><a href=<? echo HomePageUrl(); ?>>Click here to log back into KEYclick.</a></p>
-            <hr>
-            <p><small><small><em><pre>$Id$</pre></em></small></small></p>
-         </td>
-      </tr>
-   </table>
-   </body>
-   </html>
+   <p>Your KEYclick Boarding Pass is invalid.&nbsp; Possible reasons include:</p>
+   <ul>
+      <li><p>Your KEYclick session has been idle for more than 30 minutes;</p></li>
+      <li><p>This is not the computer you used to log into KEYclick (ie, your IP address has changed).</p></li>
+   </ul>
+   <p><b><a href=<? echo HomePageUrl(); ?>>Click here to log back into KEYclick.</a></b></p>
    <?
    }
 ?>
