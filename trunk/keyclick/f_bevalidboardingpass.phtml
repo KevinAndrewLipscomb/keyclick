@@ -1,0 +1,49 @@
+<?
+//
+// $Id$
+//
+function BeValidBoardingPass
+   (
+   $bpn,
+   $mode = ""
+   )
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   // First, remove all expired records.
+   //
+   $result = mysql_query("delete from " . $mode . "manifest where expiration_time < " . time())
+      or die("Removal of expired boarding passes failed with error: " . mysql_error());
+   //
+   // Now see if the specified boarding pass is valid.
+   //
+   $found_bpn = "";
+   //
+   $result = mysql_query
+      (
+      "select bpn as found_bpn,agency from " . $mode . "manifest "
+      .  "   where ip='$REMOTE_ADDR' "
+      .  "      and expiration_time >= " . time()
+      )
+      or die("BeValidBoardingPass query failed with error:  " . mysql_error());
+   //
+   if (mysql_num_rows($result))
+      {
+      extract(mysql_fetch_array($result));  // to get agency value to return to this function's caller
+      //
+      // Extend expiration date
+      //
+      $result = mysql_query
+         (
+         "update " . $mode . "manifest "
+         .  " set expiration_time = expiration_time + 1800 "
+         .  " where bpn=$bpn "
+         .  "    and ip=$ip "
+         .  "    and agency=$agency "
+         );
+      }
+   //
+   error_reporting($saved_error_level);
+   return ($agency);
+   }
+?>
