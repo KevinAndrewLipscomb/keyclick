@@ -15,7 +15,6 @@ $cancel = $cancel;
 if ($mode) error_reporting(E_ALL);
 //
 require_once("f_homepageurl.phtml");
-require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_password.phtml");
@@ -35,13 +34,8 @@ require_once("f_emailaddrofbpn.phtml");
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
-        <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
-           <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
-        </td><td>
-           <h6 align="center">
-              <a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
-           <h1 align="center">Add resident</h1>
-        </td></tr></table>
+        <h6 align="center"><a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+        <h1 align="center">Add resident</h1>
         <hr>
         <br>
         <?
