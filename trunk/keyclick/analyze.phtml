@@ -118,6 +118,12 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              case "RODBYNAM0":
                                 ReadDump_RODBYNAM0($sql_query,$bpn,$mode);
                                 break;
+                             case "RODBYNAMSV":
+                                $chunk_size = 1000;
+                                $sql_query = "select * from " . $mode . "rod_by_name "
+                                   . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
+                                ReadDump($sql_query,$bpn,$mode);
+                                break;
                              default:
                                 ReadDump($sql_query,$bpn,$mode);
                                 break;
