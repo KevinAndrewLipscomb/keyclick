@@ -11,6 +11,7 @@ $mode = RunMode($PHP_SELF);
 if ($mode) error_reporting(E_ALL);
 //
 $foundation_dir = "../../foundation";
+$pear_dir = "../../pear";
 require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
@@ -20,6 +21,8 @@ require_once("f_roleemailaddress.phtml");
 require_once("f_beauthorized.phtml");
 require_once("f_keyclickmailheaders.phtml");
 require_once("$foundation_dir/std_style_class.php");
+require_once("Mail.php");
+require_once("$pear_dir/Mail/mime.php");
 ?>
 <html>
 
@@ -91,14 +94,11 @@ require_once("$foundation_dir/std_style_class.php");
                   //
                   // Calculate the expiration time.
                   //
-                  if ($mode)
-                     {
-                     $num_minutes = 1440;  // 24 hours
-                     }
-                  else
-                     {
-                     $num_minutes = 60;  // 1 hour
-                     }
+                  extract(  // Sets $num_minutes
+                     mysql_fetch_array(
+                        mysql_query(
+                           "select value as num_minutes from " . $mode . "tuning_parm "
+                           . "where name='boarding-pass-valid-minutes' ")));
                   $expiration_time = time() + $num_minutes*60;
                   //
                   // Record the boarding pass attributes in the manifest.
@@ -113,28 +113,93 @@ require_once("$foundation_dir/std_style_class.php");
                      )
                      or die("Insert failed with error: " . mysql_error());
                   //
-                  // Generate the challenge message.
+                  // Generate the challenge message (plain text).
                   //
-                  //             0        1         2         3         4         5         6         7
-                  //             123456789012345678901234567890123456789012345678901234567890123456789012
-                  $challenge = "";
-                  $challenge .= "This is your KEYclick Boarding Pass.  It is only valid on the computer\n"
-                             .  "from which you logged into KEYclick, and only for the $agency database.\n\n"
-                             .  "This Boarding Pass will expire when you have not used KEYclick for 30\n"
-                             .  "minutes, or when you explicitly log out.\n\n"
-                             .  "Please click here to continue:\n"
-                             .  RootUrl()
-                             .  "/" . $mode . "main.phtml?bpn=$bpn\n\n";
+                  //    0        1         2         3         4         5         6         7
+                  //    123456789012345678901234567890123456789012345678901234567890123456789012
+                  $challenge_cold = ""
+                     . "This is your KEYclick Boarding Pass.  It is only valid on the computer\n"
+                     . "from which you logged into KEYclick, and only for the $agency database.\n\n"
+                     . "This Boarding Pass will expire when you have not used KEYclick for $num_minutes\n"
+                     . "minutes, or when you explicitly log out.\n\n"
+                     . "Please click here to continue:\n"
+                     . RootUrl()
+                     . "/" . $mode . "main.phtml?bpn=$bpn\n\n";
                   //
                   // Add sig lines.
                   //
-                  $challenge .= "-- KEYclick\n"
-                             .  "-- Home page: " . HomePageUrl() . "\n"
-                             .  "-- Sysadmin: " . RoleEmailAddress("",$mode) . "\n";
+                  $challenge_cold .=
+                       "-- KEYclick\n"
+                     . "-- Home page: " . HomePageUrl() . "\n"
+                     . "-- Sysadmin: " . RoleEmailAddress("",$mode) . "\n";
+                  //
+                  // Generate an HTML version of the challenge.
+                  //
+                  $challenge_hot = ""
+                     . "<html>\n"
+                     . "   <body bgcolor=#ffffff>\n"
+                     . "      <font face=arial>\n"
+                     . "         <table align=center bgcolor=#99ccff cellpadding=10 width=80%>\n"
+                     . "            <tr>\n"
+                     . "               <td width=24%>\n"
+                     . "                  <p align=center><small><small>$bpn</small></small></p>\n"
+                     . "                  <center>\n"
+                     . "                     <h6>BOARDING PASS STUB</h6>\n"
+                     . "                     <p><font size=+2><b><a href=" . RootUrl() . "/" . $mode . "main.phtml?bpn=$bpn>Click "
+                     . "                        here to board KEYclick.</a></b></font></p>\n"
+                     . "                     <h6>$email_addr</h6>\n"
+                     . "                  </center>\n"
+                     . "                  <p align=center><small><small>$bpn</small></small></p>\n"
+                     . "               </td>\n"
+                     . "               <td width=2%>\n"
+                     . "                  <center>\n"
+                     . "                     :<br>:<br>:<br>:<br>:<br>:<br>:<br>:<br>:<br>:<br>:<br>:<br>:\n"
+                     . "                  </center>\n"
+                     . "               </td>\n"
+                     . "               <td width=74%>\n"
+                     . "                  <p align=center><small><b> --- $bpn ---</b></small></p>\n"
+                     . "                  <table width=100%>\n"
+                     . "                     <tr>\n"
+                     . "                        <td valign=middle><font size=+2><b>KEYclick Boarding Pass</b></font></td>\n"
+                     . "                        <td align=right valign=middle>for <b>$email_addr</b></td>\n"
+                     . "                     </tr>\n"
+                     . "                  </table>\n"
+                     . "                  <br>\n"
+                     . "                  This Boarding Pass is only valid on the computer from which you logged into "
+                     . "                  KEYclick, and only for the $agency database.&nbsp This Boarding Pass will expire "
+                     . "                  when you have not used KEYclick for $num_minutes minutes, or when you explicitly "
+                     . "                  log out.\n"
+                     . "                  <hr>\n"
+                     . "                  <small>"
+                     . "                     KEYclick&nbsp; * &nbsp;" . HomePageUrl() . "&nbsp; * &nbsp;Sysadmin=<a href=mailto:" . RoleEmailAddress("",$mode) . ">" . RoleEmailAddress("",$mode) . "</a>"
+                     . "                  </small>\n"
+                     . "                  <p align=center><small><b> --- $bpn ---</b></small></p>\n"
+                     . "               </td>\n"
+                     . "            </tr>\n"
+                     . "         </table>\n"
+                     . "      </font>\n"
+                     . "   </body>\n"
+                     . "</html>\n";
+                  //
+                  $headers = array
+                     (
+                     'To' => $email_addr,
+                     'From' => 'KEYclick <' . RoleEmailAddress("",$mode) . '>',
+                     'Reply-to' => 'KEYclick <' . RoleEmailAddress("",$mode) . '>',
+                     'Subject' => 'KEYclick Boarding Pass'
+                     );
+                  //
+                  $mail_mime_obj = new Mail_mime();
+                  $mail_mime_obj->setTXTBody($challenge_cold);
+                  $mail_mime_obj->setHTMLBody($challenge_hot);
+                  $mime_message_body = $mail_mime_obj->get();
+                  $headers = $mail_mime_obj->headers($headers);
+                  $mail_message_obj =& Mail::factory('sendmail');
+                  $result = $mail_message_obj->send($email_addr, $headers, $mime_message_body);
                   //
                   // Send the mail.
                   //
-                  $result = mail($email_addr, "KEYclick Boarding Pass", $challenge, KeyclickMailHeaders());
+                  //$result = mail($email_addr, "KEYclick Boarding Pass", $challenge, KeyclickMailHeaders());
                   //
                   if ($result)
                      {
