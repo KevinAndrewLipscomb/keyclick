@@ -11,6 +11,8 @@ $bpn = $bpn;
 $filename = $filename;
 $sql_query = $sql_query;
 $format = $format;
+$parent_enumeral = $parent_enumeral;
+$algorithm = $algorithm;
 //
 require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
@@ -21,6 +23,8 @@ require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_zipdump.phtml");
+//
+// error_reporting(E_ALL);  // Inappropriate because we're calling externally-authored routines.
 //
 $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
 
@@ -47,10 +51,8 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
               {
               switch ($format)
                  {
-                 case "zip":
-                    ZipDump($sql_query,$filename);
-                    break;
-                 default:
+                 case "":
+                 case "html":
                     echo "<html>\n"
                        . "   <head><title>KEYclick - Query result</title></head>\n"
                        . "   ";
@@ -77,7 +79,51 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        . "               <hr>\n"
                        . "               <br>\n";
                     require_once("f_readdump.phtml");
-                    ReadDump($sql_query,$bpn,$mode);
+                    require_once("f_readdump-rodbynam0.phtml");
+                    //
+                    switch ($format)
+                       {
+                       case "":
+                          switch ($algorithm)
+                             {
+                             case "RODBYNAM0":
+                                ReadDump_RODBYNAM0
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   $mode,
+                                   'FALSE'  // for be_viewable_result
+                                   );
+                                break;
+                             default:
+                                ReadDump
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   $mode,
+                                   'FALSE'  // for be_viewable_result
+                                   );
+                                break;
+                             }
+                          echo "<p>The analysis nicknamed '<b>$parent_enumeral</b>' is complete.</p>\n"
+                             . "<form action=" . $mode . "form-analyze.phtml method=post>\n"
+                             . "   <input type=hidden name=bpn value=$bpn>\n"
+                             . "   <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$parent_enumeral'\">\n"
+                             . "   Click here to &nbsp; <input type=submit value=Proceed>.\n"
+                             . "</form>\n";
+                          break;
+                       case "html":
+                          switch ($algorithm)
+                             {
+                             case "RODBYNAM0":
+                                ReadDump_RODBYNAM0($sql_query,$bpn,$mode);
+                                break;
+                             default:
+                                ReadDump($sql_query,$bpn,$mode);
+                                break;
+                             }
+                          break;
+                       }
                     echo "               <br>\n"
                        . "               <p><small><small><em><pre>$Id$</pre></em></small></small>\n"
                        . "            </td>\n"
@@ -85,6 +131,11 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        . "      </table>\n"
                        . "   </body>\n"
                        . "</html>\n";
+                    break;
+                    //
+                 case "zip":
+                 default:
+                    ZipDump($sql_query,$parent_enumeral);
                     break;
                  }
               }

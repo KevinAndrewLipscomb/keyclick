@@ -7,6 +7,7 @@ function ReadDump
    $sql_query,
    $bpn,
    $mode = "",
+   $be_viewable_result = "TRUE",
    $is_js_confirmed = "0",
    $lang = "en",
    $server = "1",
@@ -153,6 +154,37 @@ function PMA_splitSqlFile(&$ret, $sql, $release)
 } // end of the 'PMA_splitSqlFile()' function
 
 
+function ExecSelect
+   (
+   $select_statement,
+   $bpn,
+   $lang,
+   $server,
+   $zero_rows,
+   $mode,
+   $goto
+   )
+//
+   {
+   // ViewQuery will stripslash the query if get_magic_quotes_gpc
+   if (get_magic_quotes_gpc() == 1)
+      {
+      $sql_query = addslashes($select_statement);
+      }
+   else
+      {
+      $sql_query = $select_statement;
+      }
+   if (eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $sql_query))
+      {
+      $reload = 1;
+      }
+   require_once('f_viewquery.phtml');
+   ViewQuery($bpn,$sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
+   exit();
+   }
+
+
 if (!function_exists('is_uploaded_file')) {
     /**
      * Emulates the 'is_uploaded_file()' function for old php versions.
@@ -179,7 +211,6 @@ if (!function_exists('is_uploaded_file')) {
 } // end if
 
 
-
 /**
  * Increases the max. allowed time to run a script
  */
@@ -193,13 +224,13 @@ if (!function_exists('is_uploaded_file')) {
 //require('./libraries/common.lib.php3');
 
 
-/**
- * Defines the url to return to in case of error in a sql statement
- */
-if (!isset($goto)
-    || ($goto != 'db_details.php3' && $goto != 'tbl_properties.php3')) {
-    $goto = 'db_details.php3';
-}
+//--/**
+//-- * Defines the url to return to in case of error in a sql statement
+//-- */
+//--if (($goto == "")
+//--    || ($goto != 'db_details.php3' && $goto != 'tbl_properties.php3')) {
+//--    $goto = 'db_details.php3';
+//--}
 $err_url  = $goto
           . '?lang=' . $lang
           . '&amp;server=' . $server
@@ -343,33 +374,39 @@ if ($sql_query != '') {
     }
 
     // Only one query to run
-    if ($pieces_count == 1 && !empty($pieces[0]) && $view_bookmark == 0) {
-        // sql.php3 will stripslash the query if get_magic_quotes_gpc
-        if (get_magic_quotes_gpc() == 1) {
-            $sql_query = addslashes($pieces[0]);
-        } else {
-            $sql_query = $pieces[0];
-        }
-        if (eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $sql_query)) {
-            $reload = 1;
-        }
-        require_once('f_viewquery.phtml');
-        ViewQuery($bpn,$sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
-        exit();
-    }
+    if ($pieces_count == 1 && !empty($pieces[0]) && $view_bookmark == 0 && ($be_viewable_result == 'TRUE'))
+       {
+       ExecSelect($pieces[0],$bpn,$lang,$server,$zero_rows,$mode,$goto);
+       }
 
     // Runs multiple queries
     else if (mysql_select_db($db)) {
         for ($i = 0; $i < $pieces_count; $i++) {
             $a_sql_query = $pieces[$i];
-            $result = mysql_query($a_sql_query);
-            if ($result == FALSE) { // readdump failed
-                $my_die = $a_sql_query;
-                break;
-            }
-            if (!isset($reload) && eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $a_sql_query)) {
-                $reload = 1;
-            }
+            //
+            if (($i < ($pieces_count - 1)) or ($be_viewable_result == 'FALSE'))
+               {
+if ($mode) echo "Calling mysql_query in iteration $i / $pieces_count with [$a_sql_query].";
+               $result = mysql_query($a_sql_query);
+               if ($result == FALSE)
+                  { // readdump failed
+                  $my_die = $a_sql_query;
+                  break;
+                  }
+               if (!isset($reload) && eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $a_sql_query))
+                  {
+                  $reload = 1;
+                  }
+               }
+            else
+               {
+               //
+               // This is the last statement of the script, and we are assuming it is a SELECT.
+               //
+if ($mode) echo "Calling ExecSelect with [$a_sql_query].";
+               ExecSelect($a_sql_query,$bpn,$lang,$server,$zero_rows,$mode,$goto);
+               exit();
+               }
         } // end for
     } // end else if
     unset($pieces);
@@ -436,9 +473,9 @@ if (!empty($id_bookmark) && $action_bookmark == 2) {
 if ($goto == 'db_details.php3' || $goto == 'tbl_properties.php3') {
     $js_to_run = 'functions.js';
 }
-if ($goto != 'main.php3') {
-    include('./header.inc.php3');
-}
-require('./' . $goto);
+//--if ($goto != 'main.php3') {
+//--    include('./header.inc.php3');
+//--}
+//--require('./' . $goto);
 }
 ?>
