@@ -1,0 +1,37 @@
+<?
+//
+// $Id$
+//
+function ProspectivitySelectionList
+   (
+   $agency,
+   $mode = ""
+   )
+//
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   $result = @mysql_query("select * from " . $mode . "prospectivity where agency='$agency'");
+   //
+   if (!mysql_error() and mysql_num_rows($result))
+      {
+      echo "<select name=prospectivity>\n";
+      echo "   <option value=\"\">&nbsp;</option>\n";
+      //
+      while($row = mysql_fetch_array($result))
+         {
+         $enumeral = $description = "";
+         extract($row);
+         echo "   <option value=\"$enumeral\">$description</option>\n";
+         }
+      //
+      echo "</select>\n";
+      }
+   else
+      {
+      echo "(Not configured)\n";
+      }
+   //
+   error_reporting($saved_error_level);
+   }
+?>
