@@ -2,7 +2,7 @@
 //
 // $Id$
 //
-function ZipDump($sql_query)
+function ZipDump($sql_query,$filename)
 {
 /**
  *
@@ -11,14 +11,10 @@ function ZipDump($sql_query)
  * @global  string  the character to add at the end of lines
  * @global  string  the buffer containing formatted strings
  */
-function PMA_myCsvHandler($sql_insert)
-{
-    global $add_character;
-    global $tmp_buffer;
-
-    $tmp_buffer .= $sql_insert . $add_character;
-
-} // end of the 'PMA_myCsvHandler()' function
+function PMA_myCsvHandler($sql_insert, &$add_character, &$tmp_buffer)
+   {
+   $tmp_buffer .= $sql_insert . $add_character;
+   }
 
 /**
  * Get the variables sent or posted to this script and a core script
@@ -71,7 +67,7 @@ require('./libraries/zip.lib.php3');
 
    $tmp_buffer = '';
 //   PMA_getTableCsv($db, $table, $limit_from, $limit_to, $separator, $enclosed, $escaped, 'PMA_myCsvHandler', $err_url);
-   PMA_getTableCsv(stripslashes($sql_query), 'PMA_myCsvHandler', $err_url);
+   PMA_getTableCsv(stripslashes($sql_query), 'PMA_myCsvHandler', $err_url, &$add_character, &$tmp_buffer);
    $dump_buffer .= $tmp_buffer;
 
    /**

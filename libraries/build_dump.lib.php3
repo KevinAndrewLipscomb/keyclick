@@ -462,7 +462,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      * @access  public
      */
 //    function PMA_getTableCsv($db, $table, $limit_from = 0, $limit_to = 0, $sep, $enc_by, $esc_by, $handler, $error_url)
-    function PMA_getTableCsv($whole_query, $handler, $error_url)
+    function PMA_getTableCsv($whole_query, $handler, $error_url, &$add_character, &$tmp_buffer)
     {
             $sep     = ',';
             $enc_by  = '"';
@@ -471,6 +471,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
         // Gets the data from the database
 //        $local_query = 'SELECT * FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table) . $add_query;
         $local_query = $whole_query;
+echo "[build_dump.lib.php3:local_query=[$local_query]]";
         $result      = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $error_url);
         $fields_cnt  = mysql_num_fields($result);
 
@@ -502,7 +503,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
                     $schema_insert .= $sep;
                 }
             } // end for
-            $handler(trim($schema_insert));
+            $handler(trim($schema_insert), $add_character, $tmp_buffer);
             ++$i;
 
             // loic1: send a fake header to bypass browser timeout if data are

@@ -351,7 +351,8 @@ if ($sql_query != '') {
         if (eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $sql_query)) {
             $reload = 1;
         }
-        include('./sql.php3');
+        require_once('f_viewquery.phtml');
+        ViewQuery($sql_query,$lang,$server);
         exit();
     }
 
