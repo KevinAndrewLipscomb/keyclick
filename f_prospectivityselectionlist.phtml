@@ -5,7 +5,8 @@
 function ProspectivitySelectionList
    (
    $agency,
-   $mode = ""
+   $mode = "",
+   $selected_option = ""
    )
 //
    {
@@ -17,21 +18,27 @@ function ProspectivitySelectionList
       {
       echo "<select name=prospectivity>\n";
       //
-      // First time is a special case.  If the cardinality of the first row is 0 (zero), then the row should be selected by
-      // default.  If not, nothing should be selected by default.
-      //
-      extract(mysql_fetch_array($result));
-      if ($cardinality != 0)
+      if ($selected_option == "")
          {
-         echo "   <option value=\"\">&nbsp;</option>\n";
+         //
+         // First time is a special case.  If the cardinality of the first row is 0 (zero), then the row should be selected by
+         // default.  If not, nothing should be selected by default.
+         //
+         extract(mysql_fetch_array($result));
+         if ($cardinality != 0)
+            {
+            echo "   <option value=\"\">&nbsp;</option>\n";
+            }
+         echo "   <option value=\"$enumeral\">$description</option>\n";
          }
-      echo "   <option value=\"$enumeral\">$description</option>\n";
       //
       while($row = mysql_fetch_array($result))
          {
          $enumeral = $description = $cardinality = "";
          extract($row);
-         echo "   <option value=\"$enumeral\">$description</option>\n";
+         echo "   <option value=\"$enumeral\"";
+         if ($enumeral == $selected_option) echo " selected";
+         echo ">$description</option>\n";
          }
       //
       echo "</select>\n";
