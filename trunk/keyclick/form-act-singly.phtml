@@ -234,10 +234,10 @@ require_once("f_emailaddrofbpn.phtml");
                  $num_donations = mysql_num_rows($donation_query_result);
                  //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
+                    . "<blockquote>\n"
                     . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
-                    . "   <input type=hidden name=id_to_save value=$id>\n"
-                    . "<blockquote>\n";
+                    . "   <input type=hidden name=id_to_save value=$id>\n";
                  if ($num_journal_rows or $num_donations)
                     {
                     echo "<ul>\n";
@@ -297,7 +297,8 @@ require_once("f_emailaddrofbpn.phtml");
                     . "            </table>\n"
                     . "         </td>\n"
                     . "      </tr>\n"
-                    . "   </table>\n";
+                    . "   </table>\n"
+                    . "</form>\n";
                  if ($num_donations)
                     {
                     echo "   <a name=Donations></a><p><br><b>Donations totaling \$$sum</b>, in reverse chronological order:</p>\n"
@@ -342,6 +343,30 @@ require_once("f_emailaddrofbpn.phtml");
                           echo "Note:&nbsp; <i>$note</i><br>\n";
                           }
                        echo "<small>(Entered by <a href=mailto:$entered_by><i>$entered_by</i></a> at $timestamp_string).</small><br>"
+                          . "<table width=100%>\n"
+                          . "   <tr>\n"
+                          . "      <td>\n"
+                          . "         <form action=" . $mode . "form-edit-donation.phtml method=post>\n"
+                          . "            <input type=hidden name=bpn value=$bpn>\n"
+                          . "            <input type=hidden name=cross_entered_by value=$entered_by>\n"
+                          . "            <input type=hidden name=cross_per_clerk_seq_num value=$per_clerk_seq_num>\n"
+                          . "            <input type=hidden name=cross_id value=$id>\n"
+                          . "            <input type=hidden name=cross_name value=\"$name\">\n"
+                          . "            <input type=hidden name=cross_address value=\"$address1\">\n"
+                          . "            <input type=hidden name=cross_city value=\"$city\">\n"
+                          . "            <input type=hidden name=cross_state value=\"$state\">\n"
+                          . "            <input type=hidden name=cross_zip value=\"$zip\">\n"
+                          . "            <input type=hidden name=cross_date value=$date>\n"
+                          . "            <input type=hidden name=cross_amount value=$amount>\n"
+                          . "            <input type=hidden name=cross_prospectivity value=$prospectivity>\n"
+                          . "            <input type=hidden name=cross_in_mem_of value=\"$in_mem_of\">\n"
+                          . "            <input type=hidden name=cross_method value=$method>\n"
+                          . "            <input type=hidden name=cross_note value=\"$note\">\n"
+                          . "            <input type=submit name=edit value=\"Edit above entry\">\n"
+                          . "         </form>\n"
+                          . "      </td>\n"
+                          . "   </tr>\n"
+                          . "</table>\n"
                           . "<hr></td></tr></table>\n";
                        }
                     echo "   </ol></small>\n";
@@ -378,8 +403,7 @@ require_once("f_emailaddrofbpn.phtml");
                        }
                     echo "   </ol></small>\n";
                     }
-                 echo "</blockquote>\n"
-                    . "</form>\n";
+                 echo "</blockquote>\n";
                  }
               else
                  {
