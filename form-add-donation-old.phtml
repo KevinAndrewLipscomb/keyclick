@@ -1,4 +1,4 @@
-<?
+<?php
 //
 // $Id$
 //
@@ -18,6 +18,8 @@ $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
 $undo = $undo;
 $year_num = $year_num;
+$force_log = $force_log;
+$cross_id = $cross_id;
 //
 error_reporting(E_ALL);
 //
@@ -71,216 +73,311 @@ require_once("f_methodselectionlist.phtml");
               KickOff($mode);
               }
            else
-           {
-           $feedback_column_width_percentage = 25;
-           echo "<table width=100%><tr>"
-              . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
-              . "<p><b><u>Previous operation</u></b></p>\n";
-           if (($add_and_repeat) or ($add_and_cancel))
               {
-              //
-              // User indicated that data should be saved.  Validate parameters.
-              //
-              echo "<small>\n";
-              //
-              if (
-                    (($id != "") and is_numeric($id))
-                 and
-                    (($amount != "") and is_numeric($amount))
-                 )
-              // then
+              $possible_preemptive_op = 0;
+              $feedback_column_width_percentage = 25;
+              echo "<table width=100%><tr>"
+                 . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
+                 . "<p><b><u>Previous operation</u></b></p>\n";
+              if (($add_and_repeat) or ($add_and_cancel))
                  {
                  //
-                 // Supply missing date parts
+                 // User indicated that data should be saved.  Validate parameters.
                  //
-                 if (!$month_num) $month_num = 1;
-                 if (!$day_num) $day_num = 1;
+                 echo "<small>\n";
                  //
-                 // Determine next value for per_clerk_seq_num.
-                 //
-                 $per_clerk_seq_num = 1;
-                 extract
-                    (
-                    mysql_fetch_array
-                       (
-                       mysql_query
-                          (
-                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
-                          )
-                       )
-                    );
-                 //
-                 // Check for prior donations.
-                 //
-                 $num_priors = "";
-                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                    or die("Check for priors failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
-                 //
-                 mysql_query
-                    ($qry =
-                    "insert into " . $mode . "donation "
-                    .  "set id=$id "
-                    .  "   , date='$year_num-$month_num-$day_num' "
-                    .  "   , amount=$amount "
-                    .  "   , prospectivity='$prospectivity' "
-                    .  "   , method='$method' "
-                    .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
-                    .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
-                    .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                 if (
+                       (($id != "") and is_numeric($id))
+                    and
+                       (($amount != "") and is_numeric($amount))
                     )
-                    or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
-                 //
-                 $result = mysql_query("select name,address1,city,state,zip from resident where id='$id'")
-                    or die("Master record lookup failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
-                 //
-                 echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                    . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
-                    . "   <input type=hidden name=bpn value=$bpn>\n"
-                    . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
-                    . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
-                    . "<small><dl>\n"
-                    . "<dt>ROD#:</dt><dd>$id</dd>\n"
-                    . "<dt>Lookup data:</dt>\n"
-                    . "   <dd>\n"
-                    . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                    . "         $name<br>$address1<br>$city $state $zip\n"
-                    . "      </a>\n"
-                    . "   </dd>\n";
-                 if ($num_priors)
+                 // then
                     {
-                    echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
-                       . "on record\n";
+                    //
+                    // Lookup the resident record with the specified id.
+                    //
+                    $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
+                       or die("Master record lookup failed with error: " . mysql_error());
+                    extract(mysql_fetch_array($result));
+                    //
+                    // Supply missing date parts
+                    //
+                    if (!$month_num) $month_num = 1;
+                    if (!$day_num) $day_num = 1;
+                    //
+                    if (!$force_log)
+                       {
+                       //
+                       // We have not investigated the possibility that a preemptive operation has made this submission
+                       // stale.  Check for updates made since the date of this donation.  Such updates might obsolete the
+                       // donation data.
+                       //
+                       $result = mysql_query
+                          (
+                          "select op as possible_preemptive_op from " . $mode . "resident_journal "
+                          . "where id='$id' "
+                          . "   and timestamp > '$year_num-$month_num-$day_num' "
+                          . "   and op != 'INSERT' "
+                          )
+                          or die("Check for preemptive op failed with error: " . mysql_errno());
+                       if (mysql_num_rows($result)) extract(mysql_fetch_array($result));  //Sets $possible_preemptive_op
+                       }
+                    //
+                    if (!$possible_preemptive_op)
+                       {
+                       //
+                       // Determine next value for per_clerk_seq_num.
+                       //
+                       $per_clerk_seq_num = 1;
+                       extract
+                          (
+                          mysql_fetch_array
+                             (
+                             mysql_query
+                                (
+                                "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
+                                . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                                )
+                             )
+                          );
+                       //
+                       // Check for prior donations.
+                       //
+                       $num_priors = "";
+                       $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                          or die("Check for priors failed with error: " . mysql_error());
+                       extract(mysql_fetch_array($result));
+                       //
+                       mysql_query
+                          ($qry =
+                          "insert into " . $mode . "donation "
+                          .  "set id=$id "
+                          .  "   , date='$year_num-$month_num-$day_num' "
+                          .  "   , amount=$amount "
+                          .  "   , prospectivity='$prospectivity' "
+                          .  "   , method='$method' "
+                          .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
+                          .  "   , note='" . addslashes(trim($note)) . "' "
+                          .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                          .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                          )
+                          or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                       //
+                       echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
+                          . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                          . "   <input type=hidden name=bpn value=$bpn>\n"
+                          . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
+                          . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
+                          . "<small><dl>\n"
+                          . "<dt>ROD#:</dt><dd>$id</dd>\n"
+                          . "<dt>Lookup data:</dt>\n"
+                          . "   <dd>\n"
+                          . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                          . "         $name<br>$address1<br>$city $state $zip\n"
+                          . "      </a>\n"
+                          . "   </dd>\n";
+                       if ($num_priors)
+                          {
+                          echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                             . "on record\n";
+                          }
+                       echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
+                          . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                          . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
+                          . "<dt>Method:</dt><dd>$method</dd>\n"
+                          . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
+                          . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
+                          . "</dl>\n\n"
+                          . "</small>\n";
+                       }  // the donation record wasn't stale
+                    else
+                       {
+                       //
+                       // the donation record may be stale
+                       //
+                       echo "<p><b><font color=#ff9900>SUSPENDED</font></b></p>\n"
+                          . "<p><b>ROD record $id has been $possible_preemptive_op";
+                       //
+                       // Cast the op word into the past tense.
+                       //
+                       switch ($possible_preemptive_op)
+                          {
+                          case "INSERT":
+                             echo "ED";
+                             break;
+                          case "UPDATE":
+                          case "DELETE":
+                             echo "D";
+                             break;
+                          }
+                       echo " since the specified donation date.&nbsp The donation data you entered may be stale.</b></p>\n";
+                       }
+                    }  // the parameters were valid
+                 else
+                    {
+                    echo "<p><b>FAILED</b></p>\n"
+                       . "<p><b>One or more fields were missing or invalid.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                       . "problem.</b></p>\n";
                     }
-                 echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
-                    . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
-                    . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
-                    . "<dt>Method:</dt><dd>$method</dd>\n"
-                    . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
-                    . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
-                    . "</dl>\n\n"
-                    . "</small>\n";
+                 //
+                 echo "</small>\n";
+                 //
+                 }
+              elseif ($undo)
+                 {
+                 mysql_query
+                    (
+                    "delete from " . $mode . "donation "
+                    . "where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    . "   and per_clerk_seq_num=$per_clerk_seq_num "
+                    )
+                    or die("Undo failed with error: " . mysql_error());
+                 //
+                 echo "<p><b>UNDONE</b></p>\n";
                  }
               else
                  {
-                 echo "<p><b>FAILED</b></p>\n"
-                    . "<p><b>One or more fields were missing or invalid.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
-                    . "problem.</b></p>\n";
+                 echo "<p>None</p>\n";
                  }
               //
-              echo "</small>\n";
+              echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
               //
-              $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
-                 $note = "";
-              //
-              }
-           elseif ($undo)
-              {
-              mysql_query
-                 (
-                 "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
-                 . "   and per_clerk_seq_num=$per_clerk_seq_num "
-                 )
-                 or die("Undo failed with error: " . mysql_error());
-              //
-              echo "<p><b>UNDONE</b></p>\n";
-              }
-           else
-              {
-              echo "<p>None</p>\n";
-              }
-           //
-           echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
-           //
-           // On first time in, must set #year_num to something, else it's possible to insert date 0000-00-00.
-           //
-           if (!$year_num) $year_num = date('Y');
-           //
-           if ((!$add_and_cancel) and (!$cancel))
-              {
-              echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form action=" . $mode . "form-add-donation-old.phtml method=post>\n"
-                 . "   <input type=hidden name=bpn value=$bpn>\n"
-                 . "   <table>\n"
-                 . "      <tr>\n"
-                 . "         <td align=right>Approximate date:</td>\n"
-                 . "         <td colspan=2>\n"
-                 . "            <table>\n"
-                 . "               <tr><td colspan=3><hr></td></tr>\n"
-                 . "               <tr>\n"
-                 . "                  <td align=center>Year</td><td align=center>Month</td><td align=center>Day</td>\n"
-                 . "               </tr>\n"
-                 . "               <tr>\n"
-                 . "                  <td align=center>\n"
-                 . "                     <select name=year_num>\n"
-                 . "               <option selected>$year_num</option>\n";
-              for ($year_num_index = date('Y'); $year_num_index >= 1951; $year_num_index--)
+              if (!$possible_preemptive_op)
                  {
-                 echo "<option>$year_num_index</option>\n";
-                 }
-              echo "                     </select>\n"
-                 . "                  </td>\n"
-                 . "                  <td align=center>\n"
-                 . "                     <select name=month_num>\n"
-                 . "               <option selected>$month_num</option>\n"
-                 . "               <option></option>";
-              for ($month_num_index = 1; $month_num_index <= 12; $month_num_index++)
+                 //
+                 $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
+                    $note = "";
+                 //
+                 // On first time in, must set $year_num to something, else it's possible to insert date 0000-00-00.
+                 //
+                 if (!$year_num) $year_num = date('Y');
+                 //
+                 if ((!$add_and_cancel) and (!$cancel))
+                    {
+                    echo "<p><b><u>Current operation:</u></b></p>\n"
+                       . "<form action=" . $mode . "form-add-donation-old.phtml method=post>\n"
+                       . "   <input type=hidden name=bpn value=$bpn>\n"
+                       . "   <table>\n"
+                       . "      <tr>\n"
+                       . "         <td align=right>Approximate date:</td>\n"
+                       . "         <td colspan=2>\n"
+                       . "            <table>\n"
+                       . "               <tr><td colspan=3><hr></td></tr>\n"
+                       . "               <tr>\n"
+                       . "                  <td align=center>Year</td><td align=center>Month</td><td align=center>Day</td>\n"
+                       . "               </tr>\n"
+                       . "               <tr>\n"
+                       . "                  <td align=center>\n"
+                       . "                     <select name=year_num>\n"
+                       . "               <option selected>$year_num</option>\n";
+                    for ($year_num_index = date('Y'); $year_num_index >= 1951; $year_num_index--)
+                       {
+                       echo "<option>$year_num_index</option>\n";
+                       }
+                    echo "                     </select>\n"
+                       . "                  </td>\n"
+                       . "                  <td align=center>\n"
+                       . "                     <select name=month_num>\n"
+                       . "               <option selected>$month_num</option>\n"
+                       . "               <option></option>";
+                    for ($month_num_index = 1; $month_num_index <= 12; $month_num_index++)
+                       {
+                       echo "<option>$month_num_index</option>\n";
+                       }
+                    echo "                     </select>\n"
+                       . "                  </td>\n"
+                       . "                  <td align=center>\n"
+                       . "                     <select name=day_num>\n"
+                       . "               <option selected>$day_num</option>\n"
+                       . "               <option></option>";
+                    for ($day_num_index = 1; $day_num_index <= 31; $day_num_index++)
+                       {
+                       echo "<option>$day_num_index</option>\n";
+                       }
+                    echo "                     </select>\n"
+                       . "                  </td>\n"
+                       . "               </tr>\n"
+                       . "               <tr><td colspan=3 align=center>(Choose blank or arbitrary value if unknown.)</td></tr>\n"
+                       . "               <tr><td colspan=3><hr></td></tr>\n"
+                       . "            </table>\n"
+                       . "         </td>\n"
+                       . "      </tr>\n"
+                       . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5 value=$cross_id></td></tr>\n"
+                       . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
+                       . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
+                    echo ProspectivitySelectionList($agency,$mode);
+                    echo "      </td></tr>\n"
+                       . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
+                    echo MethodSelectionList($agency,$mode);
+                    echo "      </td></tr>\n"
+                       . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
+                       . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
+                       . "      <tr>\n"
+                       . "         <td colspan=2>\n"
+                       . "            <table width=100%>\n"
+                       . "               <tr>\n"
+                       . "                  <td align=center><input type=submit name=add_and_repeat value=\"Add and Repeat\"></td>\n"
+                       . "                  <td align=center><input type=submit name=add_and_cancel value=\"Add and Stop\"></td>\n"
+                       . "                  <td align=center><input type=submit name=cancel value=Cancel></td>\n"
+                       . "               </tr>\n"
+                       . "            </table>\n"
+                       . "         </td>\n"
+                       . "      </tr>\n"
+                       . "   </table>\n"
+                       . "</form>\n";
+                    $cross_id = "";
+                    }  // user wants to enter another old donation
+                 else
+                    {
+                    echo "<p><b><a href=" . $mode . "main.phtml?bpn=$bpn>Return to main KEYclick page.</a></b></p>\n";
+                    }
+                 }  // no danger of stale donation data
+              else
                  {
-                 echo "<option>$month_num_index</option>\n";
+                 //
+                 // donation data might be stale
+                 //
+                 echo "<p><b>KEYclick needs some advice on how to proceed.</b></p>\n"
+                    . "<p>ROD record $id currently holds:</p>\n"
+                    . "<blockquote>\n"
+                    . "   $name<br>$address1<br>$city $state $zip\n"
+                    . "</blockquote>\n"
+                    . "<table>\n"
+                    . "<tr><td>\n"
+                    . "   <form action=" . $mode . "form-add-donation-old.phtml method=post>"
+                    . "      <input type=hidden name=bpn value=$bpn>\n"
+                    . "      <input type=hidden name=year_num value=$year_num>\n"
+                    . "      <input type=hidden name=month_num value=$month_num>\n"
+                    . "      <input type=hidden name=day_num value=$day_num>\n"
+                    . "      <input type=hidden name=id value=$id>\n"
+                    . "      <input type=hidden name=amount value=$amount>\n"
+                    . "      <input type=hidden name=prospectivity value=$prospectivity>\n"
+                    . "      <input type=hidden name=method value=$method>\n"
+                    . "      <input type=hidden name=in_mem_of value=$in_mem_of>\n"
+                    . "      <input type=hidden name=note value=$note>\n"
+                    . "      <input type=hidden name=add_and_cancel value=$add_and_cancel>\n"
+                    . "      <input type=hidden name=add_and_repeat value=$add_and_repeat>\n"
+                    . "      <input type=hidden name=force_log value=TRUE>\n"
+                    . "      <input type=submit value=\"CLICK HERE\">\n"
+                    . "   </form>\n"
+                    . "</td><td nowrap valign=top>...</td>\n"
+                    . "<td valign=top>if you are sure that the above person or party is <b>essentially the same</b> as "
+                    . "   the person or party whose donation you are now logging.\n"
+                    . "</td></tr>\n"
+                    . "<tr><td>\n"
+                    . "   <form action=" . $mode . "form-add-resident.phtml method=post>"
+                    . "      <input type=hidden name=bpn value=$bpn>\n"
+                    . "      <input type=submit value=\"CLICK HERE\">\n"
+                    . "   </form>\n"
+                    . "</td><td nowrap valign=top>...</td>\n"
+                    . "<td valign=top>if the donation you are now logging should be associated with a <b>new ROD "
+                    . "   record</b>.\n"
+                    . "</td></tr>\n"
+                    . "</table>\n";
                  }
-              echo "                     </select>\n"
-                 . "                  </td>\n"
-                 . "                  <td align=center>\n"
-                 . "                     <select name=day_num>\n"
-                 . "               <option selected>$day_num</option>\n"
-                 . "               <option></option>";
-              for ($day_num_index = 1; $day_num_index <= 31; $day_num_index++)
-                 {
-                 echo "<option>$day_num_index</option>\n";
-                 }
-              echo "                     </select>\n"
-                 . "                  </td>\n"
-                 . "               </tr>\n"
-                 . "               <tr><td colspan=3 align=center>(Choose blank or arbitrary value if unknown.)</td></tr>\n"
-                 . "               <tr><td colspan=3><hr></td></tr>\n"
-                 . "            </table>\n"
-                 . "         </td>\n"
-                 . "      </tr>\n"
-                 . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5></td></tr>\n"
-                 . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
-                 . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
-              echo ProspectivitySelectionList($agency,$mode);
-              echo "      </td></tr>\n"
-                 . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($agency,$mode);
-              echo "      </td></tr>\n"
-                 . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
-                 . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
-                 . "      <tr>\n"
-                 . "         <td colspan=2>\n"
-                 . "            <table width=100%>\n"
-                 . "               <tr>\n"
-                 . "                  <td align=center><input type=submit name=add_and_repeat value=\"Add and Repeat\"></td>\n"
-                 . "                  <td align=center><input type=submit name=add_and_cancel value=\"Add and Stop\"></td>\n"
-                 . "                  <td align=center><input type=submit name=cancel value=Cancel></td>\n"
-                 . "               </tr>\n"
-                 . "            </table>\n"
-                 . "         </td>\n"
-                 . "      </tr>\n"
-                 . "   </table>\n"
-                 . "</form>\n";
-              }
-           else
-              {
-              echo "<p><b><a href=" . $mode . "main.phtml?bpn=$bpn>Return to main KEYclick page.</a></b></p>\n";
-              }
-           echo "</td></tr></table>\n";
-           //
-           } // BeValidBoardingPass
+              echo "</td></tr></table>\n";
+              //
+              } // BeValidBoardingPass
            } // database up
         ?>
         <br>
