@@ -1,0 +1,29 @@
+<?
+//
+// $Id$
+//
+function BeAuthorized
+   (
+   $email_addr,
+   $agency,
+   $mode = ""
+   )
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   $found_email_addr = "";
+   //
+   $result = mysql_query
+      (
+      "select email_addr as found_email_addr from " . $mode . "user "
+      .  "   where email_addr='$email_addr'"
+      .  "      and agency='$agency' "
+      )
+      or die("BeAuthorized query failed with error:  " . mysql_error());
+   //
+   if (mysql_num_rows($result)) extract(mysql_fetch_array($result));
+   //
+   error_reporting($saved_error_level);
+   return ($found_email_addr != "");
+   }
+?>
