@@ -20,6 +20,8 @@ require_once("f_password.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
+require_once("f_formattednoteappendage.phtml");
+require_once("f_emailaddrofbpn.phtml");
 ?>
 <html>
 
@@ -73,6 +75,23 @@ require_once("f_kickoff.phtml");
               // User indicated that data should be saved.  Validate parameters.
               //
               echo "<small>\n";
+              //
+              if (($action == "update") or ($action == "delete"))
+                 {
+                 $result = mysql_query
+                    (
+                    "select name as old_name "
+                    .  " , address1 as old_address1 "
+                    .  " , city as old_city "
+                    .  " , state as old_state "
+                    .  " , zip as old_zip "
+                    .  " from " . $mode . "resident "
+                    .  " where id=$id_to_save "
+                    )
+                    or die("Select failed with error: " . mysql_error());
+                 //
+                 extract(mysql_fetch_array($result));
+                 }
               if ($action == "update")
                  {
                  if (
@@ -100,6 +119,21 @@ require_once("f_kickoff.phtml");
                        .  "limit 1 "
                        )
                        or die("Update failed with error: " . mysql_error());
+                    //
+                    $result = mysql_query
+                       (
+                       "insert into " . $mode . "resident_journal "
+                       .  "set name='" . addslashes($old_name) . "' "
+                       .  "   , address1='" . addslashes($old_address1) . "' "
+                       .  "   , city='" . addslashes($old_city) . "' "
+                       .  "   , state='" . addslashes($old_state) . "' "
+                       .  "   , zip='" . addslashes($old_zip) . "' "
+                       .  "   , id=$id_to_save "
+                       .  "   , op='UPDATE' "
+                       .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                       )
+                       or die("Journal entry failed with error: " . mysql_error());
+                    //
                     echo "<p><b>SUCCEEDED</b></p>\n"
                        . "<small><dl>\n"
                        . "<dt>Resident ID:</dt><dd>$id_to_save</dd>\n"
@@ -126,6 +160,21 @@ require_once("f_kickoff.phtml");
                     .  "limit 1"
                     )
                     or die("Delete failed with error: " . mysql_error());
+                 //
+                 $result = mysql_query
+                    (
+                    "insert into " . $mode . "resident_journal "
+                    .  "set name='" . addslashes($old_name) . "' "
+                    .  "   , address1='" . addslashes($old_address1) . "' "
+                    .  "   , city='" . addslashes($old_city) . "' "
+                    .  "   , state='" . addslashes($old_state) . "' "
+                    .  "   , zip='" . addslashes($old_zip) . "' "
+                    .  "   , id=$id_to_save "
+                    .  "   , op='DELETE' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    )
+                    or die("Journal entry failed with error: " . mysql_error());
+                 //
                  echo "<p><b>SUCCEEDED</b></p>\n"
                     . "<small>Resident ID $id_to_save has been deleted.</small>\n";
                  }

@@ -22,6 +22,8 @@ require_once("f_password.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
+require_once("f_formattednoteappendage.phtml");
+require_once("f_emailaddrofbpn.phtml");
 ?>
 <html>
 
@@ -109,7 +111,22 @@ require_once("f_kickoff.phtml");
                     .  "   , zip='" . addslashes($zip) . "' "
                     .  "   , id=$new_id"
                     )
-                    or die("Insert failed with error: " . mysql_error());
+                    or die("Cardinal insert failed with error: " . mysql_error());
+                 //
+                 $result = mysql_query
+                    (
+                    "insert into " . $mode . "resident_journal "
+                    .  "set name='" . addslashes($name) . "' "
+                    .  "   , address1='" . addslashes($address1) . "' "
+                    .  "   , city='" . addslashes($city) . "' "
+                    .  "   , state='" . addslashes($state) . "' "
+                    .  "   , zip='" . addslashes($zip) . "' "
+                    .  "   , id=$new_id "
+                    .  "   , op='INSERT' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    )
+                    or die("Journal entry failed with error: " . mysql_error());
+                 //
                  echo "<p><b>SUCCEEDED</b></p>\n"
                     . "<small><dl>\n"
                     . "<dt>Resident ID:</dt><dd>$new_id</dd>\n"
