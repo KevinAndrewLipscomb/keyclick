@@ -63,6 +63,8 @@ require_once("f_kickoff.phtml");
                  . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
                  . "<table align=center width=90%>\n";
               //
+              $chunk_size = 1000;
+              //
               switch ($parent_enumeral_expression)
               {
               case "":
@@ -75,13 +77,16 @@ require_once("f_kickoff.phtml");
                  //
                  $parent_enumeral_expression = 'parent_enumeral is null';
                  //
+                 // RODBYNAM0
+                 //
+                 $enumeral = 'RODBYNAM0';
                  echo "   <tr>\n"
-                    . "      <td><b>Simplified ROD sorted by Name &nbsp; &nbsp; [RODBYNAM0]</b><br><i>(complex)</i></td>\n"
+                    . "      <td><b>Simplified ROD sorted by Name &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
                     . "         <form action=" . $mode . "analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
-                    . "            <input type=hidden name=algorithm value=RODBYNAM0>\n"
-                    . "            <input type=hidden name=parent_enumeral value=RODBYNAM0>\n"
+                    . "            <input type=hidden name=algorithm value=$enumeral>\n"
+                    . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
                     . "            <input type=submit value=\"Go!\">\n"
                     . "         </form>\n"
                     . "      </td>\n"
@@ -90,7 +95,7 @@ require_once("f_kickoff.phtml");
                     . "      <td colspan=2><blockquote><i>\n"
                     . "<p>Clicking this Go! button is the first step in a multi-step process that ultimately sends you a "
                     . "simplified version of the Resident/Occupant Database (ROD) <u>sorted by name</u>.</p><p>This first "
-                    . "step performs some very intensive processing and <u>takes as long as 15-20 minutes</u>.&nbsp; Do "
+                    . "step performs some very intensive processing and <u>currently takes as long as 15-20 minutes</u>.&nbsp; Do "
                     . "<u>not</u> close or navigate away from this window once you press the Go! button.&nbsp; (You may, "
                     . "however, continue browsing in another window and you may run other programs.)</p><p>When this step "
                     . "is complete, KEYclick will give you an opportunity to start downloading the data.</p><p>Sample "
@@ -103,12 +108,43 @@ require_once("f_kickoff.phtml");
                     . "</pre>\n"
                     . "      </blockquote></i></blockquote><hr></td>\n"
                     . "   </tr>\n";
+                 //
+                 // RODBYADDR0
+                 //
+                 $enumeral = 'RODBYADDR0';
+                 echo "   <tr>\n"
+                    . "      <td><b>Simplified ROD sorted by Address &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
+                    . "      <td align=right>\n"
+                    . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "            <input type=hidden name=bpn value=$bpn>\n"
+                    . "            <input type=hidden name=algorithm value=$enumeral>\n"
+                    . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
+                    . "            <input type=submit value=\"Go!\">\n"
+                    . "         </form>\n"
+                    . "      </td>\n"
+                    . "   </tr>\n"
+                    . "   <tr>\n"
+                    . "      <td colspan=2><blockquote><i>\n"
+                    . "<p>Clicking this Go! button is the first step in a multi-step process that ultimately sends you a "
+                    . "simplified version of the Resident/Occupant Database (ROD) <u>sorted by address</u>.</p><p>This first "
+                    . "step performs some very intensive processing and <u>currently takes as long as 1-2 hours</u>.&nbsp; Do "
+                    . "<u>not</u> close or navigate away from this window once you press the Go! button.&nbsp; (You may, "
+                    . "however, continue browsing in another window and you may run other programs.)</p><p>When this step "
+                    . "is complete, KEYclick will give you an opportunity to start downloading the data.</p><p>Sample "
+                    . "output:</p><blockquote><pre>"
+                    . "   ID     NAME              <b>NUMB  STREET ADDR   </b>CITY            ST  ZIP\n"
+                    . "   -----  ----              <b>----  -----------   </b>----            --  ---\n"
+                    . "   22004  RUMBAUGH STEWART  <b>1220  NORTHVALE DR  </b>VIRGINIA BEACH  VA  23464\n"
+                    . "    4582  HUMPHREY K        <b>1224  NORTHVALE DR  </b>VIRGINIA BEACH  VA  23464\n"
+                    . "   10254  LEDGARD CARLOS    <b>1228  NORTHVALE DR  </b>VIRGINIA BEACH  VA  23464\n"
+                    . "</pre>\n"
+                    . "      </blockquote></i></blockquote><hr></td>\n"
+                    . "   </tr>\n";
                  break;
                  }
               case is_integer(strpos($parent_enumeral_expression,'RODBYNAM0')):
                  {
-                 $chunk_size = 1000;
-                 $qry = "select floor(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_name";
+                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_name";
                  extract(mysql_fetch_array(mysql_query($qry)));  // Sets $num_parts.
                  echo "   <tr>\n"
                     . "      <form action=" . $mode . "analyze.phtml method=post>\n"
@@ -117,6 +153,45 @@ require_once("f_kickoff.phtml");
                     . "         <input type=hidden name=algorithm value=RODBYNAMSV>\n"
                     . "         <input type=hidden name=parent_enumeral value=RODBYNAMSV>\n"
                     . "      <td><b>SCREEN VIEW of Simplified ROD sorted by Name [RODBYNAMSV]</b></td>\n"
+                    . "      <td align=right>\n"
+                    . "         <input type=submit value=\"Go!\">\n"
+                    . "      </td>\n"
+                    . "   </tr>\n"
+                    . "   <tr>\n"
+                    . "      <td colspan=2><blockquote><i>\n"
+                    . "         <p>Because of server limitations, KEYclick can only present about 1000 rows of data at a "
+                    . "            time.&nbsp;  Specify below which part of the table you'd like to see.&nbsp; Allow up "
+                    . "            a minute for the server to display the data.</p>\n"
+                    . "         <blockquote>\n"
+                    . "            <b>"
+                    . "               View part "
+                    . "                  <select name=part_num>";
+                 for ($i = 1; $i <= $num_parts; $i++)
+                    {
+                    echo "<option value=$i>$i</option>\n";
+                    }
+                 echo "                  </select>"
+                    . "               of $num_parts."
+                    . "            </b>\n"
+                    . "         </blockquote>\n"
+                    . "         <p>To get the data in much larger chunks, see the ZIP FILE options below.</p>\n"
+                    . "         <hr>\n"
+                    . "      </td>\n"
+                    . "      </form>\n"
+                    . "   </tr>\n";
+                 break;
+                 }
+              case is_integer(strpos($parent_enumeral_expression,'RODBYADDR0')):
+                 {
+                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_addr";
+                 extract(mysql_fetch_array(mysql_query($qry)));  // Sets $num_parts.
+                 echo "   <tr>\n"
+                    . "      <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "         <input type=hidden name=bpn value=$bpn>\n"
+                    . "         <input type=hidden name=format value=html>\n"
+                    . "         <input type=hidden name=algorithm value=RODBYADDRSV>\n"
+                    . "         <input type=hidden name=parent_enumeral value=RODBYADDRSV>\n"
+                    . "      <td><b>SCREEN VIEW of Simplified ROD sorted by Address [RODBYADDRSV]</b></td>\n"
                     . "      <td align=right>\n"
                     . "         <input type=submit value=\"Go!\">\n"
                     . "      </td>\n"
