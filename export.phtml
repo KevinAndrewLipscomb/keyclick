@@ -76,7 +76,7 @@ if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE")
 
    $tmp_buffer = '';
 //   PMA_getTableCsv($db, $table, $limit_from, $limit_to, $separator, $enclosed, $escaped, 'PMA_myCsvHandler', $err_url);
-   PMA_getTableCsv($whole_query, 'PMA_myCsvHandler', $err_url);
+   PMA_getTableCsv(stripslashes($whole_query), 'PMA_myCsvHandler', $err_url);
    $dump_buffer .= $tmp_buffer;
 
    /**
