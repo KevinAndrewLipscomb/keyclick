@@ -11,16 +11,25 @@ function ProspectivitySelectionList
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $result = @mysql_query("select * from " . $mode . "prospectivity where agency='$agency'");
+   $result = @mysql_query("select * from " . $mode . "prospectivity where agency='$agency' order by cardinality");
    //
    if (!mysql_error() and mysql_num_rows($result))
       {
       echo "<select name=prospectivity>\n";
-      echo "   <option value=\"\">&nbsp;</option>\n";
+      //
+      // First time is a special case.  If the cardinality of the first row is 0 (zero), then the row should be selected by
+      // default.  If not, nothing should be selected by default.
+      //
+      extract(mysql_fetch_array($result));
+      if ($cardinality != 0)
+         {
+         echo "   <option value=\"\">&nbsp;</option>\n";
+         }
+      echo "   <option value=\"$enumeral\">$description</option>\n";
       //
       while($row = mysql_fetch_array($result))
          {
-         $enumeral = $description = "";
+         $enumeral = $description = $cardinality = "";
          extract($row);
          echo "   <option value=\"$enumeral\">$description</option>\n";
          }
