@@ -19,7 +19,7 @@ require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 //
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+$connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "TRUE");
 ?>
 <html>
 
@@ -64,31 +64,43 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
               }
            else
               {
+              //
+              extract(  //Sets $num_rows
+                 mysql_fetch_array(
+                    mysql_query("select count(*) as num_rows from keyclick." . $mode . "resident")));
+              //
+              extract(  //Sets $chunk_size
+                 mysql_fetch_array(
+                    mysql_query("select value as chunk_size from keyclick." . $mode . "tuning_parm where name='export-chunk-size'")));
+              //
+              $num_chunks = ceil($num_rows/$chunk_size);
               ?>
-              <p>Because of its size, the Full ROD must be downloaded as three separate ZIP files.&nbsp; KEYclick
+              <p>Because of its size, the Full ROD must be downloaded as multiple ZIP files.&nbsp; KEYclick
                  recommends that you deliver the ZIP files, unaltered, to Corporate Marketing Inc. via email or floppy
                  disk.</p>
               <p><b>Please <u>WAIT PATIENTLY</u> after clicking a button.&nbsp; In each case, it will take a while for the
                  server to crunch the data before starting the download.</b></p>
               <blockquote>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-1-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 0,13500">
-                     <input type=submit value="Download Full ROD Part 1">
-                 </form>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-2-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 13500,13500">
-                     <input type=submit value="Download Full ROD Part 2">
-                 </form>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-3-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 27000,13500">
-                     <input type=submit value="Download Full ROD Part 3">
-                 </form>
+                 <?
+                 for ($i = 1; $i <= $num_chunks; $i++)
+                    {
+                    $sql = "select id "
+                       . "   ,name "
+                       . "   ,address1 "
+                       . "   ,city "
+                       . "   ,state "
+                       . "   ,zip "
+                       . "from " . $mode . "resident "
+                       . "where agency = '$agency' "
+                       . "limit " . ($i - 1)*$chunk_size . "," . $chunk_size;
+                    echo "<form action=" . $mode . "export.phtml method=post>\n"
+                       . "   <input type=hidden name=bpn value=" . $bpn . ">\n"
+                       . "   <input type=hidden name=filename value=resident-part-" . $i . "-of-" . $num_chunks . ">\n"
+                       . "   <input type=hidden name=whole_query value=\"$sql\">\n"
+                       . "   <input type=submit value=\"Download Full ROD Part " . $i . "\">\n"
+                       . "</form>\n";
+                    }
+                 ?>
               </blockquote>
               <?
               }
