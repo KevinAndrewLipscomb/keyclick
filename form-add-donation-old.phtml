@@ -105,7 +105,7 @@ require_once("f_methodselectionlist.phtml");
                        (
                        mysql_query
                           (
-                          "select max(per_clerk_seq_num)+1 as per_clerk_seq_num from " . $mode . "donation "
+                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
                           . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
                           )
                        )
