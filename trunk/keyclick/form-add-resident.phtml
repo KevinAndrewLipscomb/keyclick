@@ -30,7 +30,8 @@ require_once("f_emailaddrofbpn.phtml");
 <title>KEYclick - Add resident</title>
 </head>
 
-<?php BodyOpen(); ?>
+<?php BodyOpen("CurrentOperation.last_name"); ?>
+
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
@@ -161,7 +162,7 @@ require_once("f_emailaddrofbpn.phtml");
               if ((!$add_and_cancel) and (!$cancel))
                  {
                  echo "<p><b><u>Current operation:</u></b></p>\n"
-                    . "<form action=" . $mode . "form-add-resident.phtml method=post>\n"
+                    . "<form name=CurrentOperation action=" . $mode . "form-add-resident.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <table>\n"
                     . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
@@ -195,6 +196,9 @@ require_once("f_emailaddrofbpn.phtml");
               } // BeValidBoardingPass
            } // database up
         ?>
+        <script>
+           function SetFocus(){document.rod_rec_form.last_name.focus();} SetFocus();
+        </script>
         <br>
         <p><small><small><em><pre>$Id$</pre></em></small></small>
        </td>
