@@ -82,6 +82,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                     require_once("f_readdump-rodbyaddr0.phtml");
                     require_once("f_readdump-rodbynam0.phtml");
                     require_once("f_readdump-popnamcnt.phtml");
+                    require_once("f_readdump-rodfolup0.phtml");
                     //
                     switch ($format)
                        {
@@ -110,6 +111,15 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                 ReadDump_RODBYNAM0
                                    (
                                    $sql_query,
+                                   $bpn,
+                                   $mode,
+                                   'FALSE'  // for be_viewable_result
+                                   );
+                                break;
+                             case "RODFOLUP0":
+                                ReadDump_RODFOLUP0
+                                   (
+                                   $year_num,$month_num,$day_num,
                                    $bpn,
                                    $mode,
                                    'FALSE'  // for be_viewable_result

@@ -61,30 +61,13 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
            else
               {
               ?>
-              <p>Because of its size, the ROD must be downloaded as three separate ZIP files.&nbsp; KEYclick recommends that you deliver
-                 the ZIP files, unaltered, to Corporate Marketing Inc. via email or floppy disk.</p>
-              <p><b>Please <u>WAIT PATIENTLY</u> after clicking a button.&nbsp; In each case, it will take a while for the
-                 server to crunch the data before starting the download.</b></p>
-              <blockquote>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-1-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 0,13500">
-                     <input type=submit value="Download ROD Part 1">
-                 </form>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-2-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 13500,13500">
-                     <input type=submit value="Download ROD Part 2">
-                 </form>
-                 <form action=<? echo $mode; ?>export.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name="filename" value="resident-part-3-of-3">
-                     <input type=hidden name="whole_query" value="select unk1,subdrive,id,unk2,salutation,name,address1,unk3,city,state,zip,unk4,unk5,unk6,unk7,unk8 from <? echo $mode; ?>resident where agency = '<? echo $agency; ?>' limit 27000,13500">
-                     <input type=submit value="Download ROD Part 3">
-                 </form>
-              </blockquote>
+              <p>Specify which kind of ROD you want to export:</p>
+              <table cellspacing=10>
+                 <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top><b><a href=<? echo $mode; ?>form-export-full.phtml?bpn=<? echo $bpn; ?>>Full</b></a></td><td valign=top>Export the entire ROD, suitable for a <i>total saturation mailout</i>.</td>
+                 <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top nowrap><b><a href=<? echo $mode; ?>form-export-follow-up.phtml?bpn=<? echo $bpn; ?>>Follow-up</b></a></td><td valign=top>This is the full ROD <i>minus</i> records associated with recent donations.&nbsp; This option gives you the chance to define what "recent" means.</td>
+              </table>
+              <br>
+              <hr>
               <?
               }
            }
