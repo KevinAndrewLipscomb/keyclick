@@ -216,12 +216,26 @@ require_once("f_emailaddrofbpn.phtml");
               if ($num_rows)
                  {
                  extract(mysql_fetch_array($result));
+                 //
+                 $result = mysql_query
+                    (
+                    "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
+                    .  "from " . $mode . "resident_journal "
+                    .  "where id=$id order by timestamp desc"
+                    )
+                    or die("Journal query failed with error: " . mysql_error());
+                 $num_journal_rows = mysql_num_rows($result);
+                 //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n"
-                    . "<blockquote>\n"
-                    . "   <table>\n"
+                    . "<blockquote>\n";
+                 if ($num_journal_rows)
+                    {
+                    echo "   <p><a href=#History>$num_journal_rows journal entries</a> are available for this record.</p>\n";
+                    }
+                 echo "   <table>\n"
                     . "      <tr><td align=right><b>Resident ID:</b></td><td colspan=2><b>$id</b></td></tr>\n"
                     . "      <tr><td align=right>Name:</td><td colspan=2><input type=text name=name value=\"$name\" size=50 maxlength=50></td></tr>\n"
                     . "      <tr><td align=right>Address:</td><td colspan=2><input type=text name=address1 value=\"$address1\" size=50 maxlength=50></td></tr>\n"
@@ -253,8 +267,40 @@ require_once("f_emailaddrofbpn.phtml");
                     . "            </table>\n"
                     . "         </td>\n"
                     . "      </tr>\n"
-                    . "   </table>\n"
-                    . "</blockquote>\n"
+                    . "   </table>\n";
+                 if ($num_journal_rows)
+                    {
+                    echo "   <a name=History></a><p><br><b>Journal entries</b> in reverse chronological order:</p>\n"
+                       . "   <small><ol>\n";
+                    for ($i = 1; $i <= $num_journal_rows; $i++)
+                       {
+                       extract(mysql_fetch_array($result));
+                       echo "<li><p>\n";
+                       switch ($op)
+                          {
+                          case "INSERT":
+                             echo "Was added by <a href=mailto:$user_email_addr><i>$user_email_addr</i></a> ";
+                             break;
+                          case "UPDATE":
+                             echo "Was:<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$address1<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$city $state $zip<br>\n";
+                             echo "before <a href=mailto:$user_email_addr><i>$user_email_addr</i></a> updated it ";
+                             break;
+                          case "DELETE":
+                             echo "Was:<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$address1<br>\n"
+                                . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$city $state $zip<br>\n";
+                             echo "before <a href=mailto:$user_email_addr><i>$user_email_addr</i></a> deleted it ";
+                             break;
+                          }
+                       echo "at $timestamp_string.</p></li>\n";
+                       }
+                    echo "   </ol></small>\n";
+                    }
+                 echo "</blockquote>\n"
                     . "</form>\n";
                  }
               else
