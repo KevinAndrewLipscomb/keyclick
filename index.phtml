@@ -1,4 +1,4 @@
-<?
+<?php
 //
 // $Id$
 //
@@ -24,7 +24,7 @@ $border_thickness = 0;  //($mode != "");
 
 <head><title>KEYclick System</title></head>
 
-<? BodyOpen(); ?>
+<?php BodyOpen("logon.email_addr"); ?>
 
 <div align="center">
    <center>
@@ -41,7 +41,7 @@ $border_thickness = 0;  //($mode != "");
                      </td>
                      <td width="20">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                      <td>
-                     <?
+                     <?php
                      if ($connected)
                         {
                         PutLibPhotoRandomPlaced("eye-candy",1);
@@ -55,13 +55,13 @@ $border_thickness = 0;  //($mode != "");
                   </tr>
                </table>
                <hr>
-               <table border=<? echo $border_thickness; ?> cellspacing=10>
+               <table border=<?php echo $border_thickness; ?> cellspacing=10>
                   <tr>
                      <td valign=top>
                         <small>
                            <p><b>Welcome to KEYclick!</b></p>
-                           <p><a href=<? echo $mode; ?>whats-new.phtml>What's new</a></p>
-                           <?
+                           <p><a href=<?php echo $mode; ?>whats-new.phtml>What's new</a></p>
+                           <?php
                            if ($connected)
                               {
                               echo "<p><a href=" . $mode . "faq.phtml>FAQ</a></p>\n";
@@ -79,7 +79,7 @@ $border_thickness = 0;  //($mode != "");
                      </td>
                      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                      <td>
-                     <?
+                     <?php
                      //
                      // Connect to the database.
                      //
@@ -87,8 +87,8 @@ $border_thickness = 0;  //($mode != "");
                         {
                         ?>
                         <p><b>Please log in.</b></p>
-                        <form action=<? echo $mode; ?>perform-login.phtml method=post>
-                           <table border=<? echo $border_thickness; ?> cellpadding=10>
+                        <form name=logon action=<?php echo $mode; ?>perform-login.phtml method=post>
+                           <table border=<?php echo $border_thickness; ?> cellpadding=10>
                               <tr>
                                  <td align=right>Your email address:</td>
                                  <td><input type=text name=email_addr maxlength=60 size=40></td>
@@ -108,7 +108,7 @@ $border_thickness = 0;  //($mode != "");
                               </tr>
                            </table>
                         </form>
-                        <?
+                        <?php
                         }
                      else
                         {
@@ -118,7 +118,7 @@ $border_thickness = 0;  //($mode != "");
                            KEYclick's main functions are unavailable because its database is
                            offline.&nbsp; This condition is temporary.&nbsp; Please try again later.
                         </blockquote>
-                        <?
+                        <?php
                         }
                      ?>
                      </td>

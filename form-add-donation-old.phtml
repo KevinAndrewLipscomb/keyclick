@@ -41,7 +41,16 @@ require_once("f_methodselectionlist.phtml");
 <title>KEYclick - Log old donation</title>
 </head>
 
-<? BodyOpen(); ?>
+<?php
+if ($cross_id)
+   {
+   BodyOpen("CurrentOperation.amount");
+   }
+else
+   {
+   BodyOpen("CurrentOperation.id");
+   }
+?>
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
@@ -286,7 +295,7 @@ require_once("f_methodselectionlist.phtml");
                  if ((!$add_and_cancel) and (!$cancel))
                     {
                     echo "<p><b><u>Current operation:</u></b></p>\n"
-                       . "<form action=" . $mode . "form-add-donation-old.phtml method=post>\n"
+                       . "<form name=CurrentOperation action=" . $mode . "form-add-donation-old.phtml method=post>\n"
                        . "   <input type=hidden name=bpn value=$bpn>\n"
                        . "   <table>\n"
                        . "      <tr>\n"
