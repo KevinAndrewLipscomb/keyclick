@@ -1,0 +1,247 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+$bpn = $bpn;
+$be_rescuer_prospect = $be_rescuer_prospect;
+$be_support_prospect = $be_support_prospect;
+$method = $method;
+$in_mem_of = $in_mem_of;
+$note = $note;
+$add_and_cancel = $add_and_cancel;
+$add_and_repeat = $add_and_repeat;
+$cancel = $cancel;
+$undo = $undo;
+//
+error_reporting(E_ALL);
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_password.phtml");
+require_once("f_roleemailaddress.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
+require_once("f_formattednoteappendage.phtml");
+require_once("f_emailaddrofbpn.phtml");
+?>
+<html>
+
+<head>
+<title>KEYclick - Log donation</title>
+</head>
+
+<? BodyOpen(); ?>
+<table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
+   <tr>
+      <td>
+        <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+           <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
+        </td><td>
+           <h6 align="center">
+              <a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+           <h1 align="center">Log donation</h1>
+        </td></tr></table>
+        <hr>
+        <br>
+        <?
+        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+           {
+           ?>
+           <h2><i>Sorry...</i></h2>
+           <b>
+           <blockquote>
+              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+           </blockquote>            
+           </b>
+           <?
+           }
+        else
+           {
+           //
+           // Database is up.
+           //
+           //
+           $agency = BeValidBoardingPass($bpn,$mode);
+           if ($agency == "")
+              {
+              KickOff($mode);
+              }
+           else
+           {
+           $feedback_column_width_percentage = 25;
+           echo "<table width=100%><tr>"
+              . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
+              . "<p><b><u>Previous operation</u></b></p>\n";
+           if (($add_and_repeat) or ($add_and_cancel))
+              {
+              //
+              // User indicated that data should be saved.  Validate parameters.
+              //
+              echo "<small>\n";
+              //
+              if (
+                    (($id != "") and is_numeric($id))
+                 and
+                    (($amount != "") and is_numeric($amount))
+                 )
+              // then
+                 {
+                 //
+                 // Determine next value for per_clerk_seq_num.
+                 //
+                 $per_clerk_seq_num = 1;
+                 extract
+                    (
+                    mysql_fetch_array
+                       (
+                       mysql_query
+                          (
+                          "select max(per_clerk_seq_num)+1 as per_clerk_seq_num from " . $mode . "donation "
+                          . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                          )
+                       )
+                    );
+                 //
+                 // Check for prior donations.
+                 //
+                 $num_priors = "";
+                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                    or die("Check for priors failed with error: " . mysql_error());
+                 extract(mysql_fetch_array($result));
+                 //
+                 mysql_query
+                    ($qry =
+                    "insert into " . $mode . "donation "
+                    .  "set id=$id "
+                    .  "   , amount=$amount "
+                    .  "   , prospectivity='$prospectivity' "
+                    .  "   , method='$method' "
+                    .  "   , in_mem_of='" . addslashes($in_mem_of) . "' "
+                    .  "   , note='" . addslashes($note) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                    )
+                    or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                 //
+                 $result = mysql_query("select name,address1,city,state,zip from resident where id='$id'")
+                    or die("Master record lookup failed with error: " . mysql_error());
+                 extract(mysql_fetch_array($result));
+                 //
+                 echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
+                    . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                    . "   <input type=hidden name=bpn value=$bpn>\n"
+                    . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
+                    . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
+                    . "<small><dl>\n"
+                    . "<dt>ROD#:</dt><dd>$id</dd>\n"
+                    . "<dt>Lookup data:</dt>\n"
+                    . "   <dd>\n"
+                    . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                    . "         $name<br>$address1<br>$city $state $zip\n"
+                    . "      </a>\n"
+                    . "   </dd>\n";
+                 if ($num_priors)
+                    {
+                    echo "<hr>$num_priors prior donation(s) on record\n";
+                    }
+                 echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                    . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
+                    . "<dt>Method:</dt><dd>$method</dd>\n"
+                    . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
+                    . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
+                    . "</dl>\n\n"
+                    . "</small>\n";
+                 }
+              else
+                 {
+                 echo "<p><b>FAILED</b></p>\n"
+                    . "<p><b>One or more fields were missing or invalid.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                    . "problem.</b></p>\n";
+                 }
+              //
+              echo "</small>\n";
+              //
+              $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
+                 $note = "";
+              //
+              }
+           elseif ($undo)
+              {
+              mysql_query
+                 (
+                 "delete from " . $mode . "donation "
+                 . "where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                 . "   and per_clerk_seq_num=$per_clerk_seq_num "
+                 )
+                 or die("Undo failed with error: " . mysql_error());
+              //
+              echo "<p><b>UNDONE</b></p>\n";
+              }
+           else
+              {
+              echo "<p>None</p>\n";
+              }
+           //
+           echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
+           //
+           if ((!$add_and_cancel) and (!$cancel))
+              {
+              echo "<p><b><u>Current operation:</u></b></p>\n"
+                 . "<form action=" . $mode . "form-add-donation.phtml method=post>\n"
+                 . "   <input type=hidden name=bpn value=$bpn>\n"
+                 . "   <table>\n"
+                 . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5></td></tr>\n"
+                 . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
+                 . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n"
+                 . "         <select name=prospectivity>\n"
+                 . "            <option value=NONE>\n"
+                 . "            <option value=RESCUE>Becoming a Rescuer\n"
+                 . "            <option value=SUPPORT>Support Operations\n"
+                 . "         </select></td></tr>\n"
+                 . "      <tr><td align=right>Received via:</td><td colspan=2>\n"
+                 . "         <select name=method>\n"
+                 . "            <option value=BIZREPLY selected>Business Reply\n"
+                 . "            <option value=INMEMOF>In Memorium\n"
+                 . "            <option value=UNSOLICITED>Unsolicited\n"
+                 . "            <option value=WEB>Internet\n"
+                 . "         </select></td></tr>\n"
+                 . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
+                 . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
+                 . "      <tr>\n"
+                 . "         <td colspan=2>\n"
+                 . "            <table width=100%>\n"
+                 . "               <tr>\n"
+                 . "                  <td align=center><input type=submit name=add_and_repeat value=\"Add and Repeat\"></td>\n"
+                 . "                  <td align=center><input type=submit name=add_and_cancel value=\"Add and Stop\"></td>\n"
+                 . "                  <td align=center><input type=submit name=cancel value=Cancel></td>\n"
+                 . "               </tr>\n"
+                 . "            </table>\n"
+                 . "         </td>\n"
+                 . "      </tr>\n"
+                 . "   </table>\n"
+                 . "</form>\n";
+              }
+           else
+              {
+              echo "<p><b><a href=" . $mode . "main.phtml?bpn=$bpn>Return to main KEYclick page.</a></b></p>\n";
+              }
+           echo "</td></tr></table>\n";
+           //
+           } // BeValidBoardingPass
+           } // database up
+        ?>
+        <br>
+        <p><small><small><em><pre>$Id$</pre></em></small></small>
+       </td>
+    </tr>
+  </table>
+</body>
+
+</html>
