@@ -18,8 +18,6 @@ require_once("f_password.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
-//
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
 ?>
 <html>
 
@@ -39,7 +37,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
         <hr>
         <br>
         <?
-        if ($connected != "TRUE")
+        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -60,24 +58,53 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
               }
            else
               {
-              ?>
-              <p>The following queries are programmed into the KEYclick system.&nbsp; For other queries, contact the
-                 <a href=mailto:"<? echo RoleEmailAddress("",$mode); ?>">KEYclick System Administrator</a>.</p>
-              <blockquote>
-                 <form action=<? echo $mode; ?>analyze.phtml method=post>
-                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
-                     <input type=hidden name=filename value="keyclick-report">
-                     <p>
-                        <select name=sql_query>
-                           <option value="select * from <? echo $mode; ?>donation">All donations
-                        </select>
-                     </p>
-                     <p><input type=radio name=format value=html checked>View on screen</p>
-                     <p><input type=radio name=format value=zip>Download as ZIP file</p>
-                     <input type=submit value="Go!">
-                 </form>
-              </blockquote>
-              <?
+              echo "<p>The following analyses have been configured for your agency.&nbsp; For other analyses, contact "
+                 . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
+                 . "<table align=center width=80%>\n";
+              //
+              $result = mysql_query
+                 (
+                 "select short_description "
+                 . "   , enumeral "
+                 . "   , long_description "
+                 . "   , sql "
+                 . "from " . $mode . "analysis "
+                 . "where agency='$agency' "
+                 . "order by position "
+                 )
+                 or die("Retrieval of analyses failed with error: " . mysql_error());
+              //
+              if (!mysql_num_rows($result))
+                 {
+                 echo "<tr><td><p>None</p></td></tr>";
+                 }
+              else
+                 {
+                 while ($row = mysql_fetch_array($result))
+                    {
+                    $short_description = $long_description = $sql = "";
+                    extract($row);
+                    echo "   <tr>\n"
+                       . "      <td><b>$short_description</b></td>\n"
+                       . "      <td align=right>\n"
+                       . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                       . "            <input type=hidden name=bpn value=$bpn>\n"
+                       . "            <input type=hidden name=filename value=$enumeral>\n"
+                       . "            <input type=hidden name=sql_query value=\"$sql\">\n"
+                       . "            <input type=radio name=format value=html checked>View on screen\n"
+                       . "               &nbsp;&nbsp;&nbsp;\n"
+                       . "            <input type=radio name=format value=zip>Download as ZIP file\n"
+                       . "               &nbsp;&nbsp;&nbsp;\n"
+                       . "            <input type=submit value=\"Go!\">\n"
+                       . "         </form>\n"
+                       . "      </td>\n"
+                       . "   </tr>\n"
+                       . "   <tr>\n"
+                       . "      <td colspan=2><blockquote><i>$long_description</i></blockquote><hr></td>\n"
+                       . "   </tr>\n";
+                    }
+                 }
+              echo "</table>\n";
               }
            }
         ?>
