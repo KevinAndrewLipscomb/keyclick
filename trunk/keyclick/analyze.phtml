@@ -169,6 +169,26 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                    $mode
                                    );
                                 break;
+                             case "FNDNAMADR":
+                                //
+                                // Replace spaces and stars with the regexp wildcard character.
+                                //
+                                $parsed_basic_criteria = strtolower(ereg_replace("[[:space:]]+", " ",$search_text));
+                                $parsed_basic_criteria = ereg_replace("\*"," ",$parsed_basic_criteria);
+                                $parsed_basic_criteria = ereg_replace(" ",".*",$parsed_basic_criteria);
+                                //
+                                $sql_query = "select id "
+                                   . "   , name "
+                                   . "   , address1 "
+                                   . "   , city "
+                                   . "   , state "
+                                   . "   , zip "
+                                   . "from " . $mode . "resident "
+                                   . "where name rlike '$parsed_basic_criteria' "
+                                   . "   or address1 rlike '$parsed_basic_criteria' ";
+                                //
+                                // DON'T break
+                                //
                              default:
                                 ReadDump
                                    (

@@ -99,10 +99,12 @@ $border_thickness = 0;  //($mode != "");
                         // Find action
                         ?>
                         <tr>
-                           <form action=<? echo $mode; ?>form-.phtml method=post>
+                           <form action=<? echo $mode; ?>analyze.phtml method=post>
                               <input type=hidden name=bpn value=<? echo $bpn; ?>>
+                              <input type=hidden name=format value=html>
+                              <input type=hidden name=algorithm value=FNDNAMADR>
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                              <td align=right><b><a href=<? echo $mode; ?>form-.phtml?bpn=<? echo $bpn; ?>>Find</a></b></td>
+                              <td align=right><b>Find</b></td>
                               <td><table border=<? echo $border_thickness; ?>><tr><td>by name or address:</td><td><input type=text name=search_text maxlength=50 size=20><input type=submit value="Go!"></td></tr></table></td>
                            </form>
                         </tr>
