@@ -81,22 +81,12 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                     require_once("f_readdump.phtml");
                     require_once("f_readdump-rodbyaddr0.phtml");
                     require_once("f_readdump-rodbynam0.phtml");
-                    require_once("f_readdump-popnamcnt.phtml");
                     //
                     switch ($format)
                        {
                        case "":
                           switch ($algorithm)
                              {
-                             case "POPNAMCNT":
-                                ReadDump_POPNAMCNT
-                                   (
-                                   $sql_query,
-                                   $bpn,
-                                   $mode,
-                                   'FALSE'  // for be_viewable_result
-                                   );
-                                break;
                              case "RODBYADDR0":
                                 ReadDump_RODBYADDR0
                                    (
@@ -120,6 +110,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                    (
                                    $sql_query,
                                    $bpn,
+                                   '1',  // for allow_dynamic_sorting
                                    $mode,
                                    'FALSE'  // for be_viewable_result
                                    );
@@ -133,6 +124,21 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              . "</form>\n";
                           break;
                        case "html":
+                          //
+                          // Get $chunk_size.
+                          //
+                          extract  // Implicitly sets $chunk_size
+                             (
+                             mysql_fetch_array
+                                (
+                                mysql_query
+                                   (
+                                   "select value as chunk_size from " . $mode . "tuning_parm "
+                                   .  "where name='screen-view-chunk-size' "
+                                   )
+                                )
+                             );
+                          //
                           switch ($algorithm)
                              {
                              case "RODBYADDR0":
@@ -142,19 +148,35 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                 ReadDump_RODBYNAM0($sql_query,$bpn,$mode);
                                 break;
                              case "RODBYADDRSV":
-                                $chunk_size = 1000;
                                 $sql_query = "select * from " . $mode . "rod_by_addr "
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
-                                ReadDump($sql_query,$bpn,$mode);
+                                ReadDump
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   '0',  // don't allow_dynamic_sorting
+                                   $mode
+                                   );
                                 break;
                              case "RODBYNAMSV":
-                                $chunk_size = 1000;
                                 $sql_query = "select * from " . $mode . "rod_by_name "
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
-                                ReadDump($sql_query,$bpn,$mode);
+                                ReadDump
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   '0',  // don't allow_dynamic_sorting
+                                   $mode
+                                   );
                                 break;
                              default:
-                                ReadDump($sql_query,$bpn,$mode);
+                                ReadDump
+                                   (
+                                   $sql_query,
+                                   $bpn,
+                                   '1',  // do allow_dynamic_sorting
+                                   $mode
+                                   );
                                 break;
                              }
                           break;
