@@ -63,7 +63,9 @@ require_once("f_kickoff.phtml");
                  . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
                  . "<table align=center width=90%>\n";
               //
-              if (!$parent_enumeral_expression)
+              switch ($parent_enumeral_expression)
+              {
+              case "":
                  {
                  //
                  // We must be at the top contextual level.  First, there are no "parent" analyses at this level.  Second,
@@ -101,7 +103,49 @@ require_once("f_kickoff.phtml");
                     . "</pre>\n"
                     . "      </blockquote></i></blockquote><hr></td>\n"
                     . "   </tr>\n";
+                 break;
                  }
+              case is_integer(strpos($parent_enumeral_expression,'RODBYNAM0')):
+                 {
+                 $chunk_size = 1000;
+                 $qry = "select floor(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_name";
+                 extract(mysql_fetch_array(mysql_query($qry)));  // Sets $num_parts.
+                 echo "   <tr>\n"
+                    . "      <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "         <input type=hidden name=bpn value=$bpn>\n"
+                    . "         <input type=hidden name=format value=html>\n"
+                    . "         <input type=hidden name=algorithm value=RODBYNAMSV>\n"
+                    . "         <input type=hidden name=parent_enumeral value=RODBYNAMSV>\n"
+                    . "      <td><b>SCREEN VIEW of Simplified ROD sorted by Name [RODBYNAMSV]</b></td>\n"
+                    . "      <td align=right>\n"
+                    . "         <input type=submit value=\"Go!\">\n"
+                    . "      </td>\n"
+                    . "   </tr>\n"
+                    . "   <tr>\n"
+                    . "      <td colspan=2><blockquote><i>\n"
+                    . "         <p>Because of server limitations, KEYclick can only present about 1000 rows of data at a "
+                    . "            time.&nbsp;  Specify below which part of the table you'd like to see.&nbsp; Allow up "
+                    . "            a minute for the server to display the data.</p>\n"
+                    . "         <blockquote>\n"
+                    . "            <b>"
+                    . "               View part "
+                    . "                  <select name=part_num>";
+                 for ($i = 1; $i <= $num_parts; $i++)
+                    {
+                    echo "<option value=$i>$i</option>\n";
+                    }
+                 echo "                  </select>"
+                    . "               of $num_parts."
+                    . "            </b>\n"
+                    . "         </blockquote>\n"
+                    . "         <p>To get the data in much larger chunks, see the ZIP FILE options below.</p>\n"
+                    . "         <hr>\n"
+                    . "      </td>\n"
+                    . "      </form>\n"
+                    . "   </tr>\n";
+                 break;
+                 }
+              }
               //
               $result = mysql_query
                  (
