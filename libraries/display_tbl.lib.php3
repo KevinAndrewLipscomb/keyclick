@@ -699,7 +699,16 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
      *
      * @see     PMA_displayTable()
      */
-    function PMA_displayTableBody(&$dt_result, &$is_display, $map, $fields_meta, $fields_cnt, $disp_direction='horizontal')
+    function PMA_displayTableBody
+       (
+       &$dt_result,
+       &$is_display,
+       $map,
+       $fields_meta,
+       $fields_cnt,
+       $cfgLimitChars,
+       $disp_direction='horizontal'
+       )
     {
         global $lang, $server, $db, $table;
         global $goto;
@@ -941,8 +950,8 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                             || (function_exists('is_null') && is_null($row[$pointer]))) {
                             $vertical_display['data'][$foo][$i] = '    <td valign="top" bgcolor="' . $bgcolor . '"><i>NULL</i></td>' . "\n";
                         } else if ($row[$pointer] != '') {
-                            if (strlen($row[$pointer]) > $GLOBALS['cfgLimitChars'] && ($dontlimitchars != 1)) {
-                                $row[$pointer] = substr($row[$pointer], 0, $GLOBALS['cfgLimitChars']) . '...';
+                            if (strlen($row[$pointer]) > $cfgLimitChars && ($dontlimitchars != 1)) {
+                                $row[$pointer] = substr($row[$pointer], 0, $cfgLimitChars) . '...';
                             }
                             // loic1: displays all space characters, 4 space
                             // characters for tabulations and <cr>/<lf>
@@ -961,8 +970,8 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                     } else if ($row[$pointer] != '') {
                         // loic1: Cut text/blob fields even if $cfgShowBlob is true
                         if (eregi('BLOB', $primary->type)) {
-                            if (strlen($row[$pointer]) > $GLOBALS['cfgLimitChars'] && ($dontlimitchars != 1)) {
-                                $row[$pointer] = substr($row[$pointer], 0, $GLOBALS['cfgLimitChars']) . '...';
+                            if (strlen($row[$pointer]) > $cfgLimitChars && ($dontlimitchars != 1)) {
+                                $row[$pointer] = substr($row[$pointer], 0, $cfgLimitChars) . '...';
                             }
                         }
                         // loic1: displays special characters from binaries
@@ -1220,7 +1229,10 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
        $fields_cnt,
        $bpn,
        $sql_query,
-       $mode = ""
+       $cfgLimitChars,
+       $mode = "",
+       $table_border = 0,
+       $cell_padding = 3
        )
     {
         global $lang, $server, $cfgServer, $db, $table;
@@ -1321,11 +1333,11 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         // 3. ----- Displays the results table -----
         ?>
 <!-- Results table -->
-<table border="<?php echo $GLOBALS['cfgBorder']; ?>" cellpadding="5">
+<table border="<?php echo $table_border; ?>" cellpadding="<? echo $cell_padding; ?>">
         <?php
         echo "\n";
         PMA_displayTableHeaders($bpn, $sql_query, $mode, $is_display, $fields_meta, $fields_cnt);
-        PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt);
+        PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt, $cfgLimitChars);
         // lem9: vertical output case
         if ($disp_direction == 'vertical') {
             PMA_displayVerticalTable();

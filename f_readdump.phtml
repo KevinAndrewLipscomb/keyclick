@@ -8,6 +8,9 @@ function ReadDump
    $bpn,
    $mode = "",
    $be_viewable_result = "TRUE",
+   $table_border = 0,
+   $cell_padding = 3,
+   $max_text_field_display_len = 64,
    $is_js_confirmed = "0",
    $lang = "en",
    $server = "1",
@@ -162,7 +165,10 @@ function ExecSelect
    $server,
    $zero_rows,
    $mode,
-   $goto
+   $goto,
+   $table_border,
+   $cell_padding,
+   $max_text_field_display_len
    )
 //
    {
@@ -180,7 +186,20 @@ function ExecSelect
       $reload = 1;
       }
    require_once('f_viewquery.phtml');
-   ViewQuery($bpn,$sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
+   ViewQuery
+      (
+      $bpn,
+      $sql_query,
+      $lang,
+      $server,
+      $zero_rows,
+      ($mode . $goto),
+      $table_border,
+      $cell_padding,
+      $max_text_field_display_len,
+      $mode,
+      'urdr11111'  // for $disp_mode
+      );
    exit();
    }
 
@@ -376,7 +395,19 @@ if ($sql_query != '') {
     // Only one query to run
     if ($pieces_count == 1 && !empty($pieces[0]) && $view_bookmark == 0 && ($be_viewable_result == 'TRUE'))
        {
-       ExecSelect($pieces[0],$bpn,$lang,$server,$zero_rows,$mode,$goto);
+       ExecSelect
+          (
+          $pieces[0],
+          $bpn,
+          $lang,
+          $server,
+          $zero_rows,
+          $mode,
+          $goto,
+          $table_border,
+          $cell_padding,
+          $max_text_field_display_len
+          );
        }
 
     // Runs multiple queries
@@ -386,7 +417,6 @@ if ($sql_query != '') {
             //
             if (($i < ($pieces_count - 1)) or ($be_viewable_result == 'FALSE'))
                {
-if ($mode) echo "Calling mysql_query in iteration $i / $pieces_count with [$a_sql_query].";
                $result = mysql_query($a_sql_query);
                if ($result == FALSE)
                   { // readdump failed
@@ -403,8 +433,19 @@ if ($mode) echo "Calling mysql_query in iteration $i / $pieces_count with [$a_sq
                //
                // This is the last statement of the script, and we are assuming it is a SELECT.
                //
-if ($mode) echo "Calling ExecSelect with [$a_sql_query].";
-               ExecSelect($a_sql_query,$bpn,$lang,$server,$zero_rows,$mode,$goto);
+               ExecSelect
+                  (
+                  $a_sql_query,
+                  $bpn,
+                  $lang,
+                  $server,
+                  $zero_rows,
+                  $mode,
+                  $goto,
+                  $table_border,
+                  $cell_padding,
+                  $max_text_field_display_len
+                  );
                exit();
                }
         } // end for
