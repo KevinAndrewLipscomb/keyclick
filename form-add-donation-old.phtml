@@ -93,126 +93,157 @@ require_once("f_methodselectionlist.phtml");
                     )
                  // then
                     {
+                    $valid_id = 0;
                     //
                     // Lookup the resident record with the specified id.
                     //
                     $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
                        or die("Master record lookup failed with error: " . mysql_error());
-                    extract(mysql_fetch_array($result));
-                    //
-                    // Supply missing date parts
-                    //
-                    if (!$month_num) $month_num = 1;
-                    if (!$day_num) $day_num = 1;
-                    //
-                    if (!$force_log)
+                    if (mysql_num_rows($result))
                        {
-                       //
-                       // We have not investigated the possibility that a preemptive operation has made this submission
-                       // stale.  Check for updates made since the date of this donation.  Such updates might obsolete the
-                       // donation data.
-                       //
+                       extract(mysql_fetch_array($result));  //Sets $name,$address1,$city,$state,$zip
+                       $valid_id = 'TRUE';
+                       }
+                    else
+                       {
                        $result = mysql_query
                           (
-                          "select op as possible_preemptive_op from " . $mode . "resident_journal "
+                          "select name,address1,city,state,zip from " . $mode . "resident_journal "
                           . "where id='$id' "
-                          . "   and timestamp > '$year_num-$month_num-$day_num' "
-                          . "   and op != 'INSERT' "
-                          )
-                          or die("Check for preemptive op failed with error: " . mysql_errno());
-                       if (mysql_num_rows($result)) extract(mysql_fetch_array($result));  //Sets $possible_preemptive_op
-                       }
-                    //
-                    if (!$possible_preemptive_op)
-                       {
-                       //
-                       // Determine next value for per_clerk_seq_num.
-                       //
-                       $per_clerk_seq_num = 1;
-                       extract
-                          (
-                          mysql_fetch_array
-                             (
-                             mysql_query
-                                (
-                                "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                                . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
-                                )
-                             )
+                          . "order by timestamp desc "
+                          . "limit 1 "
                           );
-                       //
-                       // Check for prior donations.
-                       //
-                       $num_priors = "";
-                       $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                          or die("Check for priors failed with error: " . mysql_error());
-                       extract(mysql_fetch_array($result));
-                       //
-                       mysql_query
-                          ($qry =
-                          "insert into " . $mode . "donation "
-                          .  "set id=$id "
-                          .  "   , date='$year_num-$month_num-$day_num' "
-                          .  "   , amount=$amount "
-                          .  "   , prospectivity='$prospectivity' "
-                          .  "   , method='$method' "
-                          .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
-                          .  "   , note='" . addslashes(trim($note)) . "' "
-                          .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
-                          .  "   , per_clerk_seq_num=$per_clerk_seq_num "
-                          )
-                          or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
-                       //
-                       echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                          . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
-                          . "   <input type=hidden name=bpn value=$bpn>\n"
-                          . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
-                          . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
-                          . "<small><dl>\n"
-                          . "<dt>ROD#:</dt><dd>$id</dd>\n"
-                          . "<dt>Lookup data:</dt>\n"
-                          . "   <dd>\n"
-                          . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                          . "         $name<br>$address1<br>$city $state $zip\n"
-                          . "      </a>\n"
-                          . "   </dd>\n";
-                       if ($num_priors)
+                       if (mysql_num_rows($result))
                           {
-                          echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
-                             . "on record\n";
+                          extract(mysql_fetch_array($result));  //Sets $name,$address1,$city,$state,$zip
+                          $valid_id = 'TRUE';
                           }
-                       echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
-                          . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
-                          . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
-                          . "<dt>Method:</dt><dd>$method</dd>\n"
-                          . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
-                          . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
-                          . "</dl>\n\n"
-                          . "</small>\n";
-                       }  // the donation record wasn't stale
+                       }
+                    if (!$valid_id)
+                       {
+                       echo "<p><b>FAILED</b></p>\n"
+                          . "<p><b>Invalid ROD#.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                          . "problem.</b></p>\n";
+                       }
                     else
                        {
                        //
-                       // the donation record may be stale
+                       // Supply missing date parts
                        //
-                       echo "<p><b><font color=#ff9900>SUSPENDED</font></b></p>\n"
-                          . "<p><b>ROD record $id has been $possible_preemptive_op";
+                       if (!$month_num) $month_num = 1;
+                       if (!$day_num) $day_num = 1;
                        //
-                       // Cast the op word into the past tense.
-                       //
-                       switch ($possible_preemptive_op)
+                       if (!$force_log)
                           {
-                          case "INSERT":
-                             echo "ED";
-                             break;
-                          case "UPDATE":
-                          case "DELETE":
-                             echo "D";
-                             break;
+                          //
+                          // We have not investigated the possibility that a preemptive operation has made this submission
+                          // stale.  Check for updates made since the date of this donation.  Such updates might obsolete the
+                          // donation data.
+                          //
+                          $result = mysql_query
+                             (
+                             "select op as possible_preemptive_op from " . $mode . "resident_journal "
+                             . "where id='$id' "
+                             . "   and timestamp > '$year_num-$month_num-$day_num' "
+                             . "   and op = 'UPDATE' "
+                             . "order by timestamp desc "
+                             . "limit 1 "
+                             )
+                             or die("Check for preemptive op failed with error: " . mysql_errno());
+                          if (mysql_num_rows($result)) extract(mysql_fetch_array($result));  //Sets $possible_preemptive_op
                           }
-                       echo " since the specified donation date.&nbsp The donation data you entered may be stale.</b></p>\n";
-                       }
-                    }  // the parameters were valid
+                       //
+                       if (!$possible_preemptive_op)
+                          {
+                          //
+                          // Determine next value for per_clerk_seq_num.
+                          //
+                          $per_clerk_seq_num = 1;
+                          extract
+                             (
+                             mysql_fetch_array
+                                (
+                                mysql_query
+                                   (
+                                   "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
+                                   . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                                   )
+                                )
+                             );
+                          //
+                          // Check for prior donations.
+                          //
+                          $num_priors = "";
+                          $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                             or die("Check for priors failed with error: " . mysql_error());
+                          extract(mysql_fetch_array($result));
+                          //
+                          mysql_query
+                             ($qry =
+                             "insert into " . $mode . "donation "
+                             .  "set id=$id "
+                             .  "   , date='$year_num-$month_num-$day_num' "
+                             .  "   , amount=$amount "
+                             .  "   , prospectivity='$prospectivity' "
+                             .  "   , method='$method' "
+                             .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
+                             .  "   , note='" . addslashes(trim($note)) . "' "
+                             .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                             .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                             )
+                             or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                          //
+                          echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
+                             . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                             . "   <input type=hidden name=bpn value=$bpn>\n"
+                             . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
+                             . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
+                             . "<small><dl>\n"
+                             . "<dt>ROD#:</dt><dd>$id</dd>\n"
+                             . "<dt>Lookup data:</dt>\n"
+                             . "   <dd>\n"
+                             . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                             . "         $name<br>$address1<br>$city $state $zip\n"
+                             . "      </a>\n"
+                             . "   </dd>\n";
+                          if ($num_priors)
+                             {
+                             echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                                . "on record\n";
+                             }
+                          echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
+                             . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                             . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
+                             . "<dt>Method:</dt><dd>$method</dd>\n"
+                             . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
+                             . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
+                             . "</dl>\n\n"
+                             . "</small>\n";
+                          }  // the donation record wasn't stale
+                       else
+                          {
+                          //
+                          // the donation record may be stale
+                          //
+                          echo "<p><b><font color=#ff9900>SUSPENDED</font></b></p>\n"
+                             . "<p><b>ROD record $id has been $possible_preemptive_op";
+                          //
+                          // Cast the op word into the past tense.
+                          //
+                          switch ($possible_preemptive_op)
+                             {
+                             case "INSERT":
+                                echo "ED";
+                                break;
+                             case "UPDATE":
+                             case "DELETE":
+                                echo "D";
+                                break;
+                             }
+                          echo " since the specified donation date.&nbsp The donation data you entered may be stale.</b></p>\n";
+                          }
+                       }  // the parameters were valid
+                    }  // the specified ID was valid
                  else
                     {
                     echo "<p><b>FAILED</b></p>\n"
