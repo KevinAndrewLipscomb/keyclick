@@ -24,12 +24,11 @@ function BeValidBoardingPass
    //
    // Now see if the specified boarding pass is valid.
    //
-   $found_bpn = "";
-   //
    $result = mysql_query
       (
-      "select bpn as found_bpn,agency from keyclick." . $mode . "manifest "
-      .  "   where ip='$REMOTE_ADDR' "
+      "select agency from keyclick." . $mode . "manifest "
+      .  "   where bpn='$bpn' "
+      .  "      and ip='$REMOTE_ADDR' "
       .  "      and expiration_time >= " . time()
       )
       or die("BeValidBoardingPass query failed with error:  " . mysql_error());
