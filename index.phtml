@@ -75,7 +75,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                      <tr>
                         <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right valign=middle><b>Modify or remove</b></td>
+                           <td align=right valign=middle><b><a href=<? echo $mode; ?>form-act-singly.phtml>Modify or remove</a></b></td>
                            <td valign=middle nowrap>Resident ID # <input type=text name=id maxlength=5 size=5><input type=submit value="Go!"></td>
                         </form>
                      </tr>
