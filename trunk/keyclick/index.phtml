@@ -16,6 +16,9 @@ require_once("f_serverstatus.phtml");
 require_once("f_connectselectdb.phtml");
 //
 $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+//
+$border_thickness = 0;  //($mode != "");
+//
 ?>
 <html>
 
@@ -52,7 +55,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                   </tr>
                </table>
                <hr>
-               <table cellspacing=10>
+               <table border=<? echo $border_thickness; ?> cellspacing=10>
                   <tr>
                      <td colspan=5><h3>Actions</h3></td>
                   </tr>
@@ -65,18 +68,18 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                      ?>
                      <tr>
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td align=right valign=top><b><font color=D0D0D0>Log</font></b></td><td valign=top>a resident's donation.</td>
+                        <td align=right><b><font color=D0D0D0>Log</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a donation.</td></tr></table></td>
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td rowspan=3 valign=top>
                            <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
                         </td>
                      </tr>
-                     <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top><b><a href=<? echo $mode; ?>form-add-resident.phtml>Add</a></b></td><td valign=top>a new resident.</td></tr>
+                     <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-add-resident.phtml>Add</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a name and address to the ROD (Resident/Occupant Database).</td></tr></table></td></tr>
                      <tr>
                         <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right valign=middle><b><a href=<? echo $mode; ?>form-act-singly.phtml>Modify or remove</a></b></td>
-                           <td valign=middle nowrap>Resident ID # <input type=text name=id maxlength=5 size=5><input type=submit value="Go!"></td>
+                           <td align=right><b><a href=<? echo $mode; ?>form-act-singly.phtml>Modify or remove</a></b></td>
+                           <td><table border=<? echo $border_thickness; ?>><tr><td>ROD record #</td><td><input type=text name=id maxlength=5 size=5><input type=submit value="Go!"></td></tr></table></td>
                         </form>
                      </tr>
                      <?
