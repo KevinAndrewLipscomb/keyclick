@@ -39,8 +39,11 @@ function BeValidBoardingPass
          //
          // Also sets $ip and $expiration_time.
          //
-      if ($ip == $REMOTE_ADDR)
-         {
+//
+// Skip the IP test for now since some AOL users have reported mismatches within a single session.
+//
+//    if ($ip == $REMOTE_ADDR)
+//       {
          if ($expiration_time >= time())
             {
             //
@@ -67,12 +70,12 @@ function BeValidBoardingPass
             if ($debug) echo "<p><b>!Boarding pass expired " . (time() - $expiration_time) . " seconds ago!</b></p>\n";
             $agency = "";
             }
-         }
-      else
-         {
-         if ($debug) echo "<p><b>!IP address mismatch: current=$REMOTE_ADDR, manifest=$ip!</b></p>\n";
-         $agency = "";
-         }
+//       }
+//    else
+//       {
+//       if ($debug) echo "<p><b>!IP address mismatch: current=$REMOTE_ADDR, manifest=$ip!</b></p>\n";
+//       $agency = "";
+//       }
       }
    else
       {
