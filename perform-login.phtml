@@ -96,6 +96,7 @@ require_once("f_keyclickmailheaders.phtml");
                   mysql_query
                      (
                      "insert into " . $mode . "manifest set bpn='$bpn' "
+                     .  ", email_addr='$email_addr' "
                      .  ", ip='$REMOTE_ADDR' "
                      .  ", agency='$agency' "
                      .  ", expiration_time=$expiration_time "
@@ -108,7 +109,7 @@ require_once("f_keyclickmailheaders.phtml");
                   //             123456789012345678901234567890123456789012345678901234567890123456789012
                   $challenge = "";
                   $challenge .= "This is your KEYclick Boarding Pass.  It is only valid on the computer\n"
-                             .  "that you used to log into KEYclick, and only for the $agency database.\n\n"
+                             .  "from which you logged into KEYclick, and only for the $agency database.\n\n"
                              .  "This Boarding Pass will expire when you have not used KEYclick for 30\n"
                              .  "minutes, or when you explicitly log out.\n\n"
                              .  "Please click here to continue:\n"
