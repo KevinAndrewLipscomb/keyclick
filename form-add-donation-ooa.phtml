@@ -36,15 +36,15 @@ require_once("f_methodselectionlist.phtml");
 <html>
 
 <head>
-<title>KEYclick - Log new donation</title>
+<title>KEYclick - Log new out-of-area donation</title>
 </head>
 
-<? BodyOpen("CurrentOperation.id"); ?>
+<? BodyOpen("CurrentOperation.last_name"); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
         <h6 align="center"><a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
-        <h1 align="center">Log new donation</h1>
+        <h1 align="center">Log new out-of-area donation</h1>
         <hr>
         <br>
         <?
@@ -84,12 +84,43 @@ require_once("f_methodselectionlist.phtml");
               echo "<small>\n";
               //
               if (
-                    (($id != "") and is_numeric($id))
+                    ($last_name != "")
+                 and
+                    ($address1 != "")
+                 and
+                    ($city != "")
+                 and
+                    ($state != "")
+                 and
+                    ($zip != "")
                  and
                     (($amount != "") and is_numeric($amount))
                  )
               // then
                  {
+                 if ($apt_num) $street_num = "$street_num-$apt_num";
+                 //
+                 $name = strtoupper("$last_name $name_detail");
+                 $address1 = strtoupper("$street_num $address1");
+                 $city = strtoupper($city);
+                 $state = strtoupper($state);
+                 $zip = strtoupper($zip);
+                 //
+                 extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident")));
+                 //
+                 $result = mysql_query
+                    (
+                    "insert into " . $mode . "resident_journal "
+                    .  "set name='" . addslashes($name) . "' "
+                    .  "   , address1='" . addslashes($address1) . "' "
+                    .  "   , city='" . addslashes($city) . "' "
+                    .  "   , state='" . addslashes($state) . "' "
+                    .  "   , zip='" . addslashes($zip) . "' "
+                    .  "   , id=0 "
+                    .  "   , op='UPDATE' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    )
+                    or die("Journal entry failed with error: " . mysql_error());
                  //
                  // Determine next value for per_clerk_seq_num.
                  //
@@ -106,17 +137,12 @@ require_once("f_methodselectionlist.phtml");
                        )
                     );
                  //
-                 // Check for prior donations.
-                 //
-                 $num_priors = "";
-                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                    or die("Check for priors failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
+                 // Suspend check for prior donations -- such a check is not appropriate in this case.
                  //
                  mysql_query
                     ($qry =
                     "insert into " . $mode . "donation "
-                    .  "set id=$id "
+                    .  "set id=0 "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
                     .  "   , prospectivity='$prospectivity' "
@@ -128,29 +154,14 @@ require_once("f_methodselectionlist.phtml");
                     )
                     or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
-                 $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
-                    or die("Master record lookup failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
-                 //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                    . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                    . "<td align=right><form action=" . $mode . "form-add-donation-ooa.phtml>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
                     . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
                     . "<small><dl>\n"
-                    . "<dt>ROD#:</dt><dd>$id</dd>\n"
-                    . "<dt>Lookup data:</dt>\n"
-                    . "   <dd>\n"
-                    . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                    . "         $name<br>$address1<br>$city $state $zip\n"
-                    . "      </a>\n"
-                    . "   </dd>\n";
-                 if ($num_priors)
-                    {
-                    echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
-                       . "on record\n";
-                    }
-                 echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                    . "<dt>Journaled data:</dt><dd>$name<br>$address1<br>$city $state $zip</dd>\n"
+                    . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
                     . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
                     . "<dt>Method:</dt><dd>$method</dd>\n"
                     . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
@@ -167,7 +178,7 @@ require_once("f_methodselectionlist.phtml");
               //
               echo "</small>\n";
               //
-              $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
+              $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
                  $note = "";
               //
               }
@@ -193,17 +204,17 @@ require_once("f_methodselectionlist.phtml");
            if ((!$add_and_cancel) and (!$cancel))
               {
               echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form name=CurrentOperation action=" . $mode . "form-add-donation.phtml method=post>\n"
+                 . "<form name=CurrentOperation action=" . $mode . "form-add-donation-ooa.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
-                 . "      <tr>\n"
-                 . "         <td align=right>ROD #:</td>\n"
-                 . "         <td colspan=2>\n"
-                 . "            <input type=text name=id size=5 maxlength=5 value=$cross_id>\n"
-                 . "            &nbsp;&nbsp;&nbsp;\n"
-                 . "            (Click <a href=" . $mode . "form-add-donation-ooa.phtml?bpn=$bpn><b>here</b></a> to log an Out-Of-Area donation.)\n"
-                 . "         </td>\n"
-                 . "      </tr>\n"
+                 . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
+                 . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
+                 . "      <tr><td align=right>House/building #:</td><td colspan=2><input type=text name=street_num size=6 maxlength=10></td></tr>\n"
+                 . "      <tr><td align=right>Street name:</td><td colspan=2><input type=text name=address1 size=50 maxlength=50></td></tr>\n"
+                 . "      <tr><td align=right>Apt #:</td><td colspan=2><input type=text name=apt_num size=4 maxlength=6></td></tr>\n"
+                 . "      <tr><td align=right>City:</td><td colspan=2><input type=text name=city size=35 maxlength=35></td></tr>\n"
+                 . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state size=2 maxlength=2></td></tr>\n"
+                 . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
               echo ProspectivitySelectionList($agency,$mode);
