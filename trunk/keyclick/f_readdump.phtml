@@ -5,13 +5,15 @@
 function ReadDump
    (
    $sql_query,
+   $bpn,
+   $mode = "",
    $is_js_confirmed = "0",
    $lang = "en",
    $server = "1",
    $db = "keyclick",
    $pos = "0",
-   $goto = "db_details.php",
-   $zero_rows = "Your SQL query has been executed successfully",
+   $goto = "form-analyze.phtml",
+   $zero_rows = "None found.",
    $prev_sql_query = ""
    )
 {
@@ -352,7 +354,7 @@ if ($sql_query != '') {
             $reload = 1;
         }
         require_once('f_viewquery.phtml');
-        ViewQuery($sql_query,$lang,$server);
+        ViewQuery($sql_query,$lang,$server,$zero_rows,($mode . $goto),$mode);
         exit();
     }
 

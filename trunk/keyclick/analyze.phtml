@@ -77,9 +77,8 @@ error_reporting(E_ALL);
                        . "               </table>\n"
                        . "               <hr>\n"
                        . "               <br>\n";
-                    //ReadDump($sql_query,$bpn,$mode);
                     require_once("f_readdump.phtml");
-                    ReadDump($sql_query);
+                    ReadDump($sql_query,$bpn,$mode);
                     echo "               <br>\n"
                        . "               <p><small><small><em><pre>$Id$</pre></em></small></small>\n"
                        . "            </td>\n"
