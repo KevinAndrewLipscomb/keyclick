@@ -93,8 +93,10 @@ require_once("f_emailaddrofbpn.phtml");
                  )
               // then
                  {
+                 if ($apt_num) $street_num = "$street_num-$apt_num";
+                 //
                  $name = strtoupper("$last_name $name_detail");
-                 $address1 = strtoupper($address1);
+                 $address1 = strtoupper("$street_num $address1");
                  $city = strtoupper($city);
                  $state = strtoupper($state);
                  $zip = strtoupper($zip);
@@ -146,7 +148,8 @@ require_once("f_emailaddrofbpn.phtml");
               //
               echo "</small>\n";
               //
-              $new_id = $last_name = $name_detail = $name = $address1 = $city = $state = $zip = "";
+              $new_id = $last_name = $name_detail = $name = $street_num = $address1 = $apt_num = $city = $state =
+                 $zip = "";
               //
               }
            else
@@ -164,7 +167,9 @@ require_once("f_emailaddrofbpn.phtml");
                  . "   <table>\n"
                  . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
                  . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
-                 . "      <tr><td align=right>Address:</td><td colspan=2><input type=text name=address1 size=50 maxlength=50></td></tr>\n"
+                 . "      <tr><td align=right>House/building #:</td><td colspan=2><input type=text name=street_num size=6 maxlength=10></td></tr>\n"
+                 . "      <tr><td align=right>Street name:</td><td colspan=2><input type=text name=address1 size=50 maxlength=50></td></tr>\n"
+                 . "      <tr><td align=right>Apt #:</td><td colspan=2><input type=text name=apt_num size=4 maxlength=6></td></tr>\n"
                  . "      <tr><td align=right>City:</td><td colspan=2><input type=text name=city size=35 maxlength=35></td></tr>\n"
                  . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state size=2 maxlength=2></td></tr>\n"
                  . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
