@@ -89,7 +89,7 @@ $border_thickness = 0;  //($mode != "");
                         ?>
                         <tr>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right><b><font color=D0D0D0>Log</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a donation.</td></tr></table></td>
+                           <td align=right><b><a href=<? echo $mode; ?>form-add-donation.phtml?bpn=<? echo $bpn; ?>>Log</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a donation.</td></tr></table></td>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                            <td rowspan=3 valign=top>
                               <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
@@ -117,7 +117,7 @@ $border_thickness = 0;  //($mode != "");
                         <?
                         // Analyse action
                         ?>
-                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><font color=D0D0D0>Analyse</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>data and get reports.</td></tr></table></td></tr>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><font color=D0D0D0>Analyze</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>data and get reports.</td></tr></table></td></tr>
                         <?
                         // Export action
                         ?>

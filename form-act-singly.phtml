@@ -217,6 +217,8 @@ require_once("f_emailaddrofbpn.phtml");
                  {
                  extract(mysql_fetch_array($result));
                  //
+                 // Retrieve any journal entries associated with this record.
+                 //
                  $result = mysql_query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
@@ -226,14 +228,41 @@ require_once("f_emailaddrofbpn.phtml");
                     or die("Journal query failed with error: " . mysql_error());
                  $num_journal_rows = mysql_num_rows($result);
                  //
+                 // See if any donations are associated with this record.
+                 //
+                 $num_donations = 0;
+                 extract
+                    (
+                    mysql_fetch_array
+                       (
+                       mysql_query('select count(*) as num_donations from ' . $mode . "donation where id=$id")
+                       )
+                    );
+                 //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n"
                     . "<blockquote>\n";
-                 if ($num_journal_rows)
+                 if ($num_journal_rows or $num_donations)
                     {
-                    echo "   <p><a href=#History>$num_journal_rows journal entries</a> are available for this record.</p>\n";
+                    echo "<ul>\n";
+                    //
+                    if ($num_donations)
+                       {
+                       echo "<li>$num_donations donation"
+                          . (($num_donations > 1) ? 's are ' : ' is ')
+                          . "on file for this record.</li>\n";
+                       }
+                    //
+                    if ($num_journal_rows)
+                       {
+                       echo "<li><a href=#History>$num_journal_rows journal "
+                          . (($num_journal_rows == 1) ? 'entry is' : 'entries are' )
+                          . "</a> available for this record.</li>\n";
+                       }
+                    //
+                    echo "</ul>\n";
                     }
                  echo "   <table>\n"
                     . "      <tr><td align=right><b>Resident ID:</b></td><td colspan=2><b>$id</b></td></tr>\n"
