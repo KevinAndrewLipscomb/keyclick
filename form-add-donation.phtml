@@ -30,6 +30,8 @@ require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
+require_once("f_prospectivityselectionlist.phtml");
+require_once("f_methodselectionlist.phtml");
 ?>
 <html>
 
@@ -199,19 +201,12 @@ require_once("f_emailaddrofbpn.phtml");
                  . "   <table>\n"
                  . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
-                 . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n"
-                 . "         <select name=prospectivity>\n"
-                 . "            <option value=NONE>\n"
-                 . "            <option value=RESCUE>Becoming a Rescuer\n"
-                 . "            <option value=SUPPORT>Support Operations\n"
-                 . "         </select></td></tr>\n"
-                 . "      <tr><td align=right>Received via:</td><td colspan=2>\n"
-                 . "         <select name=method>\n"
-                 . "            <option value=BIZREPLY selected>Business Reply\n"
-                 . "            <option value=INMEMOF>In Memorium\n"
-                 . "            <option value=UNSOLICITED>Unsolicited\n"
-                 . "            <option value=WEB>Internet\n"
-                 . "         </select></td></tr>\n"
+                 . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
+              echo ProspectivitySelectionList($agency,$mode);
+              echo "      </td></tr>\n"
+                 . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
+              echo MethodSelectionList($agency,$mode);
+              echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
                  . "      <tr>\n"
