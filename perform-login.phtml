@@ -10,6 +10,7 @@ $mode = RunMode($PHP_SELF);
 //
 if ($mode) error_reporting(E_ALL);
 //
+$foundation_dir = "../../foundation";
 require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
@@ -18,6 +19,7 @@ require_once("f_password.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_beauthorized.phtml");
 require_once("f_keyclickmailheaders.phtml");
+require_once("$foundation_dir/std_style_class.php");
 ?>
 <html>
 
@@ -139,6 +141,7 @@ require_once("f_keyclickmailheaders.phtml");
                      echo "<p>KEYclick has sent a Boarding Pass to <b>$email_addr</b>.</p>";
                      echo "<p><b>Check your email periodically for the Boarding Pass, which contains instructions for completing the "
                         . "log-in process.</b></p>";
+                     echo std_style_class::AolEmailClientWarning();
                      }
                   else
                      {
