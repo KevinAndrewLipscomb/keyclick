@@ -6,6 +6,7 @@ function ReadDump
    (
    $sql_query,
    $bpn,
+   $allow_dynamic_sorting = '1',
    $mode = "",
    $be_viewable_result = "TRUE",
    $table_border = 0,
@@ -168,7 +169,8 @@ function ExecSelect
    $goto,
    $table_border,
    $cell_padding,
-   $max_text_field_display_len
+   $max_text_field_display_len,
+   $allow_dynamic_sorting = '1'
    )
 //
    {
@@ -198,7 +200,7 @@ function ExecSelect
       $cell_padding,
       $max_text_field_display_len,
       $mode,
-      'urdr11111'  // for $disp_mode
+      'urnn' . $allow_dynamic_sorting . '0000'  // for $disp_mode
       );
    exit();
    }
@@ -406,7 +408,8 @@ if ($sql_query != '') {
           $goto,
           $table_border,
           $cell_padding,
-          $max_text_field_display_len
+          $max_text_field_display_len,
+          $allow_dynamic_sorting
           );
        }
 
@@ -444,7 +447,8 @@ if ($sql_query != '') {
                   $goto,
                   $table_border,
                   $cell_padding,
-                  $max_text_field_display_len
+                  $max_text_field_display_len,
+                  $allow_dynamic_sorting
                   );
                exit();
                }

@@ -479,7 +479,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 
         //     ... at the left column of the result table header if possible
         //     and required
-        else if ($GLOBALS['cfgModifyDeleteAtLeft'] && $is_display['text_btn'] == '1') {
+        else if ($is_display['text_btn'] == '1') {
             $vertical_display['emptypre'] = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn') ? 2 : 1;
             if ($disp_direction == 'horizontal') {
                 echo "\n";
@@ -499,8 +499,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         }
 
         //     ... else if no button, displays empty(ies) col(s) if required
-        else if ($GLOBALS['cfgModifyDeleteAtLeft']
-                 && ($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn')) {
+        else if (($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn')) {
             $vertical_display['emptypre'] = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn') ? 2 : 1;
             if ($disp_direction == 'horizontal') {
                 echo "\n";
@@ -707,6 +706,8 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
        $fields_meta,
        $fields_cnt,
        $cfgLimitChars,
+       $bpn,
+       $mode = '',
        $disp_direction='horizontal'
        )
     {
@@ -784,127 +785,27 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
             echo (($disp_direction == 'horizontal') ? "\n" : '');
 
             // 1. Prepares the row (gets primary keys to use)
-            if ($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn') {
-                $primary_key              = '';
-                $unique_key               = '';
-                $uva_nonprimary_condition = '';
+            if ($is_display['edit_lnk'] != 'nn') {
 
-                // 1.1 Results from a "SELECT" statement -> builds the
-                //     the "primary" key to use in links
-                if ($is_display['edit_lnk'] == 'ur' /* || $is_display['edit_lnk'] == 'dr' */) {
-                    for ($i = 0; $i < $fields_cnt; ++$i) {
-                        $primary   = $fields_meta[$i];
-                        $condition = ' ' . PMA_backquote($primary->name) . ' ';
-
-                        // loic1: To fix bug #474943 under php4, the row
-                        //        pointer will depend on whether the "is_null"
-                        //        php4 function is available or not
-                        $pointer = (function_exists('is_null') ? $i : $primary->name);
-
-                        if (!isset($row[$primary->name])
-                            || (function_exists('is_null') && is_null($row[$pointer]))) {
-                            $condition .= 'IS NULL AND';
-                        } else {
-                            $condition .= '= \'' . PMA_sqlAddslashes($row[$pointer]) . '\' AND';
-                        }
-                        if ($primary->primary_key > 0) {
-                            $primary_key .= $condition;
-                        } else if ($primary->unique_key > 0) {
-                            $unique_key  .= $condition;
-                        }
-                        $uva_nonprimary_condition .= $condition;
-                    } // end for
-
-                    // Correction uva 19991216: prefer primary or unique keys
-                    // for condition, but use conjunction of all values if no
-                    // primary key
-                    if ($primary_key) {
-                        $uva_condition = $primary_key;
-                    } else if ($unique_key) {
-                        $uva_condition = $unique_key;
-                    } else {
-                        $uva_condition = $uva_nonprimary_condition;
-                    }
-                    $uva_condition     = urlencode(ereg_replace(' ?AND$', '', $uva_condition));
-                } // end if (1.1)
-
-                // 1.2 Defines the urls for the modify/delete link(s)
-                $url_query  = 'lang=' . $lang
-                            . '&amp;server=' . $server
-                            . '&amp;db=' . urlencode($db)
-                            . '&amp;table=' . urlencode($table)
-                            . '&amp;pos=' . $pos
-                            . '&amp;session_max_rows=' . $session_max_rows
-                            . '&amp;disp_direction=' . $disp_direction
-                            . '&amp;repeat_cells=' . $repeat_cells
-                            . '&amp;dontlimitchars=' . $dontlimitchars;
+                extract($row);  // Assumes that id field is present and sets $id.
 
                 // 1.2.1 Modify link(s)
-                if ($is_display['edit_lnk'] == 'ur') { // update row case
-                    $lnk_goto = 'sql.php3'
-                              . '?' . str_replace('&amp;', '&', $url_query)
-                              . '&sql_query=' . urlencode($sql_query)
-                              . '&goto=' . (empty($goto) ? 'tbl_properties.php3' : $goto);
-                    $edit_url = 'tbl_change.php3'
-                              . '?' . $url_query
-                              . '&amp;primary_key=' . $uva_condition
-                              . '&amp;sql_query=' . urlencode($sql_query)
-                              . '&amp;goto=' . urlencode($lnk_goto);
-                    $edit_str = $GLOBALS['strEdit'];
+                if (isset($id) and ($is_display['edit_lnk'] == 'ur')) { // update row case
+                    $edit_url = $mode . 'form-act-singly.phtml'
+                              . '?bpn=' . $bpn
+                              . '&amp;id=' . $id;
+                    $edit_str = 'Visit';
                 } // end if (1.2.1)
 
-                // 1.2.2 Delete/Kill link(s)
-                if ($is_display['del_lnk'] == 'dr') { // delete row case
-                    $lnk_goto = 'sql.php3'
-                              . '?' . str_replace('&amp;', '&', $url_query)
-                              . '&sql_query=' . urlencode($sql_query)
-                              . '&zero_rows=' . urlencode(htmlspecialchars($GLOBALS['strDeleted']))
-                              . '&goto=' . (empty($goto) ? 'tbl_properties.php3' : $goto);
-                    $del_url  = 'sql.php3'
-                              . '?' . $url_query
-                              . '&amp;sql_query=' . urlencode('DELETE FROM ' . PMA_backquote($table) . ' WHERE') . $uva_condition . urlencode(' LIMIT 1')
-                              . '&amp;zero_rows=' . urlencode(htmlspecialchars($GLOBALS['strDeleted']))
-                              . '&amp;goto=' . urlencode($lnk_goto);
-                    $js_conf  = 'DELETE FROM ' . PMA_jsFormat($table)
-                              . ' WHERE ' . trim(PMA_jsFormat(urldecode($uva_condition), FALSE)) . ' LIMIT 1';
-                    $del_str  = $GLOBALS['strDelete'];
-                } else if ($is_display['del_lnk'] == 'kp') { // kill process case
-                    $lnk_goto = 'sql.php3'
-                              . '?' . str_replace('&amp;', '&', $url_query)
-                              . '&sql_query=' . urlencode($sql_query)
-                              . '&goto=main.php3';
-                    $del_url  = 'sql.php3'
-                              . '?lang=' . $lang
-                              . '&amp;server=' . $server
-                              . '&amp;db=mysql'
-                              . '&amp;sql_query=' . urlencode('KILL ' . $row['Id'])
-                              . '&amp;goto=' . urlencode($lnk_goto);
-                    $js_conf  = 'KILL ' . $row['Id'];
-                    $del_str  = $GLOBALS['strKill'];
-                } // end if (1.2.2)
-
                 // 1.3 Displays the links at left if required
-                if ($GLOBALS['cfgModifyDeleteAtLeft']
-                    && ($disp_direction == 'horizontal')) {
-                    if (!empty($edit_url)) {
+                    if (isset($id) and !empty($edit_url)) {
                         ?>
     <td bgcolor="<?php echo $bgcolor; ?>">
         <a href="<?php echo $edit_url; ?>">
             <?php echo $edit_str; ?></a>
     </td>
                         <?php
-                    }
-                    if (!empty($del_url)) {
-                        echo "\n";
-                        ?>
-    <td bgcolor="<?php echo $bgcolor; ?>">
-        <a href="<?php echo $del_url; ?>"
-            <?php if (isset($js_conf)) echo 'onclick="return confirmLink(this, \'' . $js_conf . '\')"'; ?>>
-            <?php echo $del_str; ?></a>
-    </td>
-                        <?php
-                    }
-                } // end if (1.3)
+                    } // end if (1.3)
                 echo (($disp_direction == 'horizontal') ? "\n" : '');
             } // end if (1)
 
@@ -1337,7 +1238,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         <?php
         echo "\n";
         PMA_displayTableHeaders($bpn, $sql_query, $mode, $is_display, $fields_meta, $fields_cnt);
-        PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt, $cfgLimitChars);
+        PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt, $cfgLimitChars, $bpn, $mode);
         // lem9: vertical output case
         if ($disp_direction == 'vertical') {
             PMA_displayVerticalTable();

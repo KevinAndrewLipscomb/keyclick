@@ -95,15 +95,15 @@ require_once("f_emailaddrofbpn.phtml");
               if ($action == "update")
                  {
                  if (
-                       (($name = trim($name)) != "")
+                       ($name != "")
                     and
-                       (($address1 = trim($address1)) != "")
+                       ($address1 != "")
                     and
-                       (($city = trim($city)) != "")
+                       ($city != "")
                     and
-                       (($state = trim($state)) != "")
+                       ($state != "")
                     and
-                       (($zip = trim($zip)) != "")
+                       ($zip != "")
                     )
                  // then
                     {
@@ -362,15 +362,7 @@ require_once("f_emailaddrofbpn.phtml");
                  . "      <br>\n"
                  . "      -- or --<br>\n"
                  . "      <br>\n"
-                 . "      <a href=" . $mode . "form-add-donation.phtml?bpn=$bpn>Go to <b>Log a NEW donation</b> page.</a><br>\n"
-                 . "      <br>\n"
-                 . "      -- or --<br>\n"
-                 . "      <br>\n"
-                 . "      <a href=" . $mode . "form-add-donation-old.phtml?bpn=$bpn>Go to <b>Log an OLD donation</b> page.</a><br>\n"
-                 . "      <br>\n"
-                 . "      -- or --<br>\n"
-                 . "      <br>\n"
-                 . "      <a href=" . $mode . "main.phtml?bpn=$bpn>Go to <b>Main KEYclick</b> page.</a>\n"
+                 . "      <a href=" . $mode . "main.phtml?bpn=$bpn>Return to main KEYclick page.</a>\n"
                  . "   </form>\n"
                  . "</blockquote>\n";
               }
