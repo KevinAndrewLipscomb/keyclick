@@ -1,0 +1,91 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+//
+if ($mode) error_reporting(E_ALL);
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_roleemailaddress.phtml");
+require_once("f_password.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
+//
+$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+?>
+<html>
+
+<head><title>KEYclick - Analyses & Reports</title></head>
+
+<? BodyOpen(); ?>
+<table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
+   <tr>
+      <td>
+        <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+           <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
+        </td><td>
+           <h6 align="center">
+              <a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
+           <h1 align="center">Analyses & Reports</h1>
+        </td></tr></table>
+        <hr>
+        <br>
+        <?
+        if ($connected != "TRUE")
+           {
+           ?>
+           <h2><i>Sorry...</i></h2>
+           <b>
+           <blockquote>
+              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+           </blockquote>            
+           </b>
+           <?
+           }
+        else
+           {
+           //
+           $agency = BeValidBoardingPass($bpn,$mode);
+           if ($agency == "")
+              {
+              KickOff($mode);
+              }
+           else
+              {
+              ?>
+              <p>The following queries are programmed into the KEYclick system.&nbsp; For other queries, contact the
+                 <a href=mailto:"<? echo RoleEmailAddress("",$mode); ?>">KEYclick System Administrator</a>.</p>
+              <blockquote>
+                 <form action=<? echo $mode; ?>analyze.phtml method=post>
+                     <input type=hidden name=bpn value="<? echo $bpn; ?>">
+                     <input type=hidden name=filename value="keyclick-report">
+                     <p>
+                        <select name=sql_query>
+                           <option value="select * from <? echo $mode; ?>donation">All donations
+                        </select>
+                     </p>
+                     <p><input type=radio name=format value=html checked>View on screen</p>
+                     <p><input type=radio name=format value=zip>Download as ZIP file</p>
+                     <input type=submit value="Go!">
+                 </form>
+              </blockquote>
+              <?
+              }
+           }
+        ?>
+        <br>
+        <p><small><small><em><pre>$Id$</pre></em></small></small>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
