@@ -17,6 +17,7 @@ $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
 $undo = $undo;
+$cross_id = $cross_id;
 //
 error_reporting(E_ALL);
 //
@@ -127,7 +128,7 @@ require_once("f_methodselectionlist.phtml");
                     )
                     or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
-                 $result = mysql_query("select name,address1,city,state,zip from resident where id='$id'")
+                 $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
                     or die("Master record lookup failed with error: " . mysql_error());
                  extract(mysql_fetch_array($result));
                  //
@@ -195,7 +196,7 @@ require_once("f_methodselectionlist.phtml");
                  . "<form action=" . $mode . "form-add-donation.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
-                 . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5></td></tr>\n"
+                 . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5 value=$cross_id></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
               echo ProspectivitySelectionList($agency,$mode);
@@ -218,6 +219,7 @@ require_once("f_methodselectionlist.phtml");
                  . "      </tr>\n"
                  . "   </table>\n"
                  . "</form>\n";
+              $cross_id = "";
               }
            else
               {
