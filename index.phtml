@@ -71,7 +71,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                            <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
                         </td>
                      </tr>
-                     <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top><b><font color=D0D0D0>Add</form></b></td><td valign=top>a new resident.</td></tr>
+                     <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top><b><a href=<? echo $mode; ?>form-add-resident.phtml>Add</a></b></td><td valign=top>a new resident.</td></tr>
                      <tr>
                         <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>

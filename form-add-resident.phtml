@@ -1,0 +1,172 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+$add_and_cancel = $add_and_cancel;
+$add_and_repeat = $add_and_repeat;
+$cancel = $cancel;
+//
+if ($mode) error_reporting(E_ALL);
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_password.phtml");
+require_once("f_roleemailaddress.phtml");
+?>
+<html>
+
+<head>
+<title>KEYclick - Add resident</title>
+</head>
+
+<? BodyOpen(); ?>
+<table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
+   <tr>
+      <td>
+        <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+           <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
+        </td><td>
+           <h6 align="center">
+              <a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+           <h1 align="center">Add resident</h1>
+        </td></tr></table>
+        <hr>
+        <br>
+        <?
+        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+           {
+           ?>
+           <h2><i>Sorry...</i></h2>
+           <b>
+           <blockquote>
+              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+           </blockquote>            
+           </b>
+           <?
+           }
+        else
+           {
+           //
+           // Database is up.
+           //
+           $feedback_column_width_percentage = 25;
+           echo "<table width=100%><tr>"
+              . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
+              . "<p><b><u>Previous operation</u></b></p>\n";
+           if (($add_and_repeat) or ($add_and_cancel))
+              {
+              //
+              // User indicated that data should be saved.  Validate parameters.
+              //
+              echo "<small>\n";
+              //
+              if (
+                    ($last_name != "")
+                 and
+                    ($address1 != "")
+                 and
+                    ($city != "")
+                 and
+                    ($state != "")
+                 and
+                    ($zip != "")
+                 )
+              // then
+                 {
+                 $name = strtoupper("$last_name $name_detail");
+                 $address1 = strtoupper($address1);
+                 $city = strtoupper($city);
+                 $state = strtoupper($state);
+                 $zip = strtoupper($zip);
+                 //
+                 extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident")));
+                 //
+                 $result = mysql_query
+                    (
+                    "insert into " . $mode . "resident "
+                    .  "set name='" . addslashes($name) . "' "
+                    .  "   , address1='" . addslashes($address1) . "' "
+                    .  "   , city='" . addslashes($city) . "' "
+                    .  "   , state='" . addslashes($state) . "' "
+                    .  "   , zip='" . addslashes($zip) . "' "
+                    .  "   , id=$new_id"
+                    )
+                    or die("Insert failed with error: " . mysql_error());
+                 echo "<p><b>SUCCEEDED</b></p>\n"
+                    . "<small><dl>\n"
+                    . "<dt>Resident ID:</dt><dd>$new_id</dd>\n"
+                    . "<dt>Name:</dt><dd>$name</dd>\n"
+                    . "<dt>Address:</dt><dd>$address1</dd>\n"
+                    . "<dt>City:</dt><dd>$city</dd>\n"
+                    . "<dt>State:</dt><dd>$state</dd>\n"
+                    . "<dt>Zip:</dt><dd>$zip</dd>\n"
+                    . "</dl></small>\n";
+                 }
+              else
+                 {
+                 echo "<p><b>FAILED</b></p>\n"
+                    . "<p><b>One or more fields were missing or invalid.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                    . "problem.</b></p>\n";
+                 }
+              //
+              echo "</small>\n";
+              //
+              $new_id = $last_name = $name_detail = $name = $address1 = $city = $state = $zip = "";
+              //
+              }
+           else
+              {
+              echo "<p>None</p>\n";
+              }
+           //
+           echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
+           //
+           if ((!$add_and_cancel) and (!$cancel))
+              {
+              echo "<p><b><u>Current operation:</u></b></p>\n"
+                 . "<form action=" . $mode . "form-add-resident.phtml method=post>\n"
+                 . "   <table>\n"
+                 . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
+                 . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
+                 . "      <tr><td align=right>Address:</td><td colspan=2><input type=text name=address1 size=50 maxlength=50></td></tr>\n"
+                 . "      <tr><td align=right>City:</td><td colspan=2><input type=text name=city size=35 maxlength=35></td></tr>\n"
+                 . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state size=2 maxlength=2></td></tr>\n"
+                 . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
+                 . "      <tr>\n"
+                 . "         <td colspan=2>\n"
+                 . "            <table width=100%>\n"
+                 . "               <tr>\n"
+                 . "                  <td align=center><input type=submit name=add_and_repeat value=\"Add and Repeat\"></td>\n"
+                 . "                  <td align=center><input type=submit name=add_and_cancel value=\"Add and Stop\"></td>\n"
+                 . "                  <td align=center><input type=submit name=cancel value=Cancel></td>\n"
+                 . "               </tr>\n"
+                 . "            </table>\n"
+                 . "         </td>\n"
+                 . "      </tr>\n"
+                 . "   </table>\n"
+                 . "</form>\n";
+              }
+           else
+              {
+              echo "<p><b><a href=" . $mode . "index.phtml>Return to main KEYclick page.</a></b></p>\n";
+              }
+           echo "</td></tr></table>\n";
+           //
+           } // database up
+        ?>
+        <br>
+        <p><small><small><em><pre>$Id$</pre></em></small></small>
+       </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+
