@@ -37,6 +37,7 @@ require_once("f_roleemailaddress.phtml");
            <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
         </td></tr></table>
         <hr>
+        <br>
         <?
         if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
            {
@@ -51,8 +52,98 @@ require_once("f_roleemailaddress.phtml");
            }
         else
            {
+           //
+           // Database is up.
+           //
+           $feedback_column_width_percentage = 25;
+           echo "<table width=100%><tr>"
+              . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
+              . "<p><b><u>Previous operation</u></b></p>\n";
+           if ($save)
+              {
+              //
+              // User indicated that data should be saved.  Validate parameters.
+              //
+              echo "<small>\n";
+              if ($action == "update")
+                 {
+                 if (
+                       ($name != "")
+                    and
+                       ($address1 != "")
+                    and
+                       ($city != "")
+                    and
+                       ($state != "")
+                    and
+                       ($zip != "")
+                    )
+                 // then
+                    {
+                    $result = mysql_query
+                       (
+                       "update " . $mode . "resident "
+                       .  "set name='" . addslashes($name) . "' "
+                       .  "   , address1='" . addslashes($address1) . "' "
+                       .  "   , city='" . addslashes($city) . "' "
+                       .  "   , state='" . addslashes($state) . "' "
+                       .  "   , zip='" . addslashes($zip) . "' "
+                       .  "where id=$id_to_save "
+                       .  "limit 1 "
+                       )
+                       or die("Update failed with error: " . mysql_error());
+                    echo "<p><b>SUCCEEDED</b></p>\n"
+                       . "<small><dl>\n"
+                       . "<dt>Resident ID:</dt><dd>$id_to_save</dd>\n"
+                       . "<dt>Name:</dt><dd>$name</dd>\n"
+                       . "<dt>Address:</dt><dd>$address1</dd>\n"
+                       . "<dt>City:</dt><dd>$city</dd>\n"
+                       . "<dt>State:</dt><dd>$state</dd>\n"
+                       . "<dt>Zip:</dt><dd>$zip</dd>\n"
+                       . "</dl></small>\n";
+                    }
+                 else
+                    {
+                    echo "<p><b><u>FAILED</u></b></p>\n"
+                       . "<p><b>One or more fields were missing.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                       . "problem.</b></p>\n";
+                    }
+                 }
+              elseif ($action == "delete")
+                 {
+                 $result = mysql_query
+                    (
+                    "delete from " . $mode . "resident "
+                    .  "where id=$id_to_save "
+                    .  "limit 1"
+                    )
+                    or die("Delete failed with error: " . mysql_error());
+                 echo "<p><b>SUCCEEDED</b></p>\n"
+                    . "<small>Resident ID $id_to_save has been deleted.</small>\n";
+                 }
+              else
+                 {
+                 echo "<p><b>FAILED</b></p>\n"
+                    . "<p><b>Missing or unknown <u>action</u>.</p>\n";
+                 }
+              //
+              echo "</small>\n";
+              //
+              $name = $address1 = $city = $state = $zip = "";
+              //
+              }
+           else
+              {
+              echo "<p>None</p>\n";
+              }
+           //
+           echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
+           //
            if ($id != "")
               {
+              //
+              // Lookup record with specified ID.
+              //
               $result = mysql_query
                  (
                  "select name "
@@ -60,7 +151,7 @@ require_once("f_roleemailaddress.phtml");
                  .  ", city "
                  .  ", state "
                  .  ", zip "
-                 .  "from resident "
+                 .  "from " . $mode . "resident "
                  .  "where id='$id' "
                  )
                  or die("Query failed with error: " . mysql_error());
@@ -68,7 +159,9 @@ require_once("f_roleemailaddress.phtml");
               if ($num_rows)
                  {
                  extract(mysql_fetch_array($result));
-                 echo "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                 echo "<p><b><u>Current operation:</u></b></p>\n"
+                    . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                    . "   <input type=hidden name=id_to_save value=$id>\n"
                     . "<blockquote>\n"
                     . "   <table>\n"
                     . "      <tr><td align=right><b>Resident ID:</b></td><td colspan=2><b>$id</b></td></tr>\n"
@@ -80,8 +173,8 @@ require_once("f_roleemailaddress.phtml");
                     . "      <tr>\n"
                     . "         <td align=right valign=top>Action:</td>\n"
                     . "         <td colspan=2>\n"
-                    . "            <input type=radio name=action value=update checked>Update it<br>\n"
-                    . "            <input type=radio name=action value=delete>Delete it\n"
+                    . "            <input type=radio name=action value=update checked>Update<br>\n"
+                    . "            <input type=radio name=action value=delete>Delete\n"
                     . "         </td>\n"
                     . "      </tr>\n"
                     . "      <tr><td colspan=3><hr></td></tr>\n"
@@ -96,7 +189,7 @@ require_once("f_roleemailaddress.phtml");
                     . "         <td colspan=3>\n"
                     . "            <table width=100%>\n"
                     . "               <tr>\n"
-                    . "                  <td align=center><input type=submit name=go value=Save></td>\n"
+                    . "                  <td align=center><input type=submit name=save value=Save></td>\n"
                     . "                  <td align=center><input type=submit name=cancel value=Cancel></td>\n"
                     . "               </tr>\n"
                     . "            </table>\n"
@@ -110,19 +203,40 @@ require_once("f_roleemailaddress.phtml");
                  {
                  ?>
                  <p><b>No such Resident ID found.</b></p>
-                 <center>
+                 <blockquote>
                     <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                        Edit and retry:
                        <input type=text name=id maxlength=5 size=5 value=<? echo $id; ?>>
-                       <input type=submit value="Go!">&nbsp; &nbsp;<input type=submit name=cancel value=Cancel>
+                       <input type=submit value="Go!">
                     </form>
-                 </center>
+                 </blockquote>
                  <?
                  }
               } // non-null $id
+           else
+              {
+              //
+              // No ID specified.
+              //
+              echo "<p><b>No Resident ID specified</b></p>\n"
+                 . "<blockquote>\n"
+                 . "   <form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                 . "      Specify a Resident ID:\n"
+                 . "      <input type=text name=id maxlength=5 size=5 value=$id>\n"
+                 . "      <input type=submit value=\"Go!\"><br>\n"
+                 . "      <br>\n"
+                 . "      -- or --<br>\n"
+                 . "      <br>\n"
+                 . "      <a href=" . $mode . "index.phtml>Return to main KEYclick page.</a>\n"
+                 . "   </form>\n"
+                 . "</blockquote>\n";
+              }
+           //
+           echo "</td></tr></table>\n";
+           //
            } // database up
         ?>
-        <hr>
+        <br>
         <p><small><small><em><pre>$Id$</pre></em></small></small>
        </td>
     </tr>
