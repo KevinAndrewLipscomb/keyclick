@@ -1879,3 +1879,4 @@ update resident set street_id=1845 where address1 like '%OFFICE SQUARE LN%';
 update resident set street_id=1846 where address1 like '%PARLAIMENT DR%';
 update resident set street_id=1847 where address1 like '%SHORE DR%';
 update resident set street_id=1 where address1 like '%BOX %';
+# update x_resident set address1 = (address1 - x_street.name) where x_street.id=street_id;
