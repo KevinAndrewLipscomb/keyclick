@@ -10,7 +10,11 @@ function ViewQuery
    $server,
    $zero_rows,
    $goto,
-   $mode = ""
+   $table_border,
+   $cell_padding,
+   $max_text_field_display_len,
+   $mode = "",
+   $disp_mode = ""
    )
 {
 /**
@@ -404,7 +408,19 @@ else {
             // libraries/display_tbl.lib.php3
             $disp_mode = 'urdr11110';
         }
-        PMA_displayTable($result, $disp_mode, $fields_meta, $fields_cnt, $bpn, $sql_query, $mode);
+        PMA_displayTable
+           (
+           $result,
+           $disp_mode,
+           $fields_meta,
+           $fields_cnt,
+           $bpn,
+           $sql_query,
+           $max_text_field_display_len,
+           $mode,
+           $table_border,
+           $cell_padding
+           );
         mysql_free_result($result);
 
         // Displays "Insert a new row" link if required
