@@ -17,6 +17,7 @@ $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
 $undo = $undo;
+$year_num = $year_num;
 //
 error_reporting(E_ALL);
 //
@@ -36,7 +37,7 @@ require_once("f_methodselectionlist.phtml");
 <html>
 
 <head>
-<title>KEYclick - Log new donation</title>
+<title>KEYclick - Log old donation</title>
 </head>
 
 <? BodyOpen(); ?>
@@ -48,7 +49,7 @@ require_once("f_methodselectionlist.phtml");
         </td><td>
            <h6 align="center">
               <a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
-           <h1 align="center">Log new donation</h1>
+           <h1 align="center">Log old donation</h1>
         </td></tr></table>
         <hr>
         <br>
@@ -96,6 +97,11 @@ require_once("f_methodselectionlist.phtml");
               // then
                  {
                  //
+                 // Supply missing date parts
+                 //
+                 if (!$month_num) $month_num = 1;
+                 if (!$day_num) $day_num = 1;
+                 //
                  // Determine next value for per_clerk_seq_num.
                  //
                  $per_clerk_seq_num = 1;
@@ -122,8 +128,8 @@ require_once("f_methodselectionlist.phtml");
                     ($qry =
                     "insert into " . $mode . "donation "
                     .  "set id=$id "
+                    .  "   , date='$year_num-$month_num-$day_num' "
                     .  "   , amount=$amount "
-                    .  "   , date=CURRENT_DATE "
                     .  "   , prospectivity='$prospectivity' "
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
@@ -154,7 +160,8 @@ require_once("f_methodselectionlist.phtml");
                     {
                     echo "<hr>$num_priors prior donation(s) on record\n";
                     }
-                 echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                 echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
+                    . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
                     . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
                     . "<dt>Method:</dt><dd>$method</dd>\n"
                     . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
@@ -194,12 +201,60 @@ require_once("f_methodselectionlist.phtml");
            //
            echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
            //
+           // On first time in, must set #year_num to something, else it's possible to insert date 0000-00-00.
+           //
+           if (!$year_num) $year_num = date('Y');
+           //
            if ((!$add_and_cancel) and (!$cancel))
               {
               echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form action=" . $mode . "form-add-donation.phtml method=post>\n"
+                 . "<form action=" . $mode . "form-add-donation-old.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
+                 . "      <tr>\n"
+                 . "         <td align=right>Approximate date:</td>\n"
+                 . "         <td colspan=2>\n"
+                 . "            <table>\n"
+                 . "               <tr><td colspan=3><hr></td></tr>\n"
+                 . "               <tr>\n"
+                 . "                  <td align=center>Year</td><td align=center>Month</td><td align=center>Day</td>\n"
+                 . "               </tr>\n"
+                 . "               <tr>\n"
+                 . "                  <td align=center>\n"
+                 . "                     <select name=year_num>\n"
+                 . "               <option selected>$year_num</option>\n";
+              for ($year_num_index = date('Y'); $year_num_index >= 1951; $year_num_index--)
+                 {
+                 echo "<option>$year_num_index</option>\n";
+                 }
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "                  <td align=center>\n"
+                 . "                     <select name=month_num>\n"
+                 . "               <option selected>$month_num</option>\n"
+                 . "               <option></option>";
+              for ($month_num_index = 1; $month_num_index <= 12; $month_num_index++)
+                 {
+                 echo "<option>$month_num_index</option>\n";
+                 }
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "                  <td align=center>\n"
+                 . "                     <select name=day_num>\n"
+                 . "               <option selected>$day_num</option>\n"
+                 . "               <option></option>";
+              for ($day_num_index = 1; $day_num_index <= 31; $day_num_index++)
+                 {
+                 echo "<option>$day_num_index</option>\n";
+                 }
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "               </tr>\n"
+                 . "               <tr><td colspan=3 align=center>(Choose blank or arbitrary value if unknown.)</td></tr>\n"
+                 . "               <tr><td colspan=3><hr></td></tr>\n"
+                 . "            </table>\n"
+                 . "         </td>\n"
+                 . "      </tr>\n"
                  . "      <tr><td align=right>ROD #:</td><td colspan=2><input type=text name=id size=5 maxlength=5></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
