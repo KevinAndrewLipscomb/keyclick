@@ -1,0 +1,131 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+//
+if ($mode) error_reporting(E_ALL);
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_roleemailaddress.phtml");
+require_once("f_password.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
+//
+$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+?>
+<html>
+
+<head><title>KEYclick - Export Follow-Up ROD</title></head>
+
+<? BodyOpen(); ?>
+<table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
+   <tr>
+      <td>
+        <table>
+           <tr>
+              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+              <td>
+                 <h6 align="center"><a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
+                 <h1 align="center">Export Follow-Up ROD</h1>
+              </td>
+              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+              <td><? PutLibPhotoRandomPlaced("eye-candy",1); ?></td>
+           </tr>
+        </table>
+        <hr>
+        <br>
+        <?
+        if ($connected != "TRUE")
+           {
+           ?>
+           <h2><i>Sorry...</i></h2>
+           <b>
+           <blockquote>
+              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+           </blockquote>            
+           </b>
+           <?
+           }
+        else
+           {
+           //
+           $agency = BeValidBoardingPass($bpn,$mode);
+           if ($agency == "")
+              {
+              KickOff($mode);
+              }
+           else
+              {
+              $current_year_num = date('Y');
+              echo "<p>To generate a Follow-Up ROD, KEYclick needs some additional information.</p>\n"
+                 . "<form action=" . $mode . "analyze.phtml method=post>\n"
+                 . "   <input type=hidden name=bpn value=$bpn>\n"
+                 . "   <input type=hidden name=algorithm value=RODFOLUP0>\n"
+                 . "   <input type=hidden name=parent_enumeral value=RODFOLUP0>\n"
+                 . "   <blockquote>\n"
+                 . "      <p>What was the approximate date that this cycle's primary mailout hit people's mailboxes?</p>\n"
+                 . "      <blockquote>\n"
+                 . "            <table>\n"
+                 . "               <tr>\n"
+                 . "                  <td align=center>Year</td><td align=center>Month</td><td align=center>Day</td>\n"
+                 . "               </tr>\n"
+                 . "               <tr>\n";
+              //
+              // The Year combo box only presents the current year and the previous year.  We're assuming that beyond that
+              // time frame, another total saturation mailout is indicated.
+              //
+              echo "                  <td align=center>\n"
+                 . "                     <select name=year_num>\n"
+                 . "                        <option selected>$current_year_num</option>\n"
+                 . "                        <option>" . ($current_year_num - 1) . "</option>\n";
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "                  <td align=center>\n"
+                 . "                     <select name=month_num>\n"
+                 . "                        <option selected></option>\n";
+              for ($month_num_index = 1; $month_num_index <= 12; $month_num_index++)
+                 {
+                 echo "<option>$month_num_index</option>\n";
+                 }
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "                  <td align=center>\n"
+                 . "                     <select name=day_num>\n"
+                 . "                        <option selected></option>";
+              for ($day_num_index = 1; $day_num_index <= 31; $day_num_index++)
+                 {
+                 echo "<option>$day_num_index</option>\n";
+                 }
+              echo "                     </select>\n"
+                 . "                  </td>\n"
+                 . "               </tr>\n"
+                 . "               <tr><td colspan=3 align=center>(Choose blank or arbitrary value if unknown.)</td></tr>\n"
+                 . "            </table>\n"
+                 . "      </blockquote>\n"
+                 . "      <p>Records with donations on or after this date will not be included in the Follow-Up"
+                 . "         ROD.</p>\n"
+                 . "   </blockquote>\n"
+                 . "   <p><i>Generation of the Follow-Up ROD currently takes <u>3-5 minutes</u>.&nbsp; Once you press the "
+                 . "      Go! button, do <u>not</u> close or navigate away from this window.&nbsp; (You may, however, "
+                 . "      continue browsing in another window and you may run other programs.)</i></p>\n"
+                 . "   <input type=submit value=\"Go!\">\n"
+                 . "</form>\n";
+              }
+           }
+        ?>
+        <br>
+        <p><small><small><em><pre>$Id$</pre></em></small></small>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
