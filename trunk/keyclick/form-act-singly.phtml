@@ -18,6 +18,8 @@ require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_password.phtml");
 require_once("f_roleemailaddress.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
 ?>
 <html>
 
@@ -51,6 +53,12 @@ require_once("f_roleemailaddress.phtml");
            <?
            }
         else
+           {
+           if (($agency = BeValidBoardingPass($bpn,$mode)) == "")
+              {
+              KickOff($mode);
+              }
+           else
            {
            //
            // Database is up.
@@ -161,6 +169,7 @@ require_once("f_roleemailaddress.phtml");
                  extract(mysql_fetch_array($result));
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                    . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n"
                     . "<blockquote>\n"
                     . "   <table>\n"
@@ -206,6 +215,7 @@ require_once("f_roleemailaddress.phtml");
                  <blockquote>
                     <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                        Edit and retry:
+                       <input type=hidden name=bpn value=<? echo $bpn; ?>>
                        <input type=text name=id maxlength=5 size=5 value=<? echo $id; ?>>
                        <input type=submit value="Go!">
                     </form>
@@ -221,19 +231,21 @@ require_once("f_roleemailaddress.phtml");
               echo "<p><b>No Resident ID specified</b></p>\n"
                  . "<blockquote>\n"
                  . "   <form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                 . "      <input type=hidden name=bpn value=$bpn>\n"
                  . "      Specify a Resident ID:\n"
                  . "      <input type=text name=id maxlength=5 size=5 value=$id>\n"
                  . "      <input type=submit value=\"Go!\"><br>\n"
                  . "      <br>\n"
                  . "      -- or --<br>\n"
                  . "      <br>\n"
-                 . "      <a href=" . $mode . "index.phtml>Return to main KEYclick page.</a>\n"
+                 . "      <a href=" . $mode . "main.phtml?bpn=$bpn>Return to main KEYclick page.</a>\n"
                  . "   </form>\n"
                  . "</blockquote>\n";
               }
            //
            echo "</td></tr></table>\n";
            //
+           } // BeValidBoardingPass
            } // database up
         ?>
         <br>
@@ -244,4 +256,3 @@ require_once("f_roleemailaddress.phtml");
 </body>
 
 </html>
-

@@ -1,0 +1,180 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+//
+if ($mode) error_reporting(E_ALL);
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_password.phtml");
+require_once("f_roleemailaddress.phtml");
+require_once("f_beauthorized.phtml");
+require_once("f_keyclickmailheaders.phtml");
+?>
+<html>
+
+<head>
+<title>KEYclick - Boarding Pass Generation</title>
+</head>
+
+<? BodyOpen(); ?>
+<table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
+   <tr>
+      <td>
+         <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+            <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
+         </td><td>
+            <h6 align="center">
+               <a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+            <h1 align="center">Boarding Pass Generation</h1>
+         </td></tr></table>
+         <hr>
+         <br>
+         <?
+         if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+            {
+            ?>
+            <h2><i>Sorry...</i></h2>
+            <b>
+            <blockquote>
+               <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+            </blockquote>            
+            </b>
+            <?
+            }
+         else
+            {
+            //
+            // Database is up.  Validate parameters.
+            //
+            if (
+                  ($email_addr != "")
+               and
+                  ($agency != "")
+               )
+            // then
+               {
+               if (BeAuthorized($email_addr,$agency,$mode) != "TRUE")
+                  {
+                  ?>
+                  <h2><i>Sorry...</i></h2>
+                  <blockquote>
+                     <?
+                     echo "<p><a href=mailto:\""
+                        . RoleEmailAddress("keyclick-coordinator",$mode,$agency)
+                        . "\">$agency's KEYclick Coordinator</a> has not enrolled <i>$email_addr</i> in its table of valid "
+                        . "KEYclick users.</p>";
+                     ?>
+                  </blockquote>            
+                  <?
+                  }
+               else
+                  {
+                  //
+                  // Generate the Boarding Pass Number (bpn).
+                  //
+                  srand((double)microtime()*1000000); 
+                  $raw_bpn =  rand();
+                  $result = mysql_query("select md5(\"$raw_bpn\") as bpn")
+                     or die("Generation of Boarding Pass Number failed with error: " . mysql_error());
+                  extract(mysql_fetch_array($result));
+                  //
+                  // Calculate the expiration time.
+                  //
+                  $expiration_time = time() + 1800;  // 30 minutes
+                  //
+                  // Record the boarding pass attributes in the manifest.
+                  //
+                  mysql_query
+                     (
+                     "insert into " . $mode . "manifest set bpn='$bpn' "
+                     .  ", ip='$REMOTE_ADDR' "
+                     .  ", agency='$agency' "
+                     .  ", expiration_time=$expiration_time "
+                     )
+                     or die("Insert failed with error: " . mysql_error());
+                  //
+                  // Generate the challenge message.
+                  //
+                  //             0        1         2         3         4         5         6         7
+                  //             123456789012345678901234567890123456789012345678901234567890123456789012
+                  $challenge = "";
+                  $challenge .= "This is your KEYclick Boarding Pass.  It is only valid on the computer\n"
+                             .  "that you used to log into KEYclick, and only for the $agency database.\n\n"
+                             .  "This Boarding Pass will expire when you have not used KEYclick for 30\n"
+                             .  "minutes, or when you explicitly log out.\n\n"
+                             .  "Please click here to continue:\n"
+                             .  RootUrl()
+                             .  "/" . $mode . "main.phtml?bpn=$bpn\n\n";
+                  //
+                  // Add sig lines.
+                  //
+                  $challenge .= "-- KEYclick\n"
+                             .  "-- Home page: " . HomePageUrl() . "\n"
+                             .  "-- Sysadmin: " . RoleEmailAddress("",$mode) . "\n";
+                  //
+                  // Send the mail.
+                  //
+                  $result = mail($email_addr, "KEYclick Boarding Pass", $challenge, KeyclickMailHeaders());
+                  //
+                  if ($result)
+                     {
+                     echo "<p>KEYclick has sent a Boarding Pass to <b>$email_addr</b>.</p>";
+                     echo "<p><b>Check your email periodically for the Boarding Pass, which contains instructions for completing the "
+                        . "log-in process.</b></p>";
+                     }
+                  else
+                     {
+                     //
+                     // Fill the page out with a warning and instructions.
+                     //
+                     ?>
+                     <h2><i>Error!</i></h2>
+                     <b>
+                     <blockquote>
+                        <p>KEYclick encountered an internal error while processing your request.&nbsp; Contact the
+                           <a href=mailto:"<? echo RoleEmailAddress("",$mode); ?>">KEYclick System Administrator</a>.</p>
+                     </blockquote>            
+                     </b>
+                     <?
+                     }
+                  }
+               }
+            else
+               {
+               //
+               // Fill the page out with a warning and instructions.
+               //
+               ?>
+               <h2><i>Error!</i></h2>
+               <b>
+               <blockquote>
+                  <p>You did not supply one or more of the required parameters.&nbsp; You must supply values for these fields:</p>
+                  <ul>
+                     <li><p>Email address</p>
+                     <li><p>Agency</p>
+                  </ul>
+                  <p>Please press your browser's [<--&nbsp;BACK] button to correct the problems.</p>
+               </blockquote>            
+               </b>
+               <?
+               }
+            } // database up
+         ?>
+         <br>
+         <hr>
+         <p><small><small><em><pre>$Id$</pre></em></small></small>
+      </td>
+   </tr>
+</table>
+</body>
+
+</html>
