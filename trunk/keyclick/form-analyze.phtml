@@ -63,7 +63,10 @@ require_once("f_kickoff.phtml");
                  . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
                  . "<table align=center width=90%>\n";
               //
-              $chunk_size = 1000;
+              extract(  // Sets $chunk_size.
+                 mysql_fetch_array(
+                    mysql_query(
+                       "select value as chunk_size from " . $mode . "tuning_parm where name='screen-view-chunk-size'")));
               //
               switch ($parent_enumeral_expression)
               {
@@ -83,16 +86,16 @@ require_once("f_kickoff.phtml");
                  echo "   <tr>\n"
                     . "      <td><b>Simplified ROD sorted by Name &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
+                    . "         <form action=" . $mode . "form-analyze.phtml method=post>\n"
+                    . "            <input type=hidden name=bpn value=$bpn>\n"
+                    . "            <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$enumeral'\">\n"
+                    . "            Use latest snapshot: <input type=submit value=\"Go!\">\n"
+                    . "         </form>\n"
                     . "         <form action=" . $mode . "analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
                     . "            <input type=hidden name=algorithm value=$enumeral>\n"
                     . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
                     . "            Start from scratch: <input type=submit value=\"Go!\">\n"
-                    . "         </form>\n"
-                    . "         <form action=" . $mode . "form-analyze.phtml method=post>\n"
-                    . "            <input type=hidden name=bpn value=$bpn>\n"
-                    . "            <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$enumeral'\">\n"
-                    . "            Use latest snapshot: <input type=submit value=\"Go!\">\n"
                     . "         </form>\n"
                     . "      </td>\n"
                     . "   </tr>\n"
@@ -100,12 +103,12 @@ require_once("f_kickoff.phtml");
                     . "      <td colspan=2><blockquote><i>\n"
                     . "<p>These Go! buttons give you access to a "
                     . "simplified version of the Resident/Occupant Database (ROD) <u>sorted by name</u>.</p>\n"
+                    . "<p>The <u>Use latest snapshot</u> option give you relatively quick access to (possibly stale) data.</p>\n"
                     . "<p>The <u>Start from scratch</u> option performs extensive processing and <u>currently takes as "
                     . "long as 15-20 minutes</u>, but assures that you will see the latest & greatest data.&nbsp; If you "
                     . "choose this option, do <u>not</u> close or navigate away from this window once you press the Go! "
                     . "button.&nbsp; (You may, however, continue browsing in another window and you may run other "
                     . "programs.)</p>\n"
-                    . "<p>The <u>Use latest snapshot</u> option give you immediate access to (possibly stale) data.</p>\n"
                     . "<p>Sample output:</p><blockquote><pre>"
                     . "   ID     <b>NAME              </b>ADDRESS            CITY            ST  ZIP\n"
                     . "   -----  <b>----              </b>-------            ----            --  ---\n"
@@ -122,16 +125,16 @@ require_once("f_kickoff.phtml");
                  echo "   <tr>\n"
                     . "      <td><b>Simplified ROD sorted by Address &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
+                    . "         <form action=" . $mode . "form-analyze.phtml method=post>\n"
+                    . "            <input type=hidden name=bpn value=$bpn>\n"
+                    . "            <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$enumeral'\">\n"
+                    . "            Use latest snapshot: <input type=submit value=\"Go!\">\n"
+                    . "         </form>\n"
                     . "         <form action=" . $mode . "analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
                     . "            <input type=hidden name=algorithm value=$enumeral>\n"
                     . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
                     . "            Start from scratch: <input type=submit value=\"Go!\">\n"
-                    . "         </form>\n"
-                    . "         <form action=" . $mode . "form-analyze.phtml method=post>\n"
-                    . "            <input type=hidden name=bpn value=$bpn>\n"
-                    . "            <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$enumeral'\">\n"
-                    . "            Use latest snapshot: <input type=submit value=\"Go!\">\n"
                     . "         </form>\n"
                     . "      </td>\n"
                     . "   </tr>\n"
@@ -139,11 +142,11 @@ require_once("f_kickoff.phtml");
                     . "      <td colspan=2><blockquote><i>\n"
                     . "<p>These Go! buttons give you a "
                     . "simplified version of the Resident/Occupant Database (ROD) <u>sorted by address</u>.</p>\n"
+                    . "<p>The <u>Use latest snapshot</u> option give you relatively quick access to (possibly stale) data.</p>\n"
                     . "<p>The <u>Start from scratch</u> option performs some extremely extensive processing and "
                     . "<u>currently takes as long as 1-2 hours</u>.&nbsp; If you choose this option, do "
                     . "<u>not</u> close or navigate away from this window once you press the Go! button.&nbsp; (You may, "
                     . "however, continue browsing in another window and you may run other programs.)</p>\n"
-                    . "<p>The <u>Use latest snapshot</u> option give you immediate access to (possibly stale) data.</p>\n"
                     . "<p>Sample output:</p><blockquote><pre>"
                     . "   ID     NAME              <b>NUMB  STREET ADDR   </b>CITY            ST  ZIP\n"
                     . "   -----  ----              <b>----  -----------   </b>----            --  ---\n"
@@ -181,7 +184,20 @@ require_once("f_kickoff.phtml");
                     . "                  <select name=part_num>";
                  for ($i = 1; $i <= $num_parts; $i++)
                     {
-                    echo "<option value=$i>$i</option>\n";
+                    $top_offset = ($i - 1)*$chunk_size;
+                    $qry = "select left(name,7) as top_name from " . $mode . "rod_by_name limit $top_offset,1";
+                    extract(mysql_fetch_array(mysql_query($qry)));  // Sets $top_name.
+                    if ($i < $num_parts)
+                       {
+                       $bottom_offset = ($i*$chunk_size - 1);
+                       $qry = "select left(name,7) as bottom_name from " . $mode . "rod_by_name limit $bottom_offset,1";
+                       extract(mysql_fetch_array(mysql_query($qry)));  // Sets $bottom_name.
+                       }
+                    else
+                       {
+                       $bottom_name = "[end]";
+                       }
+                    echo "<option value=$i>$i ($top_name - $bottom_name)</option>\n";
                     }
                  echo "                  </select>"
                     . "               of $num_parts."
@@ -220,7 +236,30 @@ require_once("f_kickoff.phtml");
                     . "                  <select name=part_num>";
                  for ($i = 1; $i <= $num_parts; $i++)
                     {
-                    echo "<option value=$i>$i</option>\n";
+                    $top_offset = ($i - 1)*$chunk_size;
+                    $qry = "select left(state,2) as top_state "
+                       . "   , left(city,4) as top_city "
+                       . "   , left(street,4) as top_street "
+                       . "   , left(numb,4) as top_numb "
+                       . "from " . $mode . "rod_by_addr limit $top_offset,1";
+                    extract(mysql_fetch_array(mysql_query($qry)));  // Sets $top_* vars.
+                    $top_combo = "$top_numb-$top_street-$top_city-$top_state";
+                    if ($i < $num_parts)
+                       {
+                       $bottom_offset = ($i*$chunk_size - 1);
+                       $qry = "select left(state,2) as bottom_state "
+                          . "   , left(city,4) as bottom_city "
+                          . "   , left(street,4) as bottom_street "
+                          . "   , left(numb,4) as bottom_numb "
+                          . "from " . $mode . "rod_by_addr limit $bottom_offset,1";
+                       extract(mysql_fetch_array(mysql_query($qry)));  // Sets $bottom_* vars.
+                       $bottom_combo = "$bottom_numb-$bottom_street-$bottom_city-$bottom_state";
+                       }
+                    else
+                       {
+                       $bottom_combo = "[end]";
+                       }
+                    echo "<option value=$i>$i ($top_combo -- $bottom_combo)</option>\n";
                     }
                  echo "                  </select>"
                     . "               of $num_parts."
