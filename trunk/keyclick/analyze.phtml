@@ -1,0 +1,93 @@
+<?
+//
+// $Id$
+//
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+//
+// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+//
+$bpn = $bpn;
+$sql_query = $sql_query;
+$format = $format;
+//
+require_once("f_homepageurl.phtml");
+require_once("f_putlibphotorandomplaced.phtml");
+require_once("f_bodyopen.phtml");
+require_once("f_roleemailaddress.phtml");
+require_once("f_password.phtml");
+require_once("f_connectselectdb.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
+require_once("f_readdump.phtml");
+require_once("f_zipdump.phtml");
+//
+$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+
+        if ($connected != "TRUE")
+           {
+           ?>
+           <h2><i>Sorry...</i></h2>
+           <b>
+           <blockquote>
+              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
+           </blockquote>            
+           </b>
+           <?
+           }
+        else
+           {
+           //
+           $agency = BeValidBoardingPass($bpn,$mode);
+           if ($agency == "")
+              {
+              KickOff($mode);
+              }
+           else
+              {
+              switch ($format)
+                 {
+                 case "zip":
+                    ZipDump();
+                    break;
+                 default:
+                    echo "<html>\n"
+                       . "   <head><title>KEYclick - Query result</title></head>\n"
+                       . "   ";
+                    BodyOpen();
+                    echo "      <table border=0 cellpadding=0 cellspacing=0 width=80% align=center>\n"
+                       . "         <tr>\n"
+                       . "            <td>\n"
+                       . "               <table>\n"
+                       . "                  <tr>\n"
+                       . "                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"
+                       . "                     <td>\n"
+                       . "                        ";
+                    PutLibPhotoRandomPlaced("eye-candy",1);
+                    mysql_select_db('keyclick');
+                    echo "                     </td>\n"
+                       . "                     <td>\n"
+                       . "                        <h6 align=center>\n"
+                       . "                           <a href=" . HomePageUrl() . ">KEYCLICK SYSTEM</a>\n"
+                       . "                        </h6>\n"
+                       . "                        <h1 align=center>Query result</h1>\n"
+                       . "                     </td>\n"
+                       . "                  </tr>\n"
+                       . "               </table>\n"
+                       . "               <hr>\n"
+                       . "               <br>\n";
+                    //ReadDump($sql_query,$bpn,$mode);
+                    ReadDump($sql_query);
+                    break;
+                 }
+              }
+           }
+?>
+        <br>
+        <p><small><small><em><pre>$Id$</pre></em></small></small>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>

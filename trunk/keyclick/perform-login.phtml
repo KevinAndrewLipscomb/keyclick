@@ -89,7 +89,15 @@ require_once("f_keyclickmailheaders.phtml");
                   //
                   // Calculate the expiration time.
                   //
-                  $expiration_time = time() + 1800;  // 30 minutes
+                  if ($mode)
+                     {
+                     $num_minutes = 1440;  // 24 hours
+                     }
+                  else
+                     {
+                     $num_minutes = 60;  // 1 hour
+                     }
+                  $expiration_time = time() + $num_minutes*60;
                   //
                   // Record the boarding pass attributes in the manifest.
                   //
