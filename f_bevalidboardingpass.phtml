@@ -16,39 +16,74 @@ function BeValidBoardingPass
    // Init vars that are will be implicitly set by extract() so PHP won't issue undefined var warnings while error reporting is
    // at E_ALL.
    //
-   $agency = $ip = "";
+   $debug = $agency = $ip = $expiration_time = "";
    //
-   // Remove all expired records.
+   // Check for production debug mode.
    //
-   $result = mysql_query("delete from keyclick." . $mode . "manifest where expiration_time < " . time())
-      or die("Removal of expired boarding passes failed with error: " . mysql_error());
+   extract(  //Sets $debug.
+      mysql_fetch_array(
+         mysql_query("select value as debug from keyclick." . $mode . "tuning_parm where name='debug-boarding-pass'")));
    //
    // Now see if the specified boarding pass is valid.
    //
    $result = mysql_query
       (
-      "select agency from keyclick." . $mode . "manifest "
+      "select agency,ip,expiration_time from keyclick." . $mode . "manifest "
       .  "   where bpn='$bpn' "
-      .  "      and ip='$REMOTE_ADDR' "
-      .  "      and expiration_time >= " . time()
       )
       or die("BeValidBoardingPass query failed with error:  " . mysql_error());
    //
    if (mysql_num_rows($result))
       {
-      extract(mysql_fetch_array($result));  // to get agency value to return to this function's caller
-      //
-      // Extend expiration date
-      //
-      $result = mysql_query
-         (
-         "update keyclick." . $mode . "manifest "
-         .  " set expiration_time = expiration_time + 1800 "
-         .  " where bpn=$bpn "
-         .  "    and ip=$ip "
-         .  "    and agency=$agency "
-         );
+      extract(mysql_fetch_array($result));  // to get $agency value to return to this function's caller
+         //
+         // Also sets $ip and $expiration_time.
+         //
+      if ($ip == $REMOTE_ADDR)
+         {
+         if ($expiration_time >= time())
+            {
+            //
+            // Get time-bump value from tuning parm table.
+            //
+            extract(  //Sets $bump_factor
+               mysql_fetch_array(
+                  mysql_query(
+                     "select value as bump_factor from keyclick." . $mode . "tuning_parm where name='boarding-pass-valid-minutes'")));
+            //
+            // Extend expiration date
+            //
+            $result = mysql_query
+               (
+               "update keyclick." . $mode . "manifest "
+               .  " set expiration_time = expiration_time + " . $bump_factor*60
+               .  " where bpn=$bpn "
+               .  "    and ip=$ip "
+               .  "    and agency=$agency "
+               );
+            }
+         else
+            {
+            if ($debug) echo "<p><b>!Boarding pass expired " . (time() - $expiration_time) . " seconds ago!</b></p>\n";
+            $agency = "";
+            }
+         }
+      else
+         {
+         if ($debug) echo "<p><b>!IP address mismatch: current=$REMOTE_ADDR, manifest=$ip!</b></p>\n";
+         $agency = "";
+         }
       }
+   else
+      {
+      if ($debug) echo "<p><b>!No such boarding pass number found in manifest!</b></p>\n";
+      $agency = "";
+      }
+   //
+   // Remove all expired records.
+   //
+   $result = mysql_query("delete from keyclick." . $mode . "manifest where expiration_time < " . time())
+      or die("Removal of expired boarding passes failed with error: " . mysql_error());
    //
    error_reporting($saved_error_level);
    return ($agency);
