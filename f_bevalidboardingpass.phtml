@@ -9,10 +9,17 @@ function BeValidBoardingPass
    )
    {
    $saved_error_level = error_reporting(E_ALL);
+
+   global $REMOTE_ADDR;
+
    //
-   // First, remove all expired records.
+   // Init vars that are will be implicitly set by extract() so PHP won't issue undefined var warnings.
    //
-   $result = mysql_query("delete from " . $mode . "manifest where expiration_time < " . time())
+   $agency = $ip = "";
+   //
+   // Remove all expired records.
+   //
+   $result = mysql_query("delete from keyclick." . $mode . "manifest where expiration_time < " . time())
       or die("Removal of expired boarding passes failed with error: " . mysql_error());
    //
    // Now see if the specified boarding pass is valid.
@@ -21,7 +28,7 @@ function BeValidBoardingPass
    //
    $result = mysql_query
       (
-      "select bpn as found_bpn,agency from " . $mode . "manifest "
+      "select bpn as found_bpn,agency from keyclick." . $mode . "manifest "
       .  "   where ip='$REMOTE_ADDR' "
       .  "      and expiration_time >= " . time()
       )
@@ -35,7 +42,7 @@ function BeValidBoardingPass
       //
       $result = mysql_query
          (
-         "update " . $mode . "manifest "
+         "update keyclick." . $mode . "manifest "
          .  " set expiration_time = expiration_time + 1800 "
          .  " where bpn=$bpn "
          .  "    and ip=$ip "
