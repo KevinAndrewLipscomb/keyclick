@@ -152,7 +152,8 @@ require_once("f_methodselectionlist.phtml");
                     . "   </dd>\n";
                  if ($num_priors)
                     {
-                    echo "<hr>$num_priors prior donation(s) on record\n";
+                    echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                       . "on record\n";
                     }
                  echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
                     . "<dt>Amount:</dt><dd>\$$amount</dd>\n"

@@ -213,25 +213,25 @@ require_once("f_emailaddrofbpn.phtml");
                  //
                  // Retrieve any journal entries associated with this record.
                  //
-                 $result = mysql_query
+                 $journal_query_result = mysql_query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "resident_journal "
                     .  "where id=$id order by timestamp desc"
                     )
                     or die("Journal query failed with error: " . mysql_error());
-                 $num_journal_rows = mysql_num_rows($result);
+                 $num_journal_rows = mysql_num_rows($journal_query_result);
                  //
-                 // See if any donations are associated with this record.
+                 // Retrieve any donation entries associated with this record.
                  //
-                 $num_donations = 0;
-                 extract
+                 $donation_query_result = mysql_query
                     (
-                    mysql_fetch_array
-                       (
-                       mysql_query('select count(*) as num_donations from ' . $mode . "donation where id=$id")
-                       )
-                    );
+                    "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
+                    .  "from " . $mode . "donation "
+                    .  "where id=$id order by date desc"
+                    )
+                    or die("Donation query failed with error: " . mysql_error());
+                 $num_donations = mysql_num_rows($donation_query_result);
                  //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
@@ -244,16 +244,23 @@ require_once("f_emailaddrofbpn.phtml");
                     //
                     if ($num_donations)
                        {
-                       echo "<li>$num_donations donation"
-                          . (($num_donations > 1) ? 's are ' : ' is ')
+                       extract
+                          (
+                          mysql_fetch_array
+                             (
+                             mysql_query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
+                             )
+                          );
+                       echo "<li><a href=#Donations>$num_donations donation"
+                          . (($num_donations > 1) ? "s</a> totaling <b>\$$sum</b> are " : "</a> totaling <b>\$$sum</b> is ")
                           . "on file for this record.</li>\n";
                        }
                     //
                     if ($num_journal_rows)
                        {
                        echo "<li><a href=#History>$num_journal_rows journal "
-                          . (($num_journal_rows == 1) ? 'entry is' : 'entries are' )
-                          . "</a> available for this record.</li>\n";
+                          . (($num_journal_rows == 1) ? 'entry</a> is ' : 'entries</a> are ' )
+                          . "available for this record.</li>\n";
                        }
                     //
                     echo "</ul>\n";
@@ -291,13 +298,61 @@ require_once("f_emailaddrofbpn.phtml");
                     . "         </td>\n"
                     . "      </tr>\n"
                     . "   </table>\n";
+                 if ($num_donations)
+                    {
+                    echo "   <a name=Donations></a><p><br><b>Donations totaling \$$sum</b>, in reverse chronological order:</p>\n"
+                       . "   <small><ol>\n";
+                    for ($i = 1; $i <= $num_donations; $i++)
+                       {
+                       extract(mysql_fetch_array($donation_query_result));
+                       echo "<li><b>\$$amount on year-month-day $date</b><br>\n"
+                          . "<table><tr><td>&nbsp;&nbsp; </td><td>";
+                       switch ($method)
+                          {
+                          case "BIZREPLY":
+                             echo "In response to a fund drive appeal;<br>\n";
+                             break;
+                          case "INMEMOF":
+                             echo "In memory of '$in_mem_of';<br>\n";
+                             break;
+                          case "UNSOLICITED":
+                             echo "Unsolicited;<br>\n";
+                             break;
+                          case "WEB":
+                             echo "Via the Internet;<br>\n";
+                             break;
+                          }
+                       if (($method != "INMEMOF") and ($in_mem_of))
+                          {
+                          echo "Also in memory of '$in_mem_of';<br>\n";
+                          }
+                       switch ($prospectivity)
+                          {
+                          case "NONE":
+                             break;
+                          case "RESCUE":
+                             echo "<b>Interested in volunteering for Patient Care</b>;<br>\n";
+                             break;
+                          case "SUPPORT":
+                             echo "<b>Interested in volunteering for Non-Emergency Support</b>;<br>\n";
+                             break;
+                          }
+                       if ($note)
+                          {
+                          echo "Note:&nbsp; <i>$note</i><br>\n";
+                          }
+                       echo "<small>(Entered by <a href=mailto:$entered_by><i>$entered_by</i></a> at $timestamp_string).</small><br>"
+                          . "<hr></td></tr></table>\n";
+                       }
+                    echo "   </ol></small>\n";
+                    }
                  if ($num_journal_rows)
                     {
                     echo "   <a name=History></a><p><br><b>Journal entries</b> in reverse chronological order:</p>\n"
                        . "   <small><ol>\n";
                     for ($i = 1; $i <= $num_journal_rows; $i++)
                        {
-                       extract(mysql_fetch_array($result));
+                       extract(mysql_fetch_array($journal_query_result));
                        echo "<li><p>\n";
                        switch ($op)
                           {
