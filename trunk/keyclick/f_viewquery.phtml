@@ -4,6 +4,7 @@
 //
 function ViewQuery
    (
+   $bpn,
    $sql_query,
    $lang,
    $server,
@@ -403,7 +404,7 @@ else {
             // libraries/display_tbl.lib.php3
             $disp_mode = 'urdr11110';
         }
-        PMA_displayTable($result, $disp_mode, $fields_meta, $fields_cnt);
+        PMA_displayTable($result, $disp_mode, $fields_meta, $fields_cnt, $bpn, $sql_query, $mode);
         mysql_free_result($result);
 
         // Displays "Insert a new row" link if required

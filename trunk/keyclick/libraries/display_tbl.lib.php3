@@ -405,11 +405,20 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
      *
      * @see     PMA_displayTable()
      */
-    function PMA_displayTableHeaders(&$is_display, &$fields_meta, $fields_cnt = 0, $disp_direction = 'horizontal')
+    function PMA_displayTableHeaders
+       (
+       $bpn,
+       $sql_query,
+       $mode,
+       &$is_display,
+       &$fields_meta,
+       $fields_cnt = 0,
+       $disp_direction = 'horizontal'
+       )
     {
         global $lang, $server, $db, $table;
         global $goto;
-        global $sql_query, $num_rows, $pos, $session_max_rows;
+        global $num_rows, $pos, $session_max_rows;
         global $vertical_display, $repeat_cells;
         global $dontlimitchars;
 
@@ -435,19 +444,10 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                       ? ' rowspan="2"'
                       : '';
         }
-        $text_url = 'sql.php3'
-                  . '?lang=' . $lang
-                  . '&amp;server=' . $server
-                  . '&amp;db=' . urlencode($db)
-                  . '&amp;table=' . urlencode($table)
+        $text_url = $mode . 'analyze.phtml'
+                  . '?bpn=' . $bpn
                   . '&amp;sql_query=' . urlencode($sql_query)
-                  . '&amp;pos=' . $pos
-                  . '&amp;session_max_rows=' . $session_max_rows
-                  . '&amp;pos=' . $pos
-                  . '&amp;disp_direction=' . $disp_direction
-                  . '&amp;repeat_cells=' . $repeat_cells
-                  . '&amp;goto=' . $goto
-                  . '&amp;dontlimitchars=' . (($dontlimitchars) ? 0 : 1);
+                  . '&amp;format=html';
 
         //     ... before the result table
         if (($is_display['edit_lnk'] == 'nn' && $is_display['del_lnk'] == 'nn')
@@ -582,23 +582,16 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                 } else {
                     $sorted_sql_query = $unsorted_sql_query . $sort_order;
                 }
-                $url_query = 'lang=' . $lang
-                           . '&amp;server=' . $server
-                           . '&amp;db=' . urlencode($db)
-                           . '&amp;table=' . urlencode($table)
-                           . '&amp;pos=' . $pos
-                           . '&amp;session_max_rows=' . $session_max_rows
-                           . '&amp;disp_direction=' . $disp_direction
-                           . '&amp;repeat_cells=' . $repeat_cells
-                           . '&amp;dontlimitchars=' . $dontlimitchars
-                           . '&amp;sql_query=' . urlencode($sorted_sql_query);
+                $url_query = 'bpn=' . $bpn
+                           . '&amp;sql_query=' . urlencode($sorted_sql_query)
+                           . '&amp;format=html';
 
                 // 2.1.5 Displays the sorting url
                 if ($disp_direction == 'horizontal') {
                     echo "\n";
                     ?>
     <th>
-        <a href="sql.php3?<?php echo $url_query; ?>">
+        <a href="<? echo $mode; ?>analyze.phtml?<?php echo $url_query; ?>">
             <?php echo htmlspecialchars($fields_meta[$i]->name); ?></a><?php echo $order_img . "\n"; ?>
     </th>
                     <?php
@@ -1219,11 +1212,20 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
      *          PMA_displayTableNavigation(), PMA_displayTableHeaders(),
      *          PMA_displayTableBody()
      */
-    function PMA_displayTable(&$dt_result, &$the_disp_mode, $fields_meta, $fields_cnt)
+    function PMA_displayTable
+       (
+       &$dt_result,
+       &$the_disp_mode,
+       $fields_meta,
+       $fields_cnt,
+       $bpn,
+       $sql_query,
+       $mode = ""
+       )
     {
         global $lang, $server, $cfgServer, $db, $table;
         global $goto;
-        global $sql_query, $num_rows, $unlim_num_rows, $post;
+        global $num_rows, $unlim_num_rows, $post;
         global $vertical_display, $disp_direction, $repeat_cells;
         global $dontlimitchars;
 
@@ -1263,33 +1265,32 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
             $encoded_sql_query = urlencode($sql_query);
         }
 
-        // 2. ----- Displays the top of the page -----
+//        // 2. ----- Displays the top of the page -----
+//        // 2.1 Displays a messages with position informations
+//        if ($is_display['nav_bar'] == '1' && isset($pos_next)) {
+//            if (isset($unlim_num_rows) && $unlim_num_rows != $total) {
+//                $selectstring = ', ' . $unlim_num_rows . ' ' . $GLOBALS['strSelectNumRows'];
+//            } else {
+//                $selectstring = '';
+//            }
+//            $last_shown_rec = ($GLOBALS['session_max_rows'] == 'all' || $pos_next > $total)
+//                            ? $total
+//                            : $pos_next;
+//            PMA_showMessage($GLOBALS['strShowingRecords'] . " $pos - $last_shown_rec ($total " . $GLOBALS['strTotal'] . $selectstring . ')');
+//        } else {
+//            PMA_showMessage($GLOBALS['strSQLQuery']);
+//        }
 
-        // 2.1 Displays a messages with position informations
-        if ($is_display['nav_bar'] == '1' && isset($pos_next)) {
-            if (isset($unlim_num_rows) && $unlim_num_rows != $total) {
-                $selectstring = ', ' . $unlim_num_rows . ' ' . $GLOBALS['strSelectNumRows'];
-            } else {
-                $selectstring = '';
-            }
-            $last_shown_rec = ($GLOBALS['session_max_rows'] == 'all' || $pos_next > $total)
-                            ? $total
-                            : $pos_next;
-            PMA_showMessage($GLOBALS['strShowingRecords'] . " $pos - $last_shown_rec ($total " . $GLOBALS['strTotal'] . $selectstring . ')');
-        } else {
-            PMA_showMessage($GLOBALS['strSQLQuery']);
-        }
-
-        // 2.3 Displays the navigation bars
-        if (!isset($table) || strlen(trim($table)) == 0) {
-            $table = $fields_meta[0]->table;
-        }
-        if ($is_display['nav_bar'] == '1') {
-            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
-            echo "\n";
-        } else {
-            echo "\n" . '<br /><br />' . "\n";
-        }
+//        // 2.3 Displays the navigation bars
+//        if (!isset($table) || strlen(trim($table)) == 0) {
+//            $table = $fields_meta[0]->table;
+//        }
+//        if ($is_display['nav_bar'] == '1') {
+//            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
+//            echo "\n";
+//        } else {
+//            echo "\n" . '<br /><br />' . "\n";
+//        }
 
         // 2b ----- Get field references from Database -----
         // (see the 'relation' config variable)
@@ -1323,7 +1324,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 <table border="<?php echo $GLOBALS['cfgBorder']; ?>" cellpadding="5">
         <?php
         echo "\n";
-        PMA_displayTableHeaders($is_display, $fields_meta, $fields_cnt);
+        PMA_displayTableHeaders($bpn, $sql_query, $mode, $is_display, $fields_meta, $fields_cnt);
         PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt);
         // lem9: vertical output case
         if ($disp_direction == 'vertical') {
@@ -1337,13 +1338,13 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 
         echo "\n";
 
-        // 4. ----- Displays the navigation bar at the bottom if required -----
-
-        if ($is_display['nav_bar'] == '1') {
-            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
-        } else {
-            echo "\n" . '<br />' . "\n";
-        }
+//        // 4. ----- Displays the navigation bar at the bottom if required -----
+//
+//        if ($is_display['nav_bar'] == '1') {
+//            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
+//        } else {
+//            echo "\n" . '<br />' . "\n";
+//        }
     } // end of the 'PMA_displayTable()' function
 
 } // $__PMA_DISPLAY_TBL_LIB__
