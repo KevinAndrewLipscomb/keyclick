@@ -1,23 +1,26 @@
-<?
+<?php
 //
 // $Id$
 //
+$foundation_dir = "../../foundation";
 require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
+require_once("$foundation_dir/std_style_class.php");
 ?>
 <html>
 
 <head><title>KEYclick - What's New</title></head>
 
-<? BodyOpen(); ?>
+<?php BodyOpen(); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
-           <h6 align="center"><a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
+           <h6 align="center"><a href="<?php echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
            <h1 align="center">What's New</h1>
         <hr>
-        <? PutLibPhotoRandomPlaced("eye-candy",1,"right"); ?>
+        <?php PutLibPhotoRandomPlaced("eye-candy",1,"right"); ?>
+        <?php echo std_style_class::CatchUpBlurb(); ?>
         <p><b>2002-07-18:&nbsp; </b>Added a note to the Boarding Pass screen (perform-login script) to warn AOL users about
            a potential log in problem, and its workaround.</p>
         <p><b>2002-07-17:&nbsp; </b>Made export operations much more size and time efficient.&nbsp; Fixed a bug related to
