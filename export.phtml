@@ -1,7 +1,12 @@
 <?php
 /* $Id$ */
 
+require_once("f_runmode.phtml");
+$mode = RunMode($PHP_SELF);
+
 require("f_homepageurl.phtml");
+require("f_bevalidboardingpass.phtml");
+require("f_kickoff.phtml");
 
 /**
  *
@@ -30,6 +35,12 @@ require_once("f_password.phtml");
 require_once("f_connectselectdb.phtml");
 //
 if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE")
+   {
+   if (BeValidBoardingPass($bpn,$mode) == "")
+      {
+      KickOff($mode);
+      }
+   else
    {
 
    /**
@@ -89,6 +100,8 @@ if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE")
       $zipfile -> addFile($dump_buffer, $filename . $extbis);
       echo $zipfile -> file();
    }
+
+   } // BeValidBoardingPass
 
    }
 ?>

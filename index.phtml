@@ -57,89 +57,57 @@ $border_thickness = 0;  //($mode != "");
                <hr>
                <table border=<? echo $border_thickness; ?> cellspacing=10>
                   <tr>
-                     <td colspan=5><h3>Actions</h3></td>
-                  </tr>
-                  <?
-                  //
-                  // Connect to the database.
-                  //
-                  if ($connected)
-                     {
-                     ?>
-                     <tr>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td align=right><b><font color=D0D0D0>Log</font></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a donation.</td></tr></table></td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td rowspan=3 valign=top>
-                           <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
-                        </td>
-                     </tr>
-                     <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-add-resident.phtml>Add</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a name and address to the ROD (Resident/Occupant Database).</td></tr></table></td></tr>
-                     <tr>
-                        <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
-                           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right><b><a href=<? echo $mode; ?>form-act-singly.phtml>Modify or remove</a></b></td>
-                           <td><table border=<? echo $border_thickness; ?>><tr><td>ROD record #</td><td><input type=text name=id maxlength=5 size=5><input type=submit value="Go!"></td></tr></table></td>
+                     <td valign=top>
+                        <small>
+                           <p><font color=D0D0D0>Welcome to KEYclick!</font></p>
+                        </small>
+                     </td>
+                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                     <td>
+                     <?
+                     //
+                     // Connect to the database.
+                     //
+                     if ($connected)
+                        {
+                        ?>
+                        <p><b>Please log in.</b></p>
+                        <form action=<? echo $mode; ?>perform-login.phtml method=post>
+                           <table border=<? echo $border_thickness; ?> cellpadding=10>
+                              <tr>
+                                 <td align=right>Your email address:</td>
+                                 <td><input type=text name=email_addr maxlength=60 size=40></td>
+                              </tr>
+                              <tr>
+                                 <td align=right>Which agency?</td>
+                                 <td>
+                                    <select name=agency>
+                                       <option value=KVRS>Kempsville Volunteer Rescue Squad
+                                    </select>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td colspan=2 align=center>
+                                    <input type=submit value=Login>
+                                 </td>
+                              </tr>
+                           </table>
                         </form>
-                     </tr>
-                     <?
-                     }
-                  else
-                     {
+                        <?
+                        }
+                     else
+                        {
+                        ?>
+                        <b>Sorry...</b>
+                        <blockquote>
+                           KEYclick's main functions are unavailable because its database is
+                           offline.&nbsp; This condition is temporary.&nbsp; Please try again later.
+                        </blockquote>
+                        <?
+                        }
                      ?>
-                     <tr>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td align=right valign=top><b>Sorry...</b></td><td valign=top>KEYclick's main functions are unavailable because its database is
-                           offline.&nbsp; This condition is temporary.&nbsp; Please try again later.</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td valign=top>
-                           <p><i><small>Server&nbsp;status:<br><b>DB OFFLINE</b></small></i></p>
-                        </td>
-                     </tr>
-                     <?
-                     }
-                  ?>
-                  <tr><td colspan=5><h3><br>Administrivia</h3></td></tr>
-                  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top><b><a href=<? echo $mode; ?>whats-new.phtml>Catch up</a></b></td><td valign=top>on what's new.</td></tr>
-                  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top>
-                  <?
-                  if ($connected)
-                     {
-                     echo "<b><font color=D0D0D0>Modify</font></b></td><td valign=top>system settings (KEYclick Authorities only).";
-                     }
-                  else
-                     {
-                     echo "<b>Modify</b></td><td valign=top><b>UNAVAILABLE</b>";
-                     }
-                  ?>
-                  </td></tr>
-                  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top>
-                  <?
-                  if ($connected)
-                     {
-                     echo "<b><a href=" . $mode . "faq.phtml>FAQ</a></b></td><td valign=top>Answers to frequently asked questions.";
-                     }
-                  else
-                     {
-                     echo "<b>FAQ</b></td><td valign=top><b>UNAVAILABLE</b>";
-                     }
-                  ?>
-                  </td></tr>
-                  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top>
-                  <?
-                  if ($connected)
-                     {
-                     echo "<b><a href=mailto:\"" . RoleEmailAddress("") . "\">";
-                     }
-                  else
-                     {
-                     //
-                     // If all else fails, use a hardcoded email address.
-                     //
-                     echo "<b><a href=mailto:kevin.lipscomb@kvrs.org>";
-                     }
-                  ?>
-                  Contact</a></b></td><td valign=top>the KEYclick System Administrator.</td></tr>
+                     </td>
+                  </tr>
                </table>
                <hr>
                <p><small><small><em><pre>$Id$</pre></em></small></small>

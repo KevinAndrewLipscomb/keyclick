@@ -7,6 +7,7 @@ $mode = RunMode($PHP_SELF);
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
+$bpn = $bpn;
 $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
@@ -19,6 +20,8 @@ require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_password.phtml");
 require_once("f_roleemailaddress.phtml");
+require_once("f_bevalidboardingpass.phtml");
+require_once("f_kickoff.phtml");
 ?>
 <html>
 
@@ -56,6 +59,14 @@ require_once("f_roleemailaddress.phtml");
            //
            // Database is up.
            //
+           //
+           $agency = BeValidBoardingPass($bpn,$mode);
+           if ($agency == "")
+              {
+              KickOff($mode);
+              }
+           else
+           {
            $feedback_column_width_percentage = 25;
            echo "<table width=100%><tr>"
               . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
@@ -132,6 +143,7 @@ require_once("f_roleemailaddress.phtml");
               {
               echo "<p><b><u>Current operation:</u></b></p>\n"
                  . "<form action=" . $mode . "form-add-resident.phtml method=post>\n"
+                 . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
                  . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
                  . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
@@ -155,10 +167,11 @@ require_once("f_roleemailaddress.phtml");
               }
            else
               {
-              echo "<p><b><a href=" . $mode . "index.phtml>Return to main KEYclick page.</a></b></p>\n";
+              echo "<p><b><a href=" . $mode . "main.phtml>Return to main KEYclick page.</a></b></p>\n";
               }
            echo "</td></tr></table>\n";
            //
+           } // BeValidBoardingPass
            } // database up
         ?>
         <br>
@@ -169,4 +182,3 @@ require_once("f_roleemailaddress.phtml");
 </body>
 
 </html>
-
