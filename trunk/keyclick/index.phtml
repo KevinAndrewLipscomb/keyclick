@@ -59,7 +59,22 @@ $border_thickness = 0;  //($mode != "");
                   <tr>
                      <td valign=top>
                         <small>
-                           <p><font color=D0D0D0>Welcome to KEYclick!</font></p>
+                           <p><b>Welcome to KEYclick!</b></p>
+                           <p><a href=<? echo $mode; ?>whats-new.phtml>What's new</a></p>
+                           <?
+                           if ($connected)
+                              {
+                              echo "<p><a href=" . $mode . "faq.phtml>FAQ</a></p>\n";
+                              echo "<p><a href=mailto:\"" . RoleEmailAddress("") . "\">Email sysadmin</a></p>\n";
+                              }
+                           else
+                              {
+                              //
+                              // If all else fails, use a hardcoded email address.
+                              //
+                              echo "<p><a href=mailto:kevin.lipscomb@kvrs.org>Email sysadmin</a></p>\n";
+                              }
+                           ?>
                         </small>
                      </td>
                      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
