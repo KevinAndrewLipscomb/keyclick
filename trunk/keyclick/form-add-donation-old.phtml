@@ -199,6 +199,8 @@ else
                              .  "   , note='" . addslashes(trim($note)) . "' "
                              .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
                              .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                             .  ";"
+                             . " update resident set year_of_last_appeal_to_become_a_donor = null where id = '$id'"
                              )
                              or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
                           //
