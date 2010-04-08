@@ -151,10 +151,10 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , note='" . addslashes(trim($note)) . "' "
                     .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
-                    .  ";"
-                    . " update resident set year_of_last_appeal_to_become_a_donor = null where id = 0"
                     )
                     or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                 mysql_query($qry = "update resident set year_of_last_appeal_to_become_a_donor = null where id = 0")
+                    or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                     . "<td align=right><form action=" . $mode . "form-add-donation-ooa.phtml>\n"

@@ -125,10 +125,10 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , note='" . addslashes(trim($note)) . "' "
                     .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
-                    .  ";"
-                    . " update resident set year_of_last_appeal_to_become_a_donor = null where id = '$id'"
                     )
                     or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                 mysql_query($qry = "update resident set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
+                    or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
                  $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
                     or die("Master record lookup failed with error: " . mysql_error());
