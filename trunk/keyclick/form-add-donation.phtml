@@ -109,14 +109,19 @@ require_once("f_methodselectionlist.phtml");
                  // Check for prior donations.
                  //
                  $num_priors = "";
-                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                    or die("Check for priors failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
+//special-2010-a-{
+//                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+//                    or die("Check for priors failed with error: " . mysql_error());
+//                 extract(mysql_fetch_array($result));
+//special-2010-a-}
                  //
                  mysql_query
                     ($qry =
                     "insert into " . $mode . "donation "
-                    .  "set id=$id "
+//special-2010-a-{
+//                    .  "set id=$id "
+                    .  "set id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) "
+//special-2010-a-}
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
                     .  "   , prospectivity='$prospectivity' "
@@ -130,7 +135,10 @@ require_once("f_methodselectionlist.phtml");
                  mysql_query($qry = "update resident set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                     or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
-                 $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
+//special-2010-a-{
+//                 $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
+                 $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id_accidental_2010_a='$id'")
+//special-2010-a-}
                     or die("Master record lookup failed with error: " . mysql_error());
                  extract(mysql_fetch_array($result));
                  //
