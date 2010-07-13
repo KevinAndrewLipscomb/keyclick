@@ -32,7 +32,17 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
    . "KEY name (name(255))"
    . ")"
    . "TYPE=MyISAM";
-$statement_array[++$i] = "INSERT INTO " . $mode . "temp_by_addr SELECT * FROM " . $mode . "resident";
+//special-2010-a-{
+//$statement_array[++$i] = "INSERT ignore INTO " . $mode . "temp_by_addr SELECT id"
+$statement_array[++$i] = "INSERT ignore INTO " . $mode . "temp_by_addr SELECT id_accidental_2010_a as id"
+//
+   . " , name"
+   . " , address1"
+   . " , city"
+   . " , state"
+   . " , zip"
+   . " , agency"
+   . " FROM " . $mode . "resident";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr DROP agency";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN numb varchar(8) AFTER address1";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN street varchar(72) AFTER numb";
