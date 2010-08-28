@@ -198,10 +198,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                 $parsed_basic_criteria = ereg_replace("\*"," ",$parsed_basic_criteria);
                                 $parsed_basic_criteria = ereg_replace(" ",".*",$parsed_basic_criteria);
                                 //
-//special-2010-a-{
-//                                $sql_query = "select id "
-                                $sql_query = "select id_accidental_2010_a as id"
-//special-2010-a-}
+                                $sql_query = "select id "
                                    . "   , name "
                                    . "   , address1 "
                                    . "   , city "

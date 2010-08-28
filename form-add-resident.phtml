@@ -133,14 +133,11 @@ require_once("f_emailaddrofbpn.phtml");
                        . "<dt>State:</dt><dd>$state</dd>\n"
                        . "<dt>Zip:</dt><dd>$zip</dd>\n"
                        . "</dl></small>\n"
-//special-2010-a-{
-//                       . "<u>Optional</u>: For this record, log:\n"
-//                       . "<table>\n"
-//                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation.phtml?bpn=$bpn&cross_id=$new_id>NEW donation</a></small></td></tr>\n"
-//                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation-old.phtml?bpn=$bpn&cross_id=$new_id>OLD donation</a></small></td></tr>\n"
-//                       . "</table>\n";
-                       ;
-//special-2010-a-}
+                       . "<u>Optional</u>: For this record, log:\n"
+                       . "<table>\n"
+                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation.phtml?bpn=$bpn&cross_id=$new_id>NEW donation</a></small></td></tr>\n"
+                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation-old.phtml?bpn=$bpn&cross_id=$new_id>OLD donation</a></small></td></tr>\n"
+                       . "</table>\n";
                     }
                  else
                     {

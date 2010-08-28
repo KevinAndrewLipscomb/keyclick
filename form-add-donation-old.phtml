@@ -106,10 +106,7 @@ else
                     //
                     // Lookup the resident record with the specified id.
                     //
-//special-2010-a-{
-//                    $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
-                    $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id_accidental_2010_a='$id'")
-//special-2010-a-}
+                    $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
                        or die("Master record lookup failed with error: " . mysql_error());
                     if (mysql_num_rows($result))
                        {
@@ -121,10 +118,7 @@ else
                        $result = mysql_query
                           (
                           "select name,address1,city,state,zip from " . $mode . "resident_journal "
-//special-2010-a-{
-//                          . "where id='$id' "
-                          . "where id=(select id from " . $mode . "resident where id_accidental_2010_a='$id') "
-//special-2010-a-}
+                          . "where id='$id' "
                           . "order by timestamp desc "
                           . "limit 1 "
                           );
@@ -158,10 +152,7 @@ else
                           $result = mysql_query
                              (
                              "select op as possible_preemptive_op from " . $mode . "resident_journal "
-//special-2010-a-{
-//                             . "where id='$id' "
-                             . "where id=(select id from " . $mode . "resident where id_accidental_2010_a='$id') "
-//special-2010-a-}
+                             . "where id='$id' "
                              . "   and timestamp > '$year_num-$month_num-$day_num' "
                              . "   and op = 'UPDATE' "
                              . "order by timestamp desc "
@@ -192,20 +183,14 @@ else
                           // Check for prior donations.
                           //
                           $num_priors = "";
-//special-2010-a-{
-//                          $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                          $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=(select id from " . $mode . "resident where id_accidental_2010_a=$id)")
-//special-2010-a-}
+                          $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
                              or die("Check for priors failed with error: " . mysql_error());
                           extract(mysql_fetch_array($result));
                           //
                           mysql_query
                              ($qry =
                              "insert into " . $mode . "donation "
-//special-2010-a-{
-//                             .  "set id=$id "
-                             .  "set id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) "
-//special-2010-a-}
+                             .  "set id=$id "
                              .  "   , date='$year_num-$month_num-$day_num' "
                              .  "   , amount=$amount "
                              .  "   , prospectivity='$prospectivity' "
