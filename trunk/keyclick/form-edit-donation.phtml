@@ -109,20 +109,14 @@ require_once("f_methodselectionlist.phtml");
                  // Check for prior donations.
                  //
                  $num_priors = "";
-//special-2010-a-{
-//                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=(select id from " . $mode . "resident where id_accidental_2010_a=$id)")
-//special-2010-a-}
+                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
                     or die("Check for priors failed with error: " . mysql_error());
                  extract(mysql_fetch_array($result));
                  //
                  mysql_query
                     ($qry =
                     "insert into " . $mode . "donation "
-//special-2010-a-{
-//                    .  "set id=$id "
-                    .  "set id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) "
-//special-2010-a-}
+                    .  "set id=$id "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
                     .  "   , prospectivity='$prospectivity' "

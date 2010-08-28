@@ -80,10 +80,7 @@ require_once("f_emailaddrofbpn.phtml");
                     .  " , state as old_state "
                     .  " , zip as old_zip "
                     .  " from " . $mode . "resident "
-//special-2010-a-{
-//                    .  " where id=$id_to_save "
-                    .  " where id_accidental_2010_a=$id_to_save "
-//special-2010-a-}
+                    .  " where id=$id_to_save "
                     )
                     or die("Select failed with error: " . mysql_error());
                  //
@@ -112,10 +109,7 @@ require_once("f_emailaddrofbpn.phtml");
                        .  "   , city='" . addslashes($city) . "' "
                        .  "   , state='" . addslashes($state) . "' "
                        .  "   , zip='" . addslashes($zip) . "' "
-//special-2010-a-{
-//                       .  "where id=$id_to_save "
-                       .  "where id_accidental_2010_a=$id_to_save "
-//special-2010-a-}
+                       .  "where id=$id_to_save "
                        .  "limit 1 "
                        )
                        or die("Update failed with error: " . mysql_error());
@@ -128,10 +122,7 @@ require_once("f_emailaddrofbpn.phtml");
                        .  "   , city='" . addslashes($old_city) . "' "
                        .  "   , state='" . addslashes($old_state) . "' "
                        .  "   , zip='" . addslashes($old_zip) . "' "
-//special-2010-a-{
-//                       .  "   , id=$id_to_save "
-                       .  "   , id=(select id from " . $mode . "resident where id_accidental_2010_a=$id_to_save) "
-//special-2010-a-}
+                       .  "   , id=$id_to_save "
                        .  "   , op='UPDATE' "
                        .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
                        )
@@ -159,10 +150,7 @@ require_once("f_emailaddrofbpn.phtml");
                  $result = mysql_query
                     (
                     "delete from " . $mode . "resident "
-//special-2010-a-{
-//                    .  "where id=$id_to_save "
-                    .  "where id_accidental_2010_a=$id_to_save "
-//special-2010-a-}
+                    .  "where id=$id_to_save "
                     .  "limit 1"
                     )
                     or die("Delete failed with error: " . mysql_error());
@@ -175,10 +163,7 @@ require_once("f_emailaddrofbpn.phtml");
                     .  "   , city='" . addslashes($old_city) . "' "
                     .  "   , state='" . addslashes($old_state) . "' "
                     .  "   , zip='" . addslashes($old_zip) . "' "
-//special-2010-a-{
-//                    .  "   , id=$id_to_save "
-                    .  "   , id=(select id from " . $mode . "resident where id_accidental_2010_a=$id_to_save) "
-//special-2010-a-}
+                    .  "   , id=$id_to_save "
                     .  "   , op='DELETE' "
                     .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
                     )
@@ -218,10 +203,7 @@ require_once("f_emailaddrofbpn.phtml");
                  .  ", state "
                  .  ", zip "
                  .  "from " . $mode . "resident "
-//special-2010-a-{
-//                 .  "where id='$id' "
-                 .  "where id_accidental_2010_a='$id' "
-//special-2010-a-}
+                 .  "where id='$id' "
                  )
                  or die("Query failed with error: " . mysql_error());
               $num_rows = mysql_num_rows($result);
@@ -235,10 +217,7 @@ require_once("f_emailaddrofbpn.phtml");
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "resident_journal "
-//special-2010-a-{
-//                    .  "where id=$id order by timestamp desc"
-                    .  "where id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) order by timestamp desc"
-//special-2010-a-}
+                    .  "where id=$id order by timestamp desc"
                     )
                     or die("Journal query failed with error: " . mysql_error());
                  $num_journal_rows = mysql_num_rows($journal_query_result);
@@ -249,10 +228,7 @@ require_once("f_emailaddrofbpn.phtml");
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "donation "
-//special-2010-a-{
-//                    .  "where id=$id order by date desc"
-                    .  "where id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) order by date desc"
-//special-2010-a-}
+                    .  "where id=$id order by date desc"
                     )
                     or die("Donation query failed with error: " . mysql_error());
                  $num_donations = mysql_num_rows($donation_query_result);
@@ -272,10 +248,7 @@ require_once("f_emailaddrofbpn.phtml");
                           (
                           mysql_fetch_array
                              (
-//special-2010-a-{
-//                             mysql_query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
-                             mysql_query("select sum(amount) as sum from " . $mode . "donation where id=(select id from " . $mode . "resident where id_accidental_2010_a=$id) group by id")
-//special-2010-a-}
+                             mysql_query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
                              )
                           );
                        echo "<li><a href=#Donations>$num_donations donation"
