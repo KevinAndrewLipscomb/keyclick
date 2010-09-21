@@ -29,7 +29,15 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . "KEY name (name(255))"
    . ")"
    . "TYPE=MyISAM";
-$statement_array[++$i] = "INSERT INTO " . $mode . "temp SELECT * FROM " . $mode . "resident";
+$statement_array[++$i] = "INSERT INTO " . $mode . "temp"
+   . " SELECT id"
+   . " , name"
+   . " , address1"
+   . " , city"
+   . " , state"
+   . " , zip"
+   . " , agency"
+   . " FROM " . $mode . "resident";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
 //

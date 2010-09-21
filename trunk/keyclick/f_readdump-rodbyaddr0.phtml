@@ -27,13 +27,18 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
    . "city tinytext NOT NULL,"
    . "state tinytext NOT NULL,"
    . "zip tinytext NOT NULL,"
-   . "agency enum('KVRS') NOT NULL default 'KVRS',"
    . "PRIMARY KEY (id),"
    . "KEY name (name(255))"
    . ")"
    . "TYPE=MyISAM";
-$statement_array[++$i] = "INSERT INTO " . $mode . "temp_by_addr SELECT * FROM " . $mode . "resident";
-$statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr DROP agency";
+$statement_array[++$i] = "INSERT INTO " . $mode . "temp_by_addr"
+   . " SELECT id"
+   . " , name"
+   . " , address1"
+   . " , city"
+   . " , state"
+   . " , zip"
+   . " FROM " . $mode . "resident";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN numb varchar(8) AFTER address1";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN street varchar(72) AFTER numb";
 $statement_array[++$i] = "update " . $mode . "temp_by_addr "
