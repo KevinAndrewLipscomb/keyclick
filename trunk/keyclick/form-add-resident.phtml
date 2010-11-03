@@ -94,6 +94,7 @@ require_once("f_streetselectionlist.phtml");
                        (
                        "insert into " . $mode . "resident_base "
                        .  "set name='" . addslashes($name) . "' "
+                       .  "   , house_num='" . addslashes($street_num) . "' "
                        .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "   , id=$new_id"
                        )
