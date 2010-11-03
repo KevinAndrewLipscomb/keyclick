@@ -23,6 +23,7 @@ require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
+require_once("f_streetselectionlist.phtml");
 ?>
 <html>
 
@@ -78,46 +79,50 @@ require_once("f_emailaddrofbpn.phtml");
                  if (
                        ($last_name != "")
                     and
-                       ($address1 != "")
-                    and
-                       ($city != "")
-                    and
-                       ($state != "")
-                    and
-                       ($zip != "")
+                       ($street_id != "")
                     )
                  // then
                     {
                     if ($apt_num) $street_num = "$street_num-$apt_num";
                     //
                     $name = strtoupper("$last_name $name_detail");
-                    $address1 = strtoupper("$street_num $address1");
-                    $city = strtoupper($city);
-                    $state = strtoupper($state);
-                    $zip = strtoupper($zip);
+                    $street_num = strtoupper("$street_num");
                     //
-                    extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident")));
+                    extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident_base")));
                     //
                     $result = mysql_query
                        (
-                       "insert into " . $mode . "resident "
+                       "insert into " . $mode . "resident_base "
                        .  "set name='" . addslashes($name) . "' "
-                       .  "   , address1='" . addslashes($address1) . "' "
-                       .  "   , city='" . addslashes($city) . "' "
-                       .  "   , state='" . addslashes($state) . "' "
-                       .  "   , zip='" . addslashes($zip) . "' "
+                       .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "   , id=$new_id"
                        )
                        or die("Cardinal insert failed with error: " . mysql_error());
                     //
+                    extract
+                       (
+                       mysql_fetch_array
+                          (
+                          mysql_query
+                             (
+                             "select street.name as street_name"
+                             . " , city.name as city_name"
+                             . " , state.abbreviation as state_abbreviation"
+                             . " from street"
+                               . " join city on (city.id=street.city_id)"
+                               . " join state on (state.id=city.state_id)"
+                             . " where street.id = '$street_id'"
+                             )
+                          )
+                       );
+                    $address1 = "$street_num $street_name";
                     $result = mysql_query
                        (
                        "insert into " . $mode . "resident_journal "
                        .  "set name='" . addslashes($name) . "' "
-                       .  "   , address1='" . addslashes($address1) . "' "
-                       .  "   , city='" . addslashes($city) . "' "
-                       .  "   , state='" . addslashes($state) . "' "
-                       .  "   , zip='" . addslashes($zip) . "' "
+                       .  "   , address1='" . $address1 . "' "
+                       .  "   , city='" . addslashes($city_name) . "' "
+                       .  "   , state='" . addslashes($state_abbreviation) . "' "
                        .  "   , id=$new_id "
                        .  "   , op='INSERT' "
                        .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
@@ -129,9 +134,8 @@ require_once("f_emailaddrofbpn.phtml");
                        . "<dt>Resident ID:</dt><dd>$new_id</dd>\n"
                        . "<dt>Name:</dt><dd>$name</dd>\n"
                        . "<dt>Address:</dt><dd>$address1</dd>\n"
-                       . "<dt>City:</dt><dd>$city</dd>\n"
-                       . "<dt>State:</dt><dd>$state</dd>\n"
-                       . "<dt>Zip:</dt><dd>$zip</dd>\n"
+                       . "<dt>City:</dt><dd>$city_name</dd>\n"
+                       . "<dt>State:</dt><dd>$state_name</dd>\n"
                        . "</dl></small>\n"
                        . "<u>Optional</u>: For this record, log:\n"
                        . "<table>\n"
@@ -168,11 +172,10 @@ require_once("f_emailaddrofbpn.phtml");
                     . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
                     . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
                     . "      <tr><td align=right>House/building #:</td><td colspan=2><input type=text name=street_num size=6 maxlength=10></td></tr>\n"
-                    . "      <tr><td align=right>Street name:</td><td colspan=2><input type=text name=address1 size=50 maxlength=50></td></tr>\n"
+                    . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
+                 StreetSelectionList($mode);
+                 echo "</td></tr>\n"
                     . "      <tr><td align=right>Apt #:</td><td colspan=2><input type=text name=apt_num size=4 maxlength=6></td></tr>\n"
-                    . "      <tr><td align=right>City:</td><td colspan=2><input type=text name=city size=35 maxlength=35></td></tr>\n"
-                    . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state size=2 maxlength=2></td></tr>\n"
-                    . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
                     . "      <tr>\n"
                     . "         <td colspan=2>\n"
                     . "            <table width=100%>\n"

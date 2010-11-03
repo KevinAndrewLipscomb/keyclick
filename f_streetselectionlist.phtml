@@ -1,0 +1,42 @@
+<?
+//
+// $Id: f_methodselectionlist.phtml 755 2002-11-02 21:47:27Z kevinanlipscomb $
+//
+function StreetSelectionList
+   (
+   $mode = "",
+   $selected_option = ""
+   )
+//
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   $result = @mysql_query
+      (
+      "select street.id"
+      . " , concat(street.name,', ',city.name,', ',state.abbreviation) as spec"
+      . " from " . $mode . "street"
+      .   " join " . $mode . "city on (city.id=street.city_id)"
+      .   " join " . $mode . "state on (state.id=city.state_id)"
+      . " order by state.abbreviation,city.name,street.name"
+      );
+   //
+   if (!mysql_error() and mysql_num_rows($result))
+      {
+      echo "<select name=street_id>\n";
+      //
+      while($row = mysql_fetch_array($result))
+         {
+         $id = $spec = "";
+         extract($row);
+         echo "   <option value=\"$id\"";
+         if ($id == $selected_option) echo " selected";
+         echo ">$spec</option>\n";
+         }
+      //
+      echo "</select>\n";
+      }
+   //
+   error_reporting($saved_error_level);
+   }
+?>

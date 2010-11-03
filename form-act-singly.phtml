@@ -21,6 +21,9 @@ require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
+require_once("f_streetselectionlist.phtml");
+require_once("f_cityselectionlist.phtml");
+require_once("f_stateselectionlist.phtml");
 ?>
 <html>
 
@@ -91,24 +94,16 @@ require_once("f_emailaddrofbpn.phtml");
                  if (
                        (($name = trim($name)) != "")
                     and
-                       (($address1 = trim($address1)) != "")
-                    and
-                       (($city = trim($city)) != "")
-                    and
-                       (($state = trim($state)) != "")
-                    and
-                       (($zip = trim($zip)) != "")
+                       (($street_id = trim($street_id)) != "")
                     )
                  // then
                     {
                     $result = mysql_query
                        (
-                       "update " . $mode . "resident "
+                       "update " . $mode . "resident_base "
                        .  "set name='" . addslashes($name) . "' "
-                       .  "   , address1='" . addslashes($address1) . "' "
-                       .  "   , city='" . addslashes($city) . "' "
-                       .  "   , state='" . addslashes($state) . "' "
-                       .  "   , zip='" . addslashes($zip) . "' "
+                       .  "   , house_num='" . addslashes($house_num) . "' "
+                       .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "where id=$id_to_save "
                        .  "limit 1 "
                        )
@@ -128,6 +123,19 @@ require_once("f_emailaddrofbpn.phtml");
                        )
                        or die("Journal entry failed with error: " . mysql_error());
                     //
+                    $result = mysql_query
+                       (
+                       "select name "
+                       .  " , address1 "
+                       .  " , city "
+                       .  " , state "
+                       .  " from " . $mode . "resident "
+                       .  " where id=$id_to_save "
+                       )
+                       or die("Select failed with error: " . mysql_error());
+                    //
+                    extract(mysql_fetch_array($result));
+                    //
                     echo "<p><b>SUCCEEDED</b></p>\n"
                        . "<small><dl>\n"
                        . "<dt>Resident ID:</dt><dd>$id_to_save</dd>\n"
@@ -135,7 +143,6 @@ require_once("f_emailaddrofbpn.phtml");
                        . "<dt>Address:</dt><dd>$address1</dd>\n"
                        . "<dt>City:</dt><dd>$city</dd>\n"
                        . "<dt>State:</dt><dd>$state</dd>\n"
-                       . "<dt>Zip:</dt><dd>$zip</dd>\n"
                        . "</dl></small>\n";
                     }
                  else
@@ -149,7 +156,7 @@ require_once("f_emailaddrofbpn.phtml");
                  {
                  $result = mysql_query
                     (
-                    "delete from " . $mode . "resident "
+                    "delete from " . $mode . "resident_base "
                     .  "where id=$id_to_save "
                     .  "limit 1"
                     )
@@ -197,13 +204,11 @@ require_once("f_emailaddrofbpn.phtml");
               //
               $result = mysql_query
                  (
-                 "select name "
-                 .  ", address1 "
-                 .  ", city "
-                 .  ", state "
-                 .  ", zip "
-                 .  "from " . $mode . "resident "
-                 .  "where id='$id' "
+                 "select resident_base.name "
+                 .  ", house_num"
+                 .  ", street_id "
+                 .  "from " . $mode . "resident_base "
+                 .  "where resident_base.id='$id' "
                  )
                  or die("Query failed with error: " . mysql_error());
               $num_rows = mysql_num_rows($result);
@@ -268,10 +273,10 @@ require_once("f_emailaddrofbpn.phtml");
                  echo "   <table>\n"
                     . "      <tr><td align=right><b>Resident ID:</b></td><td colspan=2><b>$id</b></td></tr>\n"
                     . "      <tr><td align=right>Name:</td><td colspan=2><input type=text name=name value=\"$name\" size=50 maxlength=50></td></tr>\n"
-                    . "      <tr><td align=right>Address:</td><td colspan=2><input type=text name=address1 value=\"$address1\" size=50 maxlength=50></td></tr>\n"
-                    . "      <tr><td align=right>City:</td><td colspan=2><input type=text name=city value=\"$city\" size=35 maxlength=35></td></tr>\n"
-                    . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state value=\"$state\" size=2 maxlength=2></td></tr>\n"
-                    . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip value=\"$zip\" size=10 maxlength=10></td></tr>\n"
+                    . "      <tr><td align=right>House #:</td><td colspan=2><input type=text name=house_num value=\"$house_num\" size=15 maxlength=15></td></tr>\n"
+                    . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
+                 StreetSelectionList($mode,$street_id);
+                 echo "</td></tr>\n"
                     . "      <tr>\n"
                     . "         <td align=right valign=top>Action:</td>\n"
                     . "         <td colspan=2>\n"
