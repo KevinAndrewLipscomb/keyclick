@@ -1,0 +1,34 @@
+<?
+//
+// $Id: f_methodselectionlist.phtml 755 2002-11-02 21:47:27Z kevinanlipscomb $
+//
+function CitySelectionList
+   (
+   $mode = "",
+   $selected_option = ""
+   )
+//
+   {
+   $saved_error_level = error_reporting(E_ALL);
+   //
+   $result = @mysql_query("select id,name from " . $mode . "city order by name");
+   //
+   if (!mysql_error() and mysql_num_rows($result))
+      {
+      echo "<select name=city_id>\n";
+      //
+      while($row = mysql_fetch_array($result))
+         {
+         $id = $name = "";
+         extract($row);
+         echo "   <option value=\"$id\"";
+         if ($id == $selected_option) echo " selected";
+         echo ">$name</option>\n";
+         }
+      //
+      echo "</select>\n";
+      }
+   //
+   error_reporting($saved_error_level);
+   }
+?>
