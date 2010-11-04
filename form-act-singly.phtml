@@ -77,13 +77,16 @@ require_once("f_stateselectionlist.phtml");
                  {
                  $result = mysql_query
                     (
-                    "select name as old_name "
-                    .  " , address1 as old_address1 "
-                    .  " , city as old_city "
-                    .  " , state as old_state "
-                    .  " , zip as old_zip "
-                    .  " from " . $mode . "resident "
-                    .  " where id=$id_to_save "
+                    "select resident_base.name as old_name "
+                    .  " , concat(house_num,' ',street.name) as old_address1 "
+                    .  " , city.name as old_city "
+                    .  " , state.abbreviation as old_state "
+                    .  " , null as old_zip "
+                    .  " from " . $mode . "resident_base "
+                       . " join street on (street.id=resident_base.street_id) "
+                       . " join city on (city.id=street.city_id) "
+                       . " join state on (state.id=city.state_id) "
+                    .  " where resident_base.id=$id_to_save "
                     )
                     or die("Select failed with error: " . mysql_error());
                  //
@@ -125,12 +128,15 @@ require_once("f_stateselectionlist.phtml");
                     //
                     $result = mysql_query
                        (
-                       "select name "
-                       .  " , address1 "
-                       .  " , city "
-                       .  " , state "
-                       .  " from " . $mode . "resident "
-                       .  " where id=$id_to_save "
+                       "select resident_base.name "
+                       .  " , concat(house_num,' ',street.name) as address1 "
+                       .  " , city.name as city "
+                       .  " , state.abbreviation as state "
+                       .  " from " . $mode . "resident_base "
+                          . " join street on (street.id=resident_base.street_id) "
+                          . " join city on (city.id=street.city_id) "
+                          . " join state on (state.id=city.state_id) "
+                       .  " where resident_base.id=$id_to_save "
                        )
                        or die("Select failed with error: " . mysql_error());
                     //

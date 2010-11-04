@@ -30,7 +30,10 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
    <tr>
       <td>
         <table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
-           <? PutLibPhotoRandomPlaced("eye-candy",1); ?>
+           <?
+           PutLibPhotoRandomPlaced("eye-candy",1);
+           $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+           ?>
         </td><td>
            <h6 align="center">
               <a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>

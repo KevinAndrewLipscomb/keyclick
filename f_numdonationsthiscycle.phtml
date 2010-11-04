@@ -11,13 +11,12 @@ function NumDonationsThisCycle
    $saved_error_level = error_reporting(E_ALL);
    //
    $num_donations_this_cycle = 0;
-   $qry = "select count(*) as num_donations_this_cycle from "
-      .  "   keyclick." . $mode . "donation left join keyclick." . $mode . "resident "
-      .  "on "
-      .  "   keyclick." . $mode . "donation.id = keyclick." . $mode . "resident.id "
-      .  "where agency='$agency' "
-      .  "   and date > '" . date('Y') . "-05-01' "
-      .  "group by agency ";
+   $qry = "select count(*) as num_donations_this_cycle"
+   . " from donation"
+     . " left join resident_base using (id)"
+   . " where agency='$agency'"
+     .  " and date > '" . date('Y') . "-05-01'"
+   . " group by agency";
    $result = mysql_query($qry)
       or die("NumDonationsThisCycle query failed with error:  " . mysql_error());
    if (mysql_num_rows($result)) extract(mysql_fetch_array($result));

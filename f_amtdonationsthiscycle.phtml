@@ -12,9 +12,9 @@ function AmtDonationsThisCycle
    //
    $amt_donations_this_cycle = 0;
    $qry = "select sum(amount) as amt_donations_this_cycle from "
-      .  "   keyclick." . $mode . "donation left join keyclick." . $mode . "resident "
+      .  $mode . "donation left join " . $mode . "resident_base "
       .  "on "
-      .  "   keyclick." . $mode . "donation.id = keyclick." . $mode . "resident.id "
+      .  $mode . "donation.id = " . $mode . "resident_base.id "
       .  "where agency='$agency' "
       .  "   and date > '" . date('Y') . "-05-01' "
       .  "group by agency ";

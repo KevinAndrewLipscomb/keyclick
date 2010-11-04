@@ -18,7 +18,7 @@ function EmailAddrOfBpn
    //
    // Now see if the specified boarding pass is valid.
    //
-   $result = mysql_query("select email_addr from keyclick." . $mode . "manifest where bpn='$bpn' ")
+   $result = mysql_query("select email_addr from " . $mode . "manifest where bpn='$bpn' ")
       or die("BeValidBoardingPass query failed with error:  " . mysql_error());
    //
    if (mysql_num_rows($result))

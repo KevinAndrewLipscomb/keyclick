@@ -37,7 +37,12 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
                  <h1 align="center">Export Full ROD</h1>
               </td>
               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-              <td><? PutLibPhotoRandomPlaced("eye-candy",1); ?></td>
+              <td>
+                <?
+                PutLibPhotoRandomPlaced("eye-candy",1);
+                $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "TRUE");
+                ?>
+              </td>
            </tr>
         </table>
         <hr>
@@ -67,16 +72,16 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
               //
               extract(  //Sets $num_rows
                  mysql_fetch_array(
-                    mysql_query("select count(*) as num_rows from keyclick." . $mode . "resident")));
+                    mysql_query("select count(*) as num_rows from " . $mode . "resident_base where agency='$agency'")));
               //
               extract(  //Sets $chunk_size
                  mysql_fetch_array(
-                    mysql_query("select value as chunk_size from keyclick." . $mode . "tuning_parm where name='export-chunk-size'")));
+                    mysql_query("select value as chunk_size from " . $mode . "tuning_parm where name='export-chunk-size'")));
               //
               $num_chunks = ceil($num_rows/$chunk_size);
               ?>
               <p>Because of its size, the Full ROD must be downloaded as multiple ZIP files.&nbsp; KEYclick
-                 recommends that you deliver the ZIP files, unaltered, to Corporate Marketing Inc. via email or floppy
+                 recommends that you deliver the ZIP files, unaltered, to the vendor via email or floppy
                  disk.</p>
               <p><b>Please <u>WAIT PATIENTLY</u> after clicking a button.&nbsp; In each case, it will take a while for the
                  server to crunch the data before starting the download.</b></p>
@@ -84,13 +89,16 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
                  <?
                  for ($i = 1; $i <= $num_chunks; $i++)
                     {
-                    $sql = "select id "
-                       . "   ,name "
-                       . "   ,address1 "
-                       . "   ,city "
-                       . "   ,state "
-                       . "   ,zip "
-                       . "from " . $mode . "resident "
+                    $sql = "select resident_base.id "
+                       . "   ,resident_base.name "
+                       . "   ,concat (house_num,' ',street.name) as address1 "
+                       . "   ,city.name as city "
+                       . "   ,state.abbreviation as state "
+                       . "   ,null as zip "
+                       . "from " . $mode . "resident_base "
+                         . " join street on (street.id=resident_base.street_id)"
+                         . " join city on (city.id=street.city_id)"
+                         . " join state on (state.id=city.state_id)"
                        . "where agency = '$agency' "
                        . "limit " . ($i - 1)*$chunk_size . "," . $chunk_size;
                     echo "<form action=" . $mode . "export.phtml method=post>\n"

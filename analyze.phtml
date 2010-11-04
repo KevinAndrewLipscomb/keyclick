@@ -66,7 +66,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        . "                     <td>\n"
                        . "                        ";
                     PutLibPhotoRandomPlaced("eye-candy",1);
-                    mysql_select_db('keyclick');
+                    $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
                     echo "                     </td>\n"
                        . "                     <td>\n"
                        . "                        <h6 align=center>\n"
@@ -198,15 +198,18 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                 $parsed_basic_criteria = ereg_replace("\*"," ",$parsed_basic_criteria);
                                 $parsed_basic_criteria = ereg_replace(" ",".*",$parsed_basic_criteria);
                                 //
-                                $sql_query = "select id "
-                                   . "   , name "
-                                   . "   , address1 "
-                                   . "   , city "
-                                   . "   , state "
-                                   . "   , zip "
-                                   . "from " . $mode . "resident "
-                                   . "where name rlike '$parsed_basic_criteria' "
-                                   . "   or address1 rlike '$parsed_basic_criteria' ";
+                                $sql_query = "select resident_base.id "
+                                   . "   , resident_base.name "
+                                   . "   , concat(house_num,' ',street.name) as address1 "
+                                   . "   , city.name as city "
+                                   . "   , state.abbreviation as state "
+                                   . "   , null as zip "
+                                   . "from " . $mode . "resident_base "
+                                     . " join street on (street.id=resident_base.street_id) "
+                                     . " join city on (city.id=street.city_id) "
+                                     . " join state on (state.id=city.state_id) "
+                                   . "where resident_base.name rlike '$parsed_basic_criteria' "
+                                   . "   or concat(house_num,' ',street.name) rlike '$parsed_basic_criteria' ";
                                 //
                                 // DON'T break
                                 //
