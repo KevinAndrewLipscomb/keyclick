@@ -170,7 +170,8 @@ function ExecSelect
    $table_border,
    $cell_padding,
    $max_text_field_display_len,
-   $allow_dynamic_sorting = '1'
+   $allow_dynamic_sorting = '1',
+   $row_action_desginator = 'ur'  // send 'nn' to preserve header/data column alignment if no drill-down will be available
    )
 //
    {
@@ -199,8 +200,7 @@ function ExecSelect
       $table_border,
       $cell_padding,
       $max_text_field_display_len,
-      $mode,
-      'urnn' . $allow_dynamic_sorting . '0000'  // for $disp_mode
+      $mode
       );
    exit();
    }

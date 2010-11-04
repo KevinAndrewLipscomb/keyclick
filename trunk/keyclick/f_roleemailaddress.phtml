@@ -16,7 +16,7 @@ function RoleEmailAddress
    //
    $result = mysql_query
       (
-      "select email_addr from keyclick." . $mode . "authority "
+      "select email_addr from " . $mode . "authority "
       .  "   where role='$role' "
       .  "      and agency='$agency' "
       .  "   limit 1"

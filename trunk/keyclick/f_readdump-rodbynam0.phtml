@@ -30,14 +30,18 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . ")"
    . "TYPE=MyISAM";
 $statement_array[++$i] = "INSERT INTO " . $mode . "temp"
-   . " SELECT id"
-   . " , name"
-   . " , address1"
-   . " , city"
-   . " , state"
-   . " , zip"
+   . " SELECT resident_base.id"
+   . " , resident_base.name"
+   . " , concat(house_num,' ',street.name) as address1"
+   . " , city.name as city"
+   . " , state.abbreviation as state"
+   . " , null as zip"
    . " , agency"
-   . " FROM " . $mode . "resident";
+   . " FROM " . $mode . "resident_base"
+     . " join street on (street.id=resident_base.street_id)"
+     . " join city on (city.id=street.city_id)"
+     . " join state on (state.id=city.state_id)"
+   . " WHERE resident_base.name is not null";
 $statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
 //

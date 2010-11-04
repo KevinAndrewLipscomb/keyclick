@@ -106,7 +106,7 @@ require_once("f_methodselectionlist.phtml");
                  $state = strtoupper($state);
                  $zip = strtoupper($zip);
                  //
-                 extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident")));
+                 extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident_base")));
                  //
                  $result = mysql_query
                     (
@@ -153,7 +153,7 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
                     or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
-                 mysql_query($qry = "update resident set year_of_last_appeal_to_become_a_donor = null where id = 0")
+                 mysql_query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = 0")
                     or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"

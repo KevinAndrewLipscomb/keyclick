@@ -106,7 +106,19 @@ else
                     //
                     // Lookup the resident record with the specified id.
                     //
-                    $result = mysql_query("select name,address1,city,state,zip from " . $mode . "resident where id='$id'")
+                    $result = mysql_query
+                       (
+                       "select resident_base.name"
+                       . " , concat(house_num,' ',street.name) as address1"
+                       . " , city.name as city"
+                       . " , state.abbreviation as state"
+                       . " , null as zip"
+                       . " from " . $mode . "resident_base"
+                         . " join street on (street.id=resident_base.street_id)"
+                         . " join city on (city.id=street.city_id)"
+                         . " join state on (state.id=city.state_id)"
+                       . " where resident_base.id='$id'"
+                       )
                        or die("Master record lookup failed with error: " . mysql_error());
                     if (mysql_num_rows($result))
                        {
@@ -201,7 +213,7 @@ else
                              .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                              )
                              or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
-                          mysql_query($qry = "update resident set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
+                          mysql_query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                              or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
                           //
                           echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"

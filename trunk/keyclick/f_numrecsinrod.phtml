@@ -11,7 +11,7 @@ function NumRecsInRod
    $saved_error_level = error_reporting(E_ALL);
    //
    $num_recs_in_rod = 0;
-   $qry = "select count(*) as num_recs_in_rod from keyclick." . $mode . "resident "
+   $qry = "select count(*) as num_recs_in_rod from " . $mode . "resident_base "
       .  "   where agency='$agency' ";
    $result = mysql_query($qry)
       or die("NumRecsInRod query failed with error:  " . mysql_error());

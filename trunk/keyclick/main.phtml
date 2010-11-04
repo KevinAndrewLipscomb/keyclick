@@ -52,6 +52,7 @@ $border_thickness = 0;  //($mode != "");
                      if ($connected)
                         {
                         PutLibPhotoRandomPlaced("eye-candy",1);
+                        $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
                         }
                      else
                         {

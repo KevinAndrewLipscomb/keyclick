@@ -20,31 +20,17 @@ $statement_array = array();
 $statement_array[$i = 0] = "drop table if exists " . $mode . "rod_by_addr";
 $statement_array[++$i] = "drop table if exists " . $mode . "temp_by_addr";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
-   . "("
-   . "id mediumint(8) unsigned NOT NULL default '0',"
-   . "name tinytext NOT NULL,"
-   . "address1 tinytext NOT NULL,"
-   . "city tinytext NOT NULL,"
-   . "state tinytext NOT NULL,"
-   . "zip tinytext NOT NULL,"
-   . "PRIMARY KEY (id),"
-   . "KEY name (name(255))"
-   . ")"
-   . "TYPE=MyISAM";
-$statement_array[++$i] = "INSERT INTO " . $mode . "temp_by_addr"
-   . " SELECT id"
-   . " , name"
-   . " , address1"
-   . " , city"
-   . " , state"
-   . " , zip"
-   . " FROM " . $mode . "resident";
-$statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN numb varchar(8) AFTER address1";
-$statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr ADD COLUMN street varchar(72) AFTER numb";
-$statement_array[++$i] = "update " . $mode . "temp_by_addr "
-   . "set numb=left(address1,(locate(space(1),address1) - 1)) "
-   . "   , street=substring(address1,(locate(space(1),address1) + 1))";
-$statement_array[++$i] = "ALTER TABLE " . $mode . "temp_by_addr DROP address1";
+   . " SELECT resident_base.id"
+   . " , resident_base.name"
+   . " , house_num as numb"
+   . " , street.name as street"
+   . " , city.name as city"
+   . " , state.abbreviation as state"
+   . " , NULL as zip"
+   . " FROM " . $mode . "resident_base"
+     . " join street on (street.id=resident_base.street_id)"
+     . " join city on (city.id=street.city_id)"
+     . " join state on (state.id=city.state_id)";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_addr "
    . "select * from " . $mode . "temp_by_addr "
    . "order by state,city,street,numb "

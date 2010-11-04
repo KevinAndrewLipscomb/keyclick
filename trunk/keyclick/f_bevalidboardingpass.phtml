@@ -22,13 +22,13 @@ function BeValidBoardingPass
    //
    extract(  //Sets $debug.
       mysql_fetch_array(
-         mysql_query("select value as debug from keyclick." . $mode . "tuning_parm where name='debug-boarding-pass'")));
+         mysql_query("select value as debug from " . $mode . "tuning_parm where name='debug-boarding-pass'")));
    //
    // Now see if the specified boarding pass is valid.
    //
    $result = mysql_query
       (
-      "select agency,ip,expiration_time from keyclick." . $mode . "manifest "
+      "select agency,ip,expiration_time from " . $mode . "manifest "
       .  "   where bpn='$bpn' "
       )
       or die("BeValidBoardingPass query failed with error:  " . mysql_error());
@@ -52,13 +52,13 @@ function BeValidBoardingPass
             extract(  //Sets $bump_factor
                mysql_fetch_array(
                   mysql_query(
-                     "select value as bump_factor from keyclick." . $mode . "tuning_parm where name='boarding-pass-valid-minutes'")));
+                     "select value as bump_factor from " . $mode . "tuning_parm where name='boarding-pass-valid-minutes'")));
             //
             // Extend expiration date
             //
             $result = mysql_query
                (
-               "update keyclick." . $mode . "manifest "
+               "update " . $mode . "manifest "
                .  " set expiration_time = expiration_time + " . $bump_factor*60
                .  " where bpn=$bpn "
                .  "    and ip=$ip "
@@ -85,7 +85,7 @@ function BeValidBoardingPass
    //
    // Remove all expired records.
    //
-   $result = mysql_query("delete from keyclick." . $mode . "manifest where expiration_time < " . time())
+   $result = mysql_query("delete from " . $mode . "manifest where expiration_time < " . time())
       or die("Removal of expired boarding passes failed with error: " . mysql_error());
    //
    error_reporting($saved_error_level);
