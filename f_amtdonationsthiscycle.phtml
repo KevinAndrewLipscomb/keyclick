@@ -4,6 +4,7 @@
 //
 function AmtDonationsThisCycle
    (
+   $db_link,
    $agency,
    $mode = ""
    )
@@ -18,9 +19,9 @@ function AmtDonationsThisCycle
       .  "where agency='$agency' "
       .  "   and date > '" . date('Y') . "-05-01' "
       .  "group by agency ";
-   $result = mysql_query($qry)
-      or die("NumDonationsThisCycle query failed with error:  " . mysql_error());
-   if (mysql_num_rows($result)) extract(mysql_fetch_array($result));
+   $result = $db_link->query($qry)
+      or die("NumDonationsThisCycle query failed with error:  " . mysqli_error());
+   if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //
    error_reporting($saved_error_level);
    return $amt_donations_this_cycle;

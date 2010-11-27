@@ -18,7 +18,7 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -26,7 +26,7 @@ require_once("f_zipdump.phtml");
 //
 // error_reporting(E_ALL);  // Inappropriate because we're calling externally-authored routines.
 //
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
 
         if ($connected != "TRUE")
            {
@@ -42,7 +42,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
         else
            {
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -66,7 +66,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                        . "                     <td>\n"
                        . "                        ";
                     PutLibPhotoRandomPlaced("eye-candy",1);
-                    $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+                    $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                     echo "                     </td>\n"
                        . "                     <td>\n"
                        . "                        <h6 align=center>\n"
@@ -92,6 +92,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              case "POPNAMCNT":
                                 ReadDump_POPNAMCNT
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    $mode,
@@ -101,6 +102,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              case "RODBYADDR0":
                                 ReadDump_RODBYADDR0
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    $mode,
@@ -110,6 +112,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              case "RODBYNAM0":
                                 ReadDump_RODBYNAM0
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    $mode,
@@ -119,6 +122,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              case "RODFOLUP0":
                                 ReadDump_RODFOLUP0
                                    (
+                                   $db_link,
                                    $year_num,$month_num,$day_num,
                                    $bpn,
                                    $mode,
@@ -128,6 +132,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              default:
                                 ReadDump
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    '1',  // for allow_dynamic_sorting
@@ -150,9 +155,9 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                           //
                           extract  // Implicitly sets $chunk_size
                              (
-                             mysql_fetch_array
+                             mysqli_fetch_array
                                 (
-                                mysql_query
+                                $db_link->query
                                    (
                                    "select value as chunk_size from " . $mode . "tuning_parm "
                                    .  "where name='screen-view-chunk-size' "
@@ -163,16 +168,17 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                           switch ($algorithm)
                              {
                              case "RODBYADDR0":
-                                ReadDump_RODBYADDR0($sql_query,$bpn,$mode);
+                                ReadDump_RODBYADDR0($db_link,$sql_query,$bpn,$mode);
                                 break;
                              case "RODBYNAM0":
-                                ReadDump_RODBYNAM0($sql_query,$bpn,$mode);
+                                ReadDump_RODBYNAM0($db_link,$sql_query,$bpn,$mode);
                                 break;
                              case "RODBYADDRSV":
                                 $sql_query = "select * from " . $mode . "rod_by_addr "
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
                                 ReadDump
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    '0',  // don't allow_dynamic_sorting
@@ -184,6 +190,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
                                 ReadDump
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    '0',  // don't allow_dynamic_sorting
@@ -216,6 +223,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
                              default:
                                 ReadDump
                                    (
+                                   $db_link,
                                    $sql_query,
                                    $bpn,
                                    '1',  // do allow_dynamic_sorting

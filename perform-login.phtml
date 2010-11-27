@@ -16,7 +16,7 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_beauthorized.phtml");
 require_once("f_keyclickmailheaders.phtml");
@@ -44,7 +44,7 @@ require_once("$pear_dir/Mail/mime.php");
          <hr>
          <br>
          <?
-         if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+         if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
             {
             ?>
             <h2><i>Sorry...</i></h2>
@@ -67,14 +67,14 @@ require_once("$pear_dir/Mail/mime.php");
                )
             // then
                {
-               if (BeAuthorized($email_addr,$agency,$mode) != "TRUE")
+               if (BeAuthorized($db_link,$email_addr,$agency,$mode) != "TRUE")
                   {
                   ?>
                   <h2><i>Sorry...</i></h2>
                   <blockquote>
                      <?
                      echo "<p><a href=mailto:\""
-                        . RoleEmailAddress("keyclick-coordinator",$mode,$agency)
+                        . RoleEmailAddress($db_link,"keyclick-coordinator",$mode,$agency)
                         . "\">$agency's KEYclick Coordinator</a> has not enrolled <i>$email_addr</i> in its table of valid "
                         . "KEYclick users.</p>";
                      ?>
@@ -88,22 +88,22 @@ require_once("$pear_dir/Mail/mime.php");
                   //
                   srand((double)microtime()*1000000); 
                   $raw_bpn =  rand();
-                  $result = mysql_query("select md5(\"$raw_bpn\") as bpn")
-                     or die("Generation of Boarding Pass Number failed with error: " . mysql_error());
-                  extract(mysql_fetch_array($result));
+                  $result = $db_link->query("select md5(\"$raw_bpn\") as bpn")
+                     or die("Generation of Boarding Pass Number failed with error: " . mysqli_error());
+                  extract(mysqli_fetch_array($result));
                   //
                   // Calculate the expiration time.
                   //
                   extract(  // Sets $num_minutes
-                     mysql_fetch_array(
-                        mysql_query(
+                     mysqli_fetch_array(
+                        $db_link->query(
                            "select value as num_minutes from " . $mode . "tuning_parm "
                            . "where name='boarding-pass-valid-minutes' ")));
                   $expiration_time = time() + $num_minutes*60;
                   //
                   // Record the boarding pass attributes in the manifest.
                   //
-                  mysql_query
+                  $db_link->query
                      (
                      "insert into " . $mode . "manifest set bpn='$bpn' "
                      .  ", email_addr='$email_addr' "
@@ -111,7 +111,7 @@ require_once("$pear_dir/Mail/mime.php");
                      .  ", agency='$agency' "
                      .  ", expiration_time=$expiration_time "
                      )
-                     or die("Insert failed with error: " . mysql_error());
+                     or die("Insert failed with error: " . mysqli_error());
                   //
                   // Generate the challenge message (plain text).
                   //
@@ -131,7 +131,7 @@ require_once("$pear_dir/Mail/mime.php");
                   $challenge_cold .=
                        "-- KEYclick\n"
                      . "-- Home page: " . HomePageUrl() . "\n"
-                     . "-- Sysadmin: " . RoleEmailAddress("",$mode) . "\n";
+                     . "-- Sysadmin: " . RoleEmailAddress($db_link,"",$mode) . "\n";
                   //
                   // Generate an HTML version of the challenge.
                   //
@@ -171,7 +171,7 @@ require_once("$pear_dir/Mail/mime.php");
                      . "                  log out.\n"
                      . "                  <hr>\n"
                      . "                  <small>"
-                     . "                     KEYclick&nbsp; * &nbsp;" . HomePageUrl() . "&nbsp; * &nbsp;Sysadmin=<a href=mailto:" . RoleEmailAddress("",$mode) . ">" . RoleEmailAddress("",$mode) . "</a>"
+                     . "                     KEYclick&nbsp; * &nbsp;" . HomePageUrl() . "&nbsp; * &nbsp;Sysadmin=<a href=mailto:" . RoleEmailAddress($db_link,"",$mode) . ">" . RoleEmailAddress($db_link,"",$mode) . "</a>"
                      . "                  </small>\n"
                      . "                  <p align=center><small><b> --- $bpn ---</b></small></p>\n"
                      . "               </td>\n"
@@ -184,8 +184,8 @@ require_once("$pear_dir/Mail/mime.php");
                   $headers = array
                      (
                      'To' => $email_addr,
-                     'From' => 'KEYclick <' . RoleEmailAddress("",$mode) . '>',
-                     'Reply-to' => 'KEYclick <' . RoleEmailAddress("",$mode) . '>',
+                     'From' => 'KEYclick <' . RoleEmailAddress($db_link,"",$mode) . '>',
+                     'Reply-to' => 'KEYclick <' . RoleEmailAddress($db_link,"",$mode) . '>',
                      'Subject' => 'KEYclick Boarding Pass'
                      );
                   //
@@ -218,7 +218,7 @@ require_once("$pear_dir/Mail/mime.php");
                      <b>
                      <blockquote>
                         <p>KEYclick encountered an internal error while processing your request.&nbsp; Contact the
-                           <a href=mailto:"<? echo RoleEmailAddress("",$mode); ?>">KEYclick System Administrator</a>.</p>
+                           <a href=mailto:"<? echo RoleEmailAddress($db_link,"",$mode); ?>">KEYclick System Administrator</a>.</p>
                      </blockquote>            
                      </b>
                      <?

@@ -15,7 +15,7 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -38,7 +38,7 @@ require_once("f_kickoff.phtml");
         <hr>
         <br>
         <?
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -52,7 +52,7 @@ require_once("f_kickoff.phtml");
         else
            {
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -60,12 +60,12 @@ require_once("f_kickoff.phtml");
            else
               {
               echo "<p>The following analyses are available in this context.&nbsp; For other analyses, contact "
-                 . "the <a href=mailto:\"" . RoleEmailAddress("",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
+                 . "the <a href=mailto:\"" . RoleEmailAddress($db_link,"",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
                  . "<table align=center width=90%>\n";
               //
               extract(  // Sets $chunk_size.
-                 mysql_fetch_array(
-                    mysql_query(
+                 mysqli_fetch_array(
+                    $db_link->query(
                        "select value as chunk_size from " . $mode . "tuning_parm where name='screen-view-chunk-size'")));
               //
               switch ($parent_enumeral_expression)
@@ -172,7 +172,7 @@ require_once("f_kickoff.phtml");
               case is_integer(strpos($parent_enumeral_expression,'RODBYNAM0')):
                  {
                  $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_name";
-                 extract(mysql_fetch_array(mysql_query($qry)));  // Sets $num_parts.
+                 extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $num_parts.
                  echo "   <tr>\n"
                     . "      <form action=" . $mode . "analyze.phtml method=post>\n"
                     . "         <input type=hidden name=bpn value=$bpn>\n"
@@ -197,12 +197,12 @@ require_once("f_kickoff.phtml");
                     {
                     $top_offset = ($i - 1)*$chunk_size;
                     $qry = "select left(name,7) as top_name from " . $mode . "rod_by_name limit $top_offset,1";
-                    extract(mysql_fetch_array(mysql_query($qry)));  // Sets $top_name.
+                    extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $top_name.
                     if ($i < $num_parts)
                        {
                        $bottom_offset = ($i*$chunk_size - 1);
                        $qry = "select left(name,7) as bottom_name from " . $mode . "rod_by_name limit $bottom_offset,1";
-                       extract(mysql_fetch_array(mysql_query($qry)));  // Sets $bottom_name.
+                       extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $bottom_name.
                        }
                     else
                        {
@@ -224,7 +224,7 @@ require_once("f_kickoff.phtml");
               case is_integer(strpos($parent_enumeral_expression,'RODBYADDR0')):
                  {
                  $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_addr";
-                 extract(mysql_fetch_array(mysql_query($qry)));  // Sets $num_parts.
+                 extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $num_parts.
                  echo "   <tr>\n"
                     . "      <form action=" . $mode . "analyze.phtml method=post>\n"
                     . "         <input type=hidden name=bpn value=$bpn>\n"
@@ -253,7 +253,7 @@ require_once("f_kickoff.phtml");
                        . "   , left(street,4) as top_street "
                        . "   , left(numb,4) as top_numb "
                        . "from " . $mode . "rod_by_addr limit $top_offset,1";
-                    extract(mysql_fetch_array(mysql_query($qry)));  // Sets $top_* vars.
+                    extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $top_* vars.
                     $top_combo = "$top_numb-$top_street-$top_city-$top_state";
                     if ($i < $num_parts)
                        {
@@ -263,7 +263,7 @@ require_once("f_kickoff.phtml");
                           . "   , left(street,4) as bottom_street "
                           . "   , left(numb,4) as bottom_numb "
                           . "from " . $mode . "rod_by_addr limit $bottom_offset,1";
-                       extract(mysql_fetch_array(mysql_query($qry)));  // Sets $bottom_* vars.
+                       extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $bottom_* vars.
                        $bottom_combo = "$bottom_numb-$bottom_street-$bottom_city-$bottom_state";
                        }
                     else
@@ -285,7 +285,7 @@ require_once("f_kickoff.phtml");
                  }
               }
               //
-              $result = mysql_query
+              $result = $db_link->query
                  (
                  "select short_description "
                  . "   , enumeral "
@@ -298,15 +298,15 @@ require_once("f_kickoff.phtml");
                  . "   and $parent_enumeral_expression "
                  . "order by position "
                  )
-                 or die("Retrieval of analyses failed with error: " . mysql_error());
+                 or die("Retrieval of analyses failed with error: " . mysqli_error());
               //
-              if (!mysql_num_rows($result))
+              if (!mysqli_num_rows($result))
                  {
                  echo "<tr><td><p>None</p></td></tr>";
                  }
               else
                  {
-                 while ($row = mysql_fetch_array($result))
+                 while ($row = mysqli_fetch_array($result))
                     {
                     $short_description = $long_description = $sql = $be_avail_as_html = $be_avail_as_zip = "";
                     extract($row);

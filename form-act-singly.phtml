@@ -15,7 +15,7 @@ if ($mode) error_reporting(E_ALL);
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -40,7 +40,7 @@ require_once("f_stateselectionlist.phtml");
         <hr>
         <br>
         <?
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -53,7 +53,7 @@ require_once("f_stateselectionlist.phtml");
            }
         else
            {
-           if (($agency = BeValidBoardingPass($bpn,$mode)) == "")
+           if (($agency = BeValidBoardingPass($db_link,$bpn,$mode)) == "")
               {
               KickOff($mode);
               }
@@ -75,7 +75,7 @@ require_once("f_stateselectionlist.phtml");
               //
               if (($action == "update") or ($action == "delete"))
                  {
-                 $result = mysql_query
+                 $result = $db_link->query
                     (
                     "select resident_base.name as old_name "
                     .  " , concat(house_num,' ',street.name) as old_address1 "
@@ -88,9 +88,9 @@ require_once("f_stateselectionlist.phtml");
                        . " join state on (state.id=city.state_id) "
                     .  " where resident_base.id=$id_to_save "
                     )
-                    or die("Select failed with error: " . mysql_error());
+                    or die("Select failed with error: " . mysqli_error());
                  //
-                 extract(mysql_fetch_array($result));
+                 extract(mysqli_fetch_array($result));
                  }
               if ($action == "update")
                  {
@@ -101,7 +101,7 @@ require_once("f_stateselectionlist.phtml");
                     )
                  // then
                     {
-                    $result = mysql_query
+                    $result = $db_link->query
                        (
                        "update " . $mode . "resident_base "
                        .  "set name='" . addslashes($name) . "' "
@@ -110,9 +110,9 @@ require_once("f_stateselectionlist.phtml");
                        .  "where id=$id_to_save "
                        .  "limit 1 "
                        )
-                       or die("Update failed with error: " . mysql_error());
+                       or die("Update failed with error: " . mysqli_error());
                     //
-                    $result = mysql_query
+                    $result = $db_link->query
                        (
                        "insert into " . $mode . "resident_journal "
                        .  "set name='" . addslashes($old_name) . "' "
@@ -122,11 +122,11 @@ require_once("f_stateselectionlist.phtml");
                        .  "   , zip='" . addslashes($old_zip) . "' "
                        .  "   , id=$id_to_save "
                        .  "   , op='UPDATE' "
-                       .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                        )
-                       or die("Journal entry failed with error: " . mysql_error());
+                       or die("Journal entry failed with error: " . mysqli_error());
                     //
-                    $result = mysql_query
+                    $result = $db_link->query
                        (
                        "select resident_base.name "
                        .  " , concat(house_num,' ',street.name) as address1 "
@@ -138,9 +138,9 @@ require_once("f_stateselectionlist.phtml");
                           . " join state on (state.id=city.state_id) "
                        .  " where resident_base.id=$id_to_save "
                        )
-                       or die("Select failed with error: " . mysql_error());
+                       or die("Select failed with error: " . mysqli_error());
                     //
-                    extract(mysql_fetch_array($result));
+                    extract(mysqli_fetch_array($result));
                     //
                     echo "<p><b>SUCCEEDED</b></p>\n"
                        . "<small><dl>\n"
@@ -160,15 +160,15 @@ require_once("f_stateselectionlist.phtml");
                  }
               elseif ($action == "delete")
                  {
-                 $result = mysql_query
+                 $result = $db_link->query
                     (
                     "delete from " . $mode . "resident_base "
                     .  "where id=$id_to_save "
                     .  "limit 1"
                     )
-                    or die("Delete failed with error: " . mysql_error());
+                    or die("Delete failed with error: " . mysqli_error());
                  //
-                 $result = mysql_query
+                 $result = $db_link->query
                     (
                     "insert into " . $mode . "resident_journal "
                     .  "set name='" . addslashes($old_name) . "' "
@@ -178,9 +178,9 @@ require_once("f_stateselectionlist.phtml");
                     .  "   , zip='" . addslashes($old_zip) . "' "
                     .  "   , id=$id_to_save "
                     .  "   , op='DELETE' "
-                    .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     )
-                    or die("Journal entry failed with error: " . mysql_error());
+                    or die("Journal entry failed with error: " . mysqli_error());
                  //
                  echo "<p><b>SUCCEEDED</b></p>\n"
                     . "<small>Resident ID $id_to_save has been deleted.</small>\n";
@@ -208,7 +208,7 @@ require_once("f_stateselectionlist.phtml");
               //
               // Lookup record with specified ID.
               //
-              $result = mysql_query
+              $result = $db_link->query
                  (
                  "select resident_base.name "
                  .  ", house_num"
@@ -216,33 +216,33 @@ require_once("f_stateselectionlist.phtml");
                  .  "from " . $mode . "resident_base "
                  .  "where resident_base.id='$id' "
                  )
-                 or die("Query failed with error: " . mysql_error());
-              $num_rows = mysql_num_rows($result);
+                 or die("Query failed with error: " . mysqli_error());
+              $num_rows = mysqli_num_rows($result);
               if ($num_rows)
                  {
-                 extract(mysql_fetch_array($result));
+                 extract(mysqli_fetch_array($result));
                  //
                  // Retrieve any journal entries associated with this record.
                  //
-                 $journal_query_result = mysql_query
+                 $journal_query_result = $db_link->query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "resident_journal "
                     .  "where id=$id order by timestamp desc"
                     )
-                    or die("Journal query failed with error: " . mysql_error());
-                 $num_journal_rows = mysql_num_rows($journal_query_result);
+                    or die("Journal query failed with error: " . mysqli_error());
+                 $num_journal_rows = mysqli_num_rows($journal_query_result);
                  //
                  // Retrieve any donation entries associated with this record.
                  //
-                 $donation_query_result = mysql_query
+                 $donation_query_result = $db_link->query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "donation "
                     .  "where id=$id order by date desc"
                     )
-                    or die("Donation query failed with error: " . mysql_error());
-                 $num_donations = mysql_num_rows($donation_query_result);
+                    or die("Donation query failed with error: " . mysqli_error());
+                 $num_donations = mysqli_num_rows($donation_query_result);
                  //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<blockquote>\n"
@@ -257,9 +257,9 @@ require_once("f_stateselectionlist.phtml");
                        {
                        extract
                           (
-                          mysql_fetch_array
+                          mysqli_fetch_array
                              (
-                             mysql_query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
+                             $db_link->query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
                              )
                           );
                        echo "<li><a href=#Donations>$num_donations donation"
@@ -281,7 +281,7 @@ require_once("f_stateselectionlist.phtml");
                     . "      <tr><td align=right>Name:</td><td colspan=2><input type=text name=name value=\"$name\" size=50 maxlength=50></td></tr>\n"
                     . "      <tr><td align=right>House #:</td><td colspan=2><input type=text name=house_num value=\"$house_num\" size=15 maxlength=15></td></tr>\n"
                     . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
-                 StreetSelectionList($mode,$street_id);
+                 StreetSelectionList($db_link,$mode,$street_id);
                  echo "</td></tr>\n"
                     . "      <tr>\n"
                     . "         <td align=right valign=top>Action:</td>\n"
@@ -316,7 +316,7 @@ require_once("f_stateselectionlist.phtml");
                        . "   <small><ol>\n";
                     for ($i = 1; $i <= $num_donations; $i++)
                        {
-                       extract(mysql_fetch_array($donation_query_result));
+                       extract(mysqli_fetch_array($donation_query_result));
                        echo "<li><b>\$$amount on year-month-day $date</b><br>\n"
                           . "<table><tr><td>&nbsp;&nbsp; </td><td>";
                        switch ($method)
@@ -388,7 +388,7 @@ require_once("f_stateselectionlist.phtml");
                        . "   <small><ol>\n";
                     for ($i = 1; $i <= $num_journal_rows; $i++)
                        {
-                       extract(mysql_fetch_array($journal_query_result));
+                       extract(mysqli_fetch_array($journal_query_result));
                        echo "<li><p>\n";
                        switch ($op)
                           {

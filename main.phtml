@@ -13,7 +13,7 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_serverstatus.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -22,7 +22,7 @@ require_once("f_numrecsinrod.phtml");
 require_once("f_numdonationsthiscycle.phtml");
 require_once("f_amtdonationsthiscycle.phtml");
 //
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
 //
 $border_thickness = 0;  //($mode != "");
 //
@@ -52,7 +52,7 @@ $border_thickness = 0;  //($mode != "");
                      if ($connected)
                         {
                         PutLibPhotoRandomPlaced("eye-candy",1);
-                        $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+                        $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                         }
                      else
                         {
@@ -74,7 +74,7 @@ $border_thickness = 0;  //($mode != "");
                   if ($connected)
                      {
                      //
-                     $agency = BeValidBoardingPass($bpn,$mode);
+                     $agency = BeValidBoardingPass($db_link,$bpn,$mode);
                      $be_valid_boarding_pass = ($agency != "");
                      if (!$be_valid_boarding_pass)
                         {
@@ -96,12 +96,12 @@ $border_thickness = 0;  //($mode != "");
                            <td align=right><b><a href=<? echo $mode; ?>form-add-donation.phtml?bpn=<? echo $bpn; ?>>Log</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a new donation - <small><i><a href=<? echo $mode; ?>form-add-donation-old.phtml?bpn=<? echo $bpn; ?>>or log an old one</a></i></small>.</td></tr></table></td>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                            <td rowspan=6 valign=top>
-                              <p><i><small>Server status: <? echo ServerStatus(); ?></small></i></p>
+                              <p><i><small>Server status: <? echo ServerStatus($db_link,); ?></small></i></p>
                               <table bgcolor=#E8E8E8>
                                  <tr><td colspan=2><small><u>Summary</u></small></td></tr>
                                  <tr>
                                     <td><small># ROD records:</small></td>
-                                    <td align=right><small><?php echo number_format(NumRecsInRod($agency,$mode)); ?></small></td>
+                                    <td align=right><small><?php echo number_format(NumRecsInRod($db_link,$agency,$mode)); ?></small></td>
                                  </tr>
                               </table>
                            </td>
@@ -194,7 +194,7 @@ $border_thickness = 0;  //($mode != "");
                   <?
                   if ($connected)
                      {
-                     echo "<b><a href=mailto:" . RoleEmailAddress("") . ">";
+                     echo "<b><a href=mailto:" . RoleEmailAddress($db_link,"") . ">";
                      }
                   else
                      {

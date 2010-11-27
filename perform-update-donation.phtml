@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -39,7 +39,7 @@ require_once("f_methodselectionlist.phtml");
         <hr>
         <br>
         <?
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -56,7 +56,7 @@ require_once("f_methodselectionlist.phtml");
            // Database is up.
            //
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -82,17 +82,17 @@ require_once("f_methodselectionlist.phtml");
                  $per_clerk_seq_num = 1;
                  extract
                     (
-                    mysql_fetch_array
+                    mysqli_fetch_array
                        (
-                       mysql_query
+                       $db_link->query
                           (
                           "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                           )
                        )
                     );
                  //
-                 mysql_query
+                 $db_link->query
                     ($qry =
                     "update " . $mode . "donation "
                     .  "set amount=$amount "
@@ -101,12 +101,12 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     .  "where entered_by='$cross_entered_by' "
                     .  "   and per_clerk_seq_num=$cross_per_clerk_seq_num "
                     )
-                    or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
+                    or die("Update failed with error: " . mysqli_error() . ".  qry=[$qry]");
                  }
               else
                  {

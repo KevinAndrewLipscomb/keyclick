@@ -24,7 +24,7 @@ error_reporting(E_ALL);
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -48,7 +48,7 @@ require_once("f_methodselectionlist.phtml");
         <hr>
         <br>
         <?
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -65,7 +65,7 @@ require_once("f_methodselectionlist.phtml");
            // Database is up.
            //
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -106,9 +106,9 @@ require_once("f_methodselectionlist.phtml");
                  $state = strtoupper($state);
                  $zip = strtoupper($zip);
                  //
-                 extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident_base")));
+                 extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from " . $mode . "resident_base")));
                  //
-                 $result = mysql_query
+                 $result = $db_link->query
                     (
                     "insert into " . $mode . "resident_journal "
                     .  "set name='" . addslashes($name) . "' "
@@ -118,28 +118,28 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , zip='" . addslashes($zip) . "' "
                     .  "   , id=0 "
                     .  "   , op='UPDATE' "
-                    .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     )
-                    or die("Journal entry failed with error: " . mysql_error());
+                    or die("Journal entry failed with error: " . mysqli_error());
                  //
                  // Determine next value for per_clerk_seq_num.
                  //
                  $per_clerk_seq_num = 1;
                  extract
                     (
-                    mysql_fetch_array
+                    mysqli_fetch_array
                        (
-                       mysql_query
+                       $db_link->query
                           (
                           "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                           )
                        )
                     );
                  //
                  // Suspend check for prior donations -- such a check is not appropriate in this case.
                  //
-                 mysql_query
+                 $db_link->query
                     ($qry =
                     "insert into " . $mode . "donation "
                     .  "set id=0 "
@@ -149,12 +149,12 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
-                    or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
-                 mysql_query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = 0")
-                    or die("Update failed with error: " . mysql_error() . ".  qry=[$qry]");
+                    or die("Insert failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                 $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = 0")
+                    or die("Update failed with error: " . mysqli_error() . ".  qry=[$qry]");
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                     . "<td align=right><form action=" . $mode . "form-add-donation-ooa.phtml>\n"
@@ -186,13 +186,13 @@ require_once("f_methodselectionlist.phtml");
               }
            elseif ($undo)
               {
-              mysql_query
+              $db_link->query
                  (
                  "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
-                 or die("Undo failed with error: " . mysql_error());
+                 or die("Undo failed with error: " . mysqli_error());
               //
               echo "<p><b>UNDONE</b></p>\n";
               }
@@ -219,10 +219,10 @@ require_once("f_methodselectionlist.phtml");
                  . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
-              echo ProspectivitySelectionList($agency,$mode);
+              echo ProspectivitySelectionList($db_link,$agency,$mode);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($agency,$mode);
+              echo MethodSelectionList($db_link,$agency,$mode);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"

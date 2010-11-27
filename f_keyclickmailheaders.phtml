@@ -6,8 +6,8 @@ function KeyclickMailHeaders($mode = "")
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $header_string = "From: KEYclick <" . RoleEmailAddress("",$mode) . ">\r\n"
-      . "Reply-to: KEYclick <" . RoleEmailAddress("",$mode) . ">\r\n";
+   $header_string = "From: KEYclick <" . RoleEmailAddress($db_link,"",$mode) . ">\r\n"
+      . "Reply-to: KEYclick <" . RoleEmailAddress($db_link,"",$mode) . ">\r\n";
    //
    error_reporting($saved_error_level);
    return $header_string;

@@ -4,6 +4,7 @@
 //
 function ReadDump
    (
+   $db_link,
    $sql_query,
    $bpn,
    $allow_dynamic_sorting = '1',
@@ -191,6 +192,7 @@ function ExecSelect
    require_once('f_viewquery.phtml');
    ViewQuery
       (
+      $db_link,
       $bpn,
       $sql_query,
       $lang,
@@ -368,8 +370,8 @@ if (!$cfgAllowUserDropDatabase
     // Checks if the user is a Superuser
     // TODO: set a global variable with this information
     // loic1: optimized query
-    $result = @mysql_query('USE mysql');
-    if (mysql_error()) {
+    $result = @$db_link->query('USE mysql');
+    if (mysqli_error()) {
         include('./header.inc.php3');
         PMA_mysqlDie($strNoDropDatabases, '', '', $err_url);
     }
@@ -382,7 +384,7 @@ define('PMA_CHK_DROP', 1);
  */
 if ($sql_query != '') {
     $pieces       = array();
-    PMA_splitSqlFile($pieces, $sql_query, PMA_MYSQL_INT_VERSION);
+    PMA_splitSqlFile($pieces, $sql_query, PMA_mysqli_INT_VERSION);
     $pieces_count = count($pieces);
 
     // Copy of the cleaned sql statement for display purpose only (see near the
@@ -414,13 +416,13 @@ if ($sql_query != '') {
        }
 
     // Runs multiple queries
-    else if (mysql_select_db($db)) {
+    else if (mysqli_select_db($db)) {
         for ($i = 0; $i < $pieces_count; $i++) {
             $a_sql_query = $pieces[$i];
             //
             if (($i < ($pieces_count - 1)) or ($be_viewable_result == 'FALSE'))
                {
-               $result = mysql_query($a_sql_query);
+               $result = $db_link->query($a_sql_query);
                if ($result == FALSE)
                   { // readdump failed
                   $my_die = $a_sql_query;
@@ -483,8 +485,8 @@ if ($goto == 'tbl_properties.php3') {
     if (!isset($table)) {
         $goto     = 'db_details.php3';
     } else {
-        $is_table = @mysql_query('SHOW TABLES LIKE \'' . PMA_sqlAddslashes($table, TRUE) . '\'');
-        if (!@mysql_numrows($is_table)) {
+        $is_table = @$db_link->query('SHOW TABLES LIKE \'' . PMA_sqlAddslashes($table, TRUE) . '\'');
+        if (!@mysqli_numrows($is_table)) {
             $goto = 'db_details.php3';
             unset($table);
         }
@@ -497,7 +499,7 @@ if ($goto == 'db_details.php3') {
     if (!isset($db)) {
         $goto     = 'main.php3';
     } else {
-        $is_db    = @mysql_select_db($db);
+        $is_db    = @mysqli_select_db($db);
         if (!$is_db) {
             $goto = 'main.php3';
             unset($db);

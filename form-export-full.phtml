@@ -14,12 +14,12 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 //
-$connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "TRUE");
+$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
 ?>
 <html>
 
@@ -40,7 +40,7 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
               <td>
                 <?
                 PutLibPhotoRandomPlaced("eye-candy",1);
-                $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "TRUE");
+                $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                 ?>
               </td>
            </tr>
@@ -62,7 +62,7 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
         else
            {
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -71,12 +71,12 @@ $connected = (ConnectSelectDb('localhost','kalipso',Password(),'keyclick') == "T
               {
               //
               extract(  //Sets $num_rows
-                 mysql_fetch_array(
-                    mysql_query("select count(*) as num_rows from " . $mode . "resident_base where agency='$agency'")));
+                 mysqli_fetch_array(
+                    $db_link->query("select count(*) as num_rows from " . $mode . "resident_base where agency='$agency'")));
               //
               extract(  //Sets $chunk_size
-                 mysql_fetch_array(
-                    mysql_query("select value as chunk_size from " . $mode . "tuning_parm where name='export-chunk-size'")));
+                 mysqli_fetch_array(
+                    $db_link->query("select value as chunk_size from " . $mode . "tuning_parm where name='export-chunk-size'")));
               //
               $num_chunks = ceil($num_rows/$chunk_size);
               ?>

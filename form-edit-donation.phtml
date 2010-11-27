@@ -24,7 +24,7 @@ error_reporting(E_ALL);
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -48,7 +48,7 @@ require_once("f_methodselectionlist.phtml");
         <hr>
         <br>
         <?
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -65,7 +65,7 @@ require_once("f_methodselectionlist.phtml");
            // Database is up.
            //
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -96,12 +96,12 @@ require_once("f_methodselectionlist.phtml");
                  $per_clerk_seq_num = 1;
                  extract
                     (
-                    mysql_fetch_array
+                    mysqli_fetch_array
                        (
-                       mysql_query
+                       $db_link->query
                           (
                           "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                           )
                        )
                     );
@@ -109,11 +109,11 @@ require_once("f_methodselectionlist.phtml");
                  // Check for prior donations.
                  //
                  $num_priors = "";
-                 $result = mysql_query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                    or die("Check for priors failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
+                 $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                    or die("Check for priors failed with error: " . mysqli_error());
+                 extract(mysqli_fetch_array($result));
                  //
-                 mysql_query
+                 $db_link->query
                     ($qry =
                     "insert into " . $mode . "donation "
                     .  "set id=$id "
@@ -123,12 +123,12 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
-                    or die("Insert failed with error: " . mysql_error() . ".  qry=[$qry]");
+                    or die("Insert failed with error: " . mysqli_error() . ".  qry=[$qry]");
                  //
-                 $result = mysql_query
+                 $result = $db_link->query
                     (
                     "select resident_base.name"
                     . " , concat(house_num,' ',street.name) as address1"
@@ -141,8 +141,8 @@ require_once("f_methodselectionlist.phtml");
                       . " join state on (state.id=city.state_id)"
                     . " where resident_base.id='$id'"
                     )
-                    or die("Master record lookup failed with error: " . mysql_error());
-                 extract(mysql_fetch_array($result));
+                    or die("Master record lookup failed with error: " . mysqli_error());
+                 extract(mysqli_fetch_array($result));
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                     . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
@@ -185,13 +185,13 @@ require_once("f_methodselectionlist.phtml");
               }
            elseif ($undo)
               {
-              mysql_query
+              $db_link->query
                  (
                  "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
-                 or die("Undo failed with error: " . mysql_error());
+                 or die("Undo failed with error: " . mysqli_error());
               //
               echo "<p><b>UNDONE</b></p>\n";
               }
@@ -264,10 +264,10 @@ require_once("f_methodselectionlist.phtml");
                  . "      </tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount value=$cross_amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
-              echo ProspectivitySelectionList($agency,$mode,$cross_prospectivity);
+              echo ProspectivitySelectionList($db_link,$agency,$mode,$cross_prospectivity);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($agency,$mode,$cross_method);
+              echo MethodSelectionList($db_link,$agency,$mode,$cross_method);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of value=\"$cross_in_mem_of\" size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap>$cross_note</textarea></td></tr>\n"

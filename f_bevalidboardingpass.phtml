@@ -4,6 +4,7 @@
 //
 function BeValidBoardingPass
    (
+   $db_link,
    $bpn,
    $mode = ""
    )
@@ -21,21 +22,21 @@ function BeValidBoardingPass
    // Check for production debug mode.
    //
    extract(  //Sets $debug.
-      mysql_fetch_array(
-         mysql_query("select value as debug from " . $mode . "tuning_parm where name='debug-boarding-pass'")));
+      mysqli_fetch_array(
+         $db_link->query("select value as debug from " . $mode . "tuning_parm where name='debug-boarding-pass'")));
    //
    // Now see if the specified boarding pass is valid.
    //
-   $result = mysql_query
+   $result = $db_link->query
       (
       "select agency,ip,expiration_time from " . $mode . "manifest "
       .  "   where bpn='$bpn' "
       )
-      or die("BeValidBoardingPass query failed with error:  " . mysql_error());
+      or die("BeValidBoardingPass query failed with error:  " . mysqli_error());
    //
-   if (mysql_num_rows($result))
+   if (mysqli_num_rows($result))
       {
-      extract(mysql_fetch_array($result));  // to get $agency value to return to this function's caller
+      extract(mysqli_fetch_array($result));  // to get $agency value to return to this function's caller
          //
          // Also sets $ip and $expiration_time.
          //
@@ -50,13 +51,13 @@ function BeValidBoardingPass
             // Get time-bump value from tuning parm table.
             //
             extract(  //Sets $bump_factor
-               mysql_fetch_array(
-                  mysql_query(
+               mysqli_fetch_array(
+                  $db_link->query(
                      "select value as bump_factor from " . $mode . "tuning_parm where name='boarding-pass-valid-minutes'")));
             //
             // Extend expiration date
             //
-            $result = mysql_query
+            $result = $db_link->query
                (
                "update " . $mode . "manifest "
                .  " set expiration_time = expiration_time + " . $bump_factor*60
@@ -85,8 +86,8 @@ function BeValidBoardingPass
    //
    // Remove all expired records.
    //
-   $result = mysql_query("delete from " . $mode . "manifest where expiration_time < " . time())
-      or die("Removal of expired boarding passes failed with error: " . mysql_error());
+   $result = $db_link->query("delete from " . $mode . "manifest where expiration_time < " . time())
+      or die("Removal of expired boarding passes failed with error: " . mysqli_error());
    //
    error_reporting($saved_error_level);
    return ($agency);
