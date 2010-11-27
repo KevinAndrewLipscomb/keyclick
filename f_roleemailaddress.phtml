@@ -22,7 +22,7 @@ function RoleEmailAddress
       .  "      and agency='$agency' "
       .  "   limit 1"
       )
-      or die("RoleEmailAddress query failed with error:  " . mysqli_error());
+      or die("RoleEmailAddress query failed with error:  " . mysqli_error($db_link));
    //
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //

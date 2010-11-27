@@ -89,7 +89,7 @@ require_once("$pear_dir/Mail/mime.php");
                   srand((double)microtime()*1000000); 
                   $raw_bpn =  rand();
                   $result = $db_link->query("select md5(\"$raw_bpn\") as bpn")
-                     or die("Generation of Boarding Pass Number failed with error: " . mysqli_error());
+                     or die("Generation of Boarding Pass Number failed with error: " . mysqli_error($db_link));
                   extract(mysqli_fetch_array($result));
                   //
                   // Calculate the expiration time.
@@ -111,7 +111,7 @@ require_once("$pear_dir/Mail/mime.php");
                      .  ", agency='$agency' "
                      .  ", expiration_time=$expiration_time "
                      )
-                     or die("Insert failed with error: " . mysqli_error());
+                     or die("Insert failed with error: " . mysqli_error($db_link));
                   //
                   // Generate the challenge message (plain text).
                   //

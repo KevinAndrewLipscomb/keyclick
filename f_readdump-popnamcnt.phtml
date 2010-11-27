@@ -27,13 +27,13 @@ $num_statements = count($statement_array);
 //
 for ($i = 0; $i < $num_statements; $i++)
    {
-   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error());
+   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error($db_link));
    }
 //
 // Figure out how many rows are in the intermediate table.
 //
 $result = $db_link->query("select count(*) as num_name_rows from " . $mode . "name")
-   or die("Count failed with error: " . mysqli_error());
+   or die("Count failed with error: " . mysqli_error($db_link));
 extract(mysqli_fetch_array($result));  // Sets $num_name_rows.
 //
 // Repeatedly reduce the size of the problem by removing rows from the intermediate table that have already been
@@ -42,7 +42,7 @@ extract(mysqli_fetch_array($result));  // Sets $num_name_rows.
 for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
    {
    $result = $db_link->query("select name from " . $mode . "name_count limit $i,$chunk_size")
-      or die("Selection of quasi-keys newly-inserted into target table failed with error: " . mysqli_error());
+      or die("Selection of quasi-keys newly-inserted into target table failed with error: " . mysqli_error($db_link));
    $quasi_key_list = "";
    while ($row = mysqli_fetch_array($result))
       {
@@ -53,7 +53,7 @@ for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
    $quasi_key_list .= "'$name'";  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
    $db_link->query("delete from " . $mode . "name where name in ($quasi_key_list)")
-      or die("Scattered delete failed with error: " . mysqli_error() . " quasi_key_list=$quasi_key_list");
+      or die("Scattered delete failed with error: " . mysqli_error($db_link) . " quasi_key_list=$quasi_key_list");
    //
    $db_link->query
       (
@@ -61,10 +61,10 @@ for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
       . "select name, count(*) as occurrences from " . $mode . "name "
       . "group by name limit $chunk_size"
       )
-      or die("Grouped insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error());
+      or die("Grouped insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error($db_link));
    }
-$db_link->query("drop table " . $mode . "name") or die("Drop of name table failed with error: " . mysqli_error());
+$db_link->query("drop table " . $mode . "name") or die("Drop of name table failed with error: " . mysqli_error($db_link));
 $db_link->query("delete from " . $mode . "name_count where occurrences = 1")
-   or die("Delete of singlets failed with error: " . mysqli_error());
+   or die("Delete of singlets failed with error: " . mysqli_error($db_link));
 }
 ?>

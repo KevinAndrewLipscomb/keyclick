@@ -20,7 +20,7 @@ function BeAuthorized
       .  "   where email_addr='$email_addr'"
       .  "      and agency='$agency' "
       )
-      or die("BeAuthorized query failed with error:  " . mysqli_error());
+      or die("BeAuthorized query failed with error:  " . mysqli_error($db_link));
    //
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //

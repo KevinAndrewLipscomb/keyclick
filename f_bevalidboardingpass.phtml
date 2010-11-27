@@ -32,7 +32,7 @@ function BeValidBoardingPass
       "select agency,ip,expiration_time from " . $mode . "manifest "
       .  "   where bpn='$bpn' "
       )
-      or die("BeValidBoardingPass query failed with error:  " . mysqli_error());
+      or die("BeValidBoardingPass query failed with error:  " . mysqli_error($db_link));
    //
    if (mysqli_num_rows($result))
       {
@@ -87,7 +87,7 @@ function BeValidBoardingPass
    // Remove all expired records.
    //
    $result = $db_link->query("delete from " . $mode . "manifest where expiration_time < " . time())
-      or die("Removal of expired boarding passes failed with error: " . mysqli_error());
+      or die("Removal of expired boarding passes failed with error: " . mysqli_error($db_link));
    //
    error_reporting($saved_error_level);
    return ($agency);

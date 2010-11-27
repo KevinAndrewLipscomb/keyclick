@@ -49,7 +49,7 @@
                           $is_modify_link = TRUE, $back_url = '')
     {
         if (!$error_message) {
-            $error_message = mysql_error();
+            $error_message = mysqli_error();
         }
         if (!$the_query && !empty($GLOBALS['sql_query'])) {
             $the_query = $GLOBALS['sql_query'];

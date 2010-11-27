@@ -119,7 +119,7 @@ else
                          . " join state on (state.id=city.state_id)"
                        . " where resident_base.id='$id'"
                        )
-                       or die("Master record lookup failed with error: " . mysqli_error());
+                       or die("Master record lookup failed with error: " . mysqli_error($db_link));
                     if (mysqli_num_rows($result))
                        {
                        extract(mysqli_fetch_array($result));  //Sets $name,$address1,$city,$state,$zip
@@ -196,7 +196,7 @@ else
                           //
                           $num_priors = "";
                           $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                             or die("Check for priors failed with error: " . mysqli_error());
+                             or die("Check for priors failed with error: " . mysqli_error($db_link));
                           extract(mysqli_fetch_array($result));
                           //
                           $db_link->query
@@ -212,9 +212,9 @@ else
                              .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                              .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                              )
-                             or die("Insert failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                             or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                           $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
-                             or die("Update failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                             or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                           //
                           echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                              . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
@@ -285,7 +285,7 @@ else
                     . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     . "   and per_clerk_seq_num=$per_clerk_seq_num "
                     )
-                    or die("Undo failed with error: " . mysqli_error());
+                    or die("Undo failed with error: " . mysqli_error($db_link));
                  //
                  echo "<p><b>UNDONE</b></p>\n";
                  }

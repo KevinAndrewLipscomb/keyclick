@@ -19,7 +19,7 @@ function NumDonationsThisCycle
      .  " and date > '" . date('Y') . "-05-01'"
    . " group by agency";
    $result = $db_link->query($qry)
-      or die("NumDonationsThisCycle query failed with error:  " . mysqli_error());
+      or die("NumDonationsThisCycle query failed with error:  " . mysqli_error($db_link));
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //
    error_reporting($saved_error_level);
