@@ -15,7 +15,7 @@ function NumRecsInRod
    $qry = "select count(*) as num_recs_in_rod from " . $mode . "resident_base "
       .  "   where agency='$agency' ";
    $result = $db_link->query($qry)
-      or die("NumRecsInRod query failed with error:  " . mysqli_error());
+      or die("NumRecsInRod query failed with error:  " . mysqli_error($db_link));
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //
    error_reporting($saved_error_level);

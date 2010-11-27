@@ -106,7 +106,7 @@ require_once("f_methodselectionlist.phtml");
                     .  "where entered_by='$cross_entered_by' "
                     .  "   and per_clerk_seq_num=$cross_per_clerk_seq_num "
                     )
-                    or die("Update failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                    or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                  }
               else
                  {

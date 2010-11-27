@@ -2,7 +2,7 @@
 //
 // $Id$
 //
-require_once("f_connectselectdbinstanceunpublished.phtml");
+require_once("f_connectselectdbinstanceunpublishedkalipso.phtml");
 //
 function PutLibPhotoRandomPlaced
    (
@@ -14,7 +14,7 @@ function PutLibPhotoRandomPlaced
    //
    // Connect to the database.
    //
-   $conn = ConnectSelectDbInstanceUNPUBLISHED($db_link);
+   $conn = ConnectSelectDbInstanceUNPUBLISHEDkalipso($db_link);
    //
    // Create the SQL statement
    //
@@ -23,7 +23,7 @@ function PutLibPhotoRandomPlaced
    //
    // Execute the statement
    //
-   $result_set = $db_link->query($sql) or die(mysqli_error());
+   $result_set = $db_link->query($sql) or die(mysqli_error($db_link));
    //
    // Check how many rows were returned
    //

@@ -161,6 +161,7 @@ function PMA_splitSqlFile(&$ret, $sql, $release)
 
 function ExecSelect
    (
+   $db_link,
    $select_statement,
    $bpn,
    $lang,
@@ -371,7 +372,7 @@ if (!$cfgAllowUserDropDatabase
     // TODO: set a global variable with this information
     // loic1: optimized query
     $result = @$db_link->query('USE mysql');
-    if (mysqli_error()) {
+    if (mysqli_error($db_link)) {
         include('./header.inc.php3');
         PMA_mysqlDie($strNoDropDatabases, '', '', $err_url);
     }
@@ -384,7 +385,7 @@ define('PMA_CHK_DROP', 1);
  */
 if ($sql_query != '') {
     $pieces       = array();
-    PMA_splitSqlFile($pieces, $sql_query, PMA_mysqli_INT_VERSION);
+    PMA_splitSqlFile($pieces, $sql_query, PMA_MYSQL_INT_VERSION);
     $pieces_count = count($pieces);
 
     // Copy of the cleaned sql statement for display purpose only (see near the
@@ -401,6 +402,7 @@ if ($sql_query != '') {
        {
        ExecSelect
           (
+          $db_link,
           $pieces[0],
           $bpn,
           $lang,
@@ -440,6 +442,7 @@ if ($sql_query != '') {
                //
                ExecSelect
                   (
+                  $db_link,
                   $a_sql_query,
                   $bpn,
                   $lang,

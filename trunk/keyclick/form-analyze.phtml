@@ -298,7 +298,7 @@ require_once("f_kickoff.phtml");
                  . "   and $parent_enumeral_expression "
                  . "order by position "
                  )
-                 or die("Retrieval of analyses failed with error: " . mysqli_error());
+                 or die("Retrieval of analyses failed with error: " . mysqli_error($db_link));
               //
               if (!mysqli_num_rows($result))
                  {

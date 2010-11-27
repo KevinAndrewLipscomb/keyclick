@@ -141,9 +141,9 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         else if (($do_display['nav_bar'] == '1' || $do_display['sort_lnk'] == '1')
                  && (!empty($db) && !empty($table))) {
             $local_query = 'SELECT COUNT(*) AS total FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table);
-            $result      = mysql_query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url);
-            $the_total   = mysql_result($result, 0, 'total');
-            mysql_free_result($result);
+            $result      = $db_link->query($local_query) or PMA_mysqlDie('', $local_query, '', $err_url);
+            $the_total   = mysqli_result($result, 0, 'total');
+            mysqli_free_result($result);
         }
 
         // 4. If navigation bar or sorting fields names urls should be
@@ -742,10 +742,10 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         // table being displayed has one or more keys; but to display
         // delete/edit options correctly for tables without keys.
 
-        // loic1: use 'mysql_fetch_array' rather than 'mysql_fetch_row' to get
+        // loic1: use 'mysqli_fetch_array' rather than 'mysqli_fetch_row' to get
         //        the NULL values
 
-        while ($row = mysql_fetch_array($dt_result)) {
+        while ($row = mysqli_fetch_array($dt_result)) {
 
             // lem9: "vertical display" mode stuff
             if (($foo != 0) && ($repeat_cells != 0) && !($foo % $repeat_cells) && $disp_direction == 'horizontal') {
@@ -839,11 +839,11 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                         $vertical_display['data'][$foo][$i]     = '    <td align="right" valign="top" bgcolor="' . $bgcolor . '">&nbsp;</td>' . "\n";
                     }
                 } else if ($GLOBALS['cfgShowBlob'] == FALSE && eregi('BLOB', $primary->type)) {
-                    // loic1 : mysql_fetch_fields returns BLOB in place of TEXT
+                    // loic1 : mysqli_fetch_fields returns BLOB in place of TEXT
                     // fields type, however TEXT fields must be displayed even
                     // if $cfgShowBlob is false -> get the true type of the
                     // fields.
-                    $field_flags = mysql_field_flags($dt_result, $i);
+                    $field_flags = "";  //mysqli_field_flags($dt_result, $i);
                     if (eregi('BINARY', $field_flags)) {
                         $vertical_display['data'][$foo][$i]     = '    <td align="center" valign="top" bgcolor="' . $bgcolor . '">[BLOB]</td>' . "\n";
                     } else {
@@ -876,7 +876,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
                             }
                         }
                         // loic1: displays special characters from binaries
-                        $field_flags = mysql_field_flags($dt_result, $i);
+                        $field_flags = "";  //mysqli_field_flags($dt_result, $i);
                         if (eregi('BINARY', $field_flags)) {
                             $row[$pointer]     = str_replace("\x00", '\0', $row[$pointer]);
                             $row[$pointer]     = str_replace("\x08", '\b', $row[$pointer]);
@@ -1223,9 +1223,9 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
             $local_query = 'SELECT src_column, dest_table, dest_column'
                          . ' FROM ' . $cfgServer['relation']
                          . ' WHERE src_table IN ' . $tabs;
-            $result      = @mysql_query($local_query);
+            $result      = @$db_link->query($local_query);
             if ($result) {
-                while ($rel = mysql_fetch_row($result)) {
+                while ($rel = mysqli_fetch_row($result)) {
                     $map[$rel[0]] = array($rel[1], $rel[2]);
                 }
             }

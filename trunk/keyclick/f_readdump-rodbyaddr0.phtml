@@ -43,13 +43,13 @@ $num_statements = count($statement_array);
 //
 for ($i = 0; $i < $num_statements; $i++)
    {
-   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error());
+   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error($db_link));
    }
 //
 // Figure out how many rows are in the intermediate table.
 //
 $result = $db_link->query("select count(*) as num_temp_rows from " . $mode . "temp_by_addr")
-   or die("Count failed with error: " . mysqli_error());
+   or die("Count failed with error: " . mysqli_error($db_link));
 extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 //
 // Repeatedly reduce the size of the problem by removing rows from the intermediate table that have already been
@@ -58,7 +58,7 @@ extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
    {
    $result = $db_link->query("select id from " . $mode . "rod_by_addr limit $i,$chunk_size")
-      or die("Selection of IDs newly-inserted into target table failed with error: " . mysqli_error());
+      or die("Selection of IDs newly-inserted into target table failed with error: " . mysqli_error($db_link));
    $id_list = "";
    while ($row = mysqli_fetch_array($result))
       {
@@ -68,7 +68,7 @@ for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
    $id_list .= $id;  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
    $db_link->query("delete from " . $mode . "temp_by_addr where id in ($id_list)")
-      or die("Scattered delete failed with error: " . mysqli_error() . " id_list=$id_list");
+      or die("Scattered delete failed with error: " . mysqli_error($db_link) . " id_list=$id_list");
    //
    $db_link->query
       (
@@ -77,8 +77,8 @@ for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
       . "order by state,city,street,numb "
       . "limit $chunk_size"
       )
-      or die("Ordered insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error());
+      or die("Ordered insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error($db_link));
    }
-$db_link->query("drop table " . $mode . "temp_by_addr") or die("Drop of temp table failed with error: " . mysqli_error());
+$db_link->query("drop table " . $mode . "temp_by_addr") or die("Drop of temp table failed with error: " . mysqli_error($db_link));
 }
 ?>

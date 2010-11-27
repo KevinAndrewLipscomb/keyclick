@@ -98,7 +98,7 @@ require_once("f_streetselectionlist.phtml");
                        .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "   , id=$new_id"
                        )
-                       or die("Cardinal insert failed with error: " . mysqli_error());
+                       or die("Cardinal insert failed with error: " . mysqli_error($db_link));
                     //
                     extract
                        (
@@ -128,7 +128,7 @@ require_once("f_streetselectionlist.phtml");
                        .  "   , op='INSERT' "
                        .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                        )
-                       or die("Journal entry failed with error: " . mysqli_error());
+                       or die("Journal entry failed with error: " . mysqli_error($db_link));
                     //
                     echo "<p><b>SUCCEEDED</b></p>\n"
                        . "<small><dl>\n"

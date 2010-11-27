@@ -54,7 +54,7 @@ if (!defined('PMA_CHK_DROP')
     // TODO: set a global variable with this information
     // loic1: optimized query
     $result = @$db_link->query('USE mysql');
-    if (mysqli_error()) {
+    if (mysqli_error($db_link)) {
         include('./header.inc.php3');
         PMA_mysqlDie($strNoDropDatabases, '', '', $err_url);
     } // end if
@@ -271,8 +271,8 @@ else {
     $result   = @$db_link->query($full_sql_query);
 
     // Displays an error message if required and stop parsing the script
-    if (mysqli_error()) {
-        $error        = mysqli_error();
+    if (mysqli_error($db_link)) {
+        $error        = mysqli_error($db_link);
 //--        include('./header.inc.php3');
         $full_err_url = (ereg('^(db_details|tbl_properties)', $err_url))
                       ? $err_url . '&amp;show_query=y&amp;sql_query=' . urlencode($sql_query)

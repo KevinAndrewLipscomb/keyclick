@@ -120,7 +120,7 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , op='UPDATE' "
                     .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     )
-                    or die("Journal entry failed with error: " . mysqli_error());
+                    or die("Journal entry failed with error: " . mysqli_error($db_link));
                  //
                  // Determine next value for per_clerk_seq_num.
                  //
@@ -152,9 +152,9 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
-                    or die("Insert failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                    or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                  $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = 0")
-                    or die("Update failed with error: " . mysqli_error() . ".  qry=[$qry]");
+                    or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                     . "<td align=right><form action=" . $mode . "form-add-donation-ooa.phtml>\n"
@@ -192,7 +192,7 @@ require_once("f_methodselectionlist.phtml");
                  . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
-                 or die("Undo failed with error: " . mysqli_error());
+                 or die("Undo failed with error: " . mysqli_error($db_link));
               //
               echo "<p><b>UNDONE</b></p>\n";
               }
