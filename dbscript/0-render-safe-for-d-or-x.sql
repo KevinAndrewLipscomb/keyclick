@@ -10,7 +10,8 @@ update manifest
 set email_addr = concat(replace(email_addr,"@","-at-"),"@frompaper2web.com")
 ;
 update resident_journal
-set user_email_addr = concat(replace(user_email_addr,"@","-at-"),"@frompaper2web.com")
+set user_email_addr = concat(replace(user_email_addr,"@","-at-"),"@frompaper2web.com"),
+   timestamp = timestamp
 ;
 update user
 set email_addr = concat(replace(email_addr,"@","-at-"),"@frompaper2web.com")
