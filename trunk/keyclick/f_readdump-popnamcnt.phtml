@@ -4,14 +4,15 @@
 //
 function ReadDump_POPNAMCNT
    (
+   $db_link,
    $sql_query,
    $bpn,
    $mode = ""
    )
 {
 extract(  // Sets $chunk_size.
-   mysql_fetch_array(
-      mysql_query("select value as chunk_size from " . $mode . "tuning_parm where name='popnamcnt-chunk-size'")));
+   mysqli_fetch_array(
+      $db_link->query("select value as chunk_size from " . $mode . "tuning_parm where name='popnamcnt-chunk-size'")));
 //
 $statement_array = array();
 $statement_array[$i = 0] = "drop table if exists " . $mode . "name";
@@ -26,24 +27,24 @@ $num_statements = count($statement_array);
 //
 for ($i = 0; $i < $num_statements; $i++)
    {
-   mysql_query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysql_error());
+   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error());
    }
 //
 // Figure out how many rows are in the intermediate table.
 //
-$result = mysql_query("select count(*) as num_name_rows from " . $mode . "name")
-   or die("Count failed with error: " . mysql_error());
-extract(mysql_fetch_array($result));  // Sets $num_name_rows.
+$result = $db_link->query("select count(*) as num_name_rows from " . $mode . "name")
+   or die("Count failed with error: " . mysqli_error());
+extract(mysqli_fetch_array($result));  // Sets $num_name_rows.
 //
 // Repeatedly reduce the size of the problem by removing rows from the intermediate table that have already been
 // transferred to the target table.  Then transfer some more.
 //
 for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
    {
-   $result = mysql_query("select name from " . $mode . "name_count limit $i,$chunk_size")
-      or die("Selection of quasi-keys newly-inserted into target table failed with error: " . mysql_error());
+   $result = $db_link->query("select name from " . $mode . "name_count limit $i,$chunk_size")
+      or die("Selection of quasi-keys newly-inserted into target table failed with error: " . mysqli_error());
    $quasi_key_list = "";
-   while ($row = mysql_fetch_array($result))
+   while ($row = mysqli_fetch_array($result))
       {
       extract($row);  // Sets $name.
       $name = addslashes($name);
@@ -51,19 +52,19 @@ for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
       }
    $quasi_key_list .= "'$name'";  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
-   mysql_query("delete from " . $mode . "name where name in ($quasi_key_list)")
-      or die("Scattered delete failed with error: " . mysql_error() . " quasi_key_list=$quasi_key_list");
+   $db_link->query("delete from " . $mode . "name where name in ($quasi_key_list)")
+      or die("Scattered delete failed with error: " . mysqli_error() . " quasi_key_list=$quasi_key_list");
    //
-   mysql_query
+   $db_link->query
       (
       "insert into " . $mode . "name_count "
       . "select name, count(*) as occurrences from " . $mode . "name "
       . "group by name limit $chunk_size"
       )
-      or die("Grouped insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysql_error());
+      or die("Grouped insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error());
    }
-mysql_query("drop table " . $mode . "name") or die("Drop of name table failed with error: " . mysql_error());
-mysql_query("delete from " . $mode . "name_count where occurrences = 1")
-   or die("Delete of singlets failed with error: " . mysql_error());
+$db_link->query("drop table " . $mode . "name") or die("Drop of name table failed with error: " . mysqli_error());
+$db_link->query("delete from " . $mode . "name_count where occurrences = 1")
+   or die("Delete of singlets failed with error: " . mysqli_error());
 }
 ?>

@@ -4,6 +4,7 @@
 //
 function ReadDump_RODFOLUP0
    (
+   $db_link,
    $year_num,
    $month_num,
    $day_num,
@@ -36,7 +37,7 @@ $num_statements = count($statement_array);
 //
 for ($i = 0; $i < $num_statements; $i++)
    {
-   mysql_query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysql_error());
+   $db_link->query($statement_array[$i]) or die("Query [$statement_array[$i]] failed with error: " . mysqli_error());
    }
 }
 ?>

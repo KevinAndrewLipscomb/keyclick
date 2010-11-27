@@ -4,6 +4,7 @@
 //
 function StreetSelectionList
    (
+   $db_link,
    $mode = "",
    $selected_option = ""
    )
@@ -11,7 +12,7 @@ function StreetSelectionList
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $result = @mysql_query
+   $result = @$db_link->query
       (
       "select street.id"
       . " , concat(street.name,', ',city.name,', ',state.abbreviation) as spec"
@@ -21,11 +22,11 @@ function StreetSelectionList
       . " order by state.abbreviation,city.name,street.name"
       );
    //
-   if (!mysql_error() and mysql_num_rows($result))
+   if (!mysqli_error() and mysqli_num_rows($result))
       {
       echo "<select name=street_id>\n";
       //
-      while($row = mysql_fetch_array($result))
+      while($row = mysqli_fetch_array($result))
          {
          $id = $spec = "";
          extract($row);

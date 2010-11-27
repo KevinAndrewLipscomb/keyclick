@@ -17,7 +17,7 @@ if ($mode) error_reporting(E_ALL);
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_connectselectdb.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -41,7 +41,7 @@ require_once("f_streetselectionlist.phtml");
         <hr>
         <br>
         <?php
-        if (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") != "TRUE")
+        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
            {
            ?>
            <h2><i>Sorry...</i></h2>
@@ -58,7 +58,7 @@ require_once("f_streetselectionlist.phtml");
            // Database is up.
            //
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);
@@ -88,9 +88,9 @@ require_once("f_streetselectionlist.phtml");
                     $name = strtoupper("$last_name $name_detail");
                     $street_num = strtoupper("$street_num");
                     //
-                    extract(mysql_fetch_array(mysql_query("select max(id)+1 as new_id from " . $mode . "resident_base")));
+                    extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from " . $mode . "resident_base")));
                     //
-                    $result = mysql_query
+                    $result = $db_link->query
                        (
                        "insert into " . $mode . "resident_base "
                        .  "set name='" . addslashes($name) . "' "
@@ -98,13 +98,13 @@ require_once("f_streetselectionlist.phtml");
                        .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "   , id=$new_id"
                        )
-                       or die("Cardinal insert failed with error: " . mysql_error());
+                       or die("Cardinal insert failed with error: " . mysqli_error());
                     //
                     extract
                        (
-                       mysql_fetch_array
+                       mysqli_fetch_array
                           (
-                          mysql_query
+                          $db_link->query
                              (
                              "select street.name as street_name"
                              . " , city.name as city_name"
@@ -117,7 +117,7 @@ require_once("f_streetselectionlist.phtml");
                           )
                        );
                     $address1 = "$street_num $street_name";
-                    $result = mysql_query
+                    $result = $db_link->query
                        (
                        "insert into " . $mode . "resident_journal "
                        .  "set name='" . addslashes($name) . "' "
@@ -126,9 +126,9 @@ require_once("f_streetselectionlist.phtml");
                        .  "   , state='" . addslashes($state_abbreviation) . "' "
                        .  "   , id=$new_id "
                        .  "   , op='INSERT' "
-                       .  "   , user_email_addr='" . EmailAddrOfBpn($bpn,$mode) . "' "
+                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
                        )
-                       or die("Journal entry failed with error: " . mysql_error());
+                       or die("Journal entry failed with error: " . mysqli_error());
                     //
                     echo "<p><b>SUCCEEDED</b></p>\n"
                        . "<small><dl>\n"
@@ -174,7 +174,7 @@ require_once("f_streetselectionlist.phtml");
                     . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
                     . "      <tr><td align=right>House/building #:</td><td colspan=2><input type=text name=street_num size=6 maxlength=10></td></tr>\n"
                     . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
-                 StreetSelectionList($mode);
+                 StreetSelectionList($db_link,$mode);
                  echo "</td></tr>\n"
                     . "      <tr><td align=right>Apt #:</td><td colspan=2><input type=text name=apt_num size=4 maxlength=6></td></tr>\n"
                     . "      <tr>\n"

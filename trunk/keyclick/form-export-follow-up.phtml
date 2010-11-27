@@ -14,12 +14,12 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 //
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
 ?>
 <html>
 
@@ -40,7 +40,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
               <td>
                 <?
                 PutLibPhotoRandomPlaced("eye-candy",1);
-                $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+                $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                 ?>
               </td>
            </tr>
@@ -62,7 +62,7 @@ $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "T
         else
            {
            //
-           $agency = BeValidBoardingPass($bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
               KickOff($mode);

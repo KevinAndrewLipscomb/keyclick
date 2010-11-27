@@ -11,11 +11,11 @@ require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_password.phtml");
+require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_serverstatus.phtml");
 require_once("f_connectselectdb.phtml");
 //
-$connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");
+$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
 //
 $border_thickness = 0;  //($mode != "");
 //
@@ -45,7 +45,7 @@ $border_thickness = 0;  //($mode != "");
                      if ($connected)
                         {
                         PutLibPhotoRandomPlaced("eye-candy",1);
-                        $connected = (ConnectSelectDb("localhost","kalipso",Password(),"keyclick") == "TRUE");                        }
+                        $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");                        }
                      else
                         {
                         echo "&nbsp;";
@@ -65,7 +65,7 @@ $border_thickness = 0;  //($mode != "");
                            if ($connected)
                               {
                               echo "<p><a href=" . $mode . "faq.phtml>FAQ</a></p>\n";
-                              echo "<p><a href=mailto:\"" . RoleEmailAddress("") . "\">Email sysadmin</a></p>\n";
+                              echo "<p><a href=mailto:\"" . RoleEmailAddress($db_link,"") . "\">Email sysadmin</a></p>\n";
                               }
                            else
                               {
