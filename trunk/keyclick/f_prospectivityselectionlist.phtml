@@ -28,7 +28,7 @@ function ProspectivitySelectionList
          extract(mysqli_fetch_array($result));
          if ($cardinality != 0)
             {
-            echo "   <option value=\"\">&nbsp;</option>\n";
+            echo "   <option value=\"NONE\">&nbsp;</option>\n";
             }
          echo "   <option value=\"$enumeral\">$description</option>\n";
          }
