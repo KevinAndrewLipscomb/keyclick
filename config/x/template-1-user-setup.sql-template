@@ -1,0 +1,19 @@
+grant select
+ , insert
+ , update
+ , delete
+ , create
+ , alter
+ , drop
+  on keyclick_x.*
+  to 'ki-keyclick-x'@'localhost' identified by '~ki-keyclick-x-password~'
+;
+grant select
+ , insert
+ , update
+ , delete
+ , create
+ , alter
+ , drop
+  on keyclick_x.*
+  to 'ki-keyclick-x'@'70.84.138.98' identified by '~ki-keyclick-x-password~'
