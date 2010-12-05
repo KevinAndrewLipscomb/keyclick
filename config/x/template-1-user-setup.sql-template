@@ -9,6 +9,10 @@ grant select
   to 'ki-keyclick-x'@'localhost' identified by '~ki-keyclick-x-password~'
 ;
 grant select
+  on kalipso_x.*
+  to 'ki-keyclickk-x'@'localhost' identified by '~ki-keyclickk-x-password~'
+;
+grant select
  , insert
  , update
  , delete
@@ -17,3 +21,7 @@ grant select
  , drop
   on keyclick_x.*
   to 'ki-keyclick-x'@'70.84.138.98' identified by '~ki-keyclick-x-password~'
+;
+grant select
+  on kalipso_x.*
+  to 'ki-keyclickk-x'@'70.84.138.98' identified by '~ki-keyclickk-x-password~'
