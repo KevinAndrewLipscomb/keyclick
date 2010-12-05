@@ -1,0 +1,27 @@
+grant select
+ , insert
+ , update
+ , delete
+ , create
+ , alter
+ , drop
+  on keyclick_d.*
+  to 'ki-keyclick-d'@'localhost' identified by '~ki-keyclick-d-password~'
+;
+grant select
+  on kalipso_d.*
+  to 'ki-keyclickk-d'@'localhost' identified by '~ki-keyclickk-d-password~'
+;
+grant select
+ , insert
+ , update
+ , delete
+ , create
+ , alter
+ , drop
+  on keyclick_d.*
+  to 'ki-keyclick-d'@'70.84.138.98' identified by '~ki-keyclick-d-password~'
+;
+grant select
+  on kalipso_d.*
+  to 'ki-keyclickk-d'@'70.84.138.98' identified by '~ki-keyclickk-d-password~'
