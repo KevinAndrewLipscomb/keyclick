@@ -18,17 +18,17 @@ $statement_array = array();
 $statement_array[$i = 0] = "drop table if exists " . $mode . "rod_by_name";
 $statement_array[++$i] = "drop table if exists " . $mode . "temp";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
-   . "("
-   . "id mediumint(8) unsigned NOT NULL default '0',"
-   . "name varchar(255) NOT NULL,"
-   . "address1 tinytext NOT NULL,"
-   . "city tinytext NOT NULL,"
-   . "state tinytext NOT NULL,"
-   . "agency enum('KVRS') NOT NULL default 'KVRS',"
-   . "PRIMARY KEY (id),"
-   . "KEY name (name)"
-   . ")"
-   . "TYPE=MyISAM";
+   . " ("
+   . " id bigint NOT NULL default '0',"
+   . " name varchar(255) NOT NULL,"
+   . " address1 tinytext NOT NULL,"
+   . " city tinytext NOT NULL,"
+   . " state tinytext NOT NULL,"
+   . " agency enum('KVRS') NOT NULL default 'KVRS',"
+   . " PRIMARY KEY (id),"
+   . " KEY name (name)"
+   . " )"
+   . " ENGINE=MyISAM";
 $statement_array[++$i] = "INSERT INTO " . $mode . "temp"
    . " SELECT resident_base.id"
    . " , resident_base.name"
