@@ -5,7 +5,7 @@
 function ReadDump_RODBYADDR0
    (
    $db_link,
-   $sql_query,
+   $agency,
    $bpn,
    $mode = ""
    )
@@ -31,7 +31,8 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
    . " FROM " . $mode . "resident_base"
      . " join street on (street.id=resident_base.street_id)"
      . " join city on (city.id=street.city_id)"
-     . " join state on (state.id=city.state_id)";
+     . " join state on (state.id=city.state_id)"
+   . " WHERE agency = '$agency'";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_addr "
    . "select * from " . $mode . "temp_by_addr "
    . "order by state,city,street,numb "

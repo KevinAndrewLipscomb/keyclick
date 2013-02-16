@@ -5,7 +5,7 @@
 function ReadDump_POPNAMCNT
    (
    $db_link,
-   $sql_query,
+   $agency,
    $bpn,
    $mode = ""
    )
@@ -16,7 +16,7 @@ extract(  // Sets $chunk_size.
 //
 $statement_array = array();
 $statement_array[$i = 0] = "drop table if exists " . $mode . "name";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "name select name from " . $mode . "resident_base where name is not null";
+$statement_array[++$i] = "CREATE TABLE " . $mode . "name select name from " . $mode . "resident_base where name is not null and agency = '$agency'";
 $statement_array[++$i] = "drop table if exists " . $mode . "name_count";
 $statement_array[++$i] = "create table " . $mode . "name_count "
    . "select name,count(*) as occurrences from " . $mode . "name group by name limit 0,$chunk_size";

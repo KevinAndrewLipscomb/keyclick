@@ -106,11 +106,12 @@ require_once("f_streetselectionlist.phtml");
                     //
                     $result = $db_link->query
                        (
-                       "insert into " . $mode . "resident_base "
-                       .  "set name='" . addslashes($name) . "' "
-                       .  "   , house_num='" . addslashes($street_num) . "' "
-                       .  "   , street_id='" . addslashes($street_id) . "' "
-                       .  "   , id=$new_id"
+                       "insert into " . $mode . "resident_base"
+                       . " set name = '" . addslashes($name) . "'"
+                       . " , house_num = '" . addslashes($street_num) . "'"
+                       . " , street_id = '" . addslashes($street_id) . "'"
+                       . " , id = '$new_id'"
+                       . " , agency = '$agency'"
                        )
                        or die("Cardinal insert failed with error: " . mysqli_error($db_link));
                     //

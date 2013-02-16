@@ -9,6 +9,7 @@ function ReadDump_RODFOLUP0
    $month_num,
    $day_num,
    $bpn,
+   $agency,
    $mode = ""
    )
 {
@@ -28,7 +29,7 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "resident_follow_up"
   . " join state on (state.id=city.state_id)"
   . " LEFT JOIN " . $mode . "recent_donation on (recent_donation.id=resident_base.id)"
 . " WHERE " . $mode . "recent_donation.id IS NULL"
-  . " and agency='KVRS'";
+  . " and agency='$agency'";
 $statement_array[++$i] = "drop table " . $mode . "recent_donation";
 //
 $num_statements = count($statement_array);

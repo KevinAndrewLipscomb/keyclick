@@ -13,7 +13,7 @@ function MethodSelectionList
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $result = @$db_link->query("select * from " . $mode . "method where agency='$agency' order by cardinality");
+   $result = @$db_link->query("select * from " . $mode . "method order by cardinality");
    //
    if (!mysqli_error($db_link) and mysqli_num_rows($result))
       {
