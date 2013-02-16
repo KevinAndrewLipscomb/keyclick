@@ -105,86 +105,99 @@ require_once("f_methodselectionlist.phtml");
               // then
                  {
                  //
-                 // Determine next value for per_clerk_seq_num.
+                 // Make sure the specified ROD # belongs to the user's agency.
                  //
-                 $per_clerk_seq_num = 1;
-                 extract
-                    (
-                    mysqli_fetch_array
-                       (
-                       $db_link->query
-                          (
-                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
-                          )
-                       )
-                    );
-                 //
-                 // Check for prior donations.
-                 //
-                 $num_priors = "";
-                 $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
-                    or die("Check for priors failed with error: " . mysqli_error($db_link));
-                 extract(mysqli_fetch_array($result));
-                 //
-                 $db_link->query
-                    ($qry =
-                    "insert into " . $mode . "donation "
-                    .  "set id=$id "
-                    .  "   , amount=$amount "
-                    .  "   , date=CURRENT_DATE "
-                    .  "   , prospectivity='$prospectivity' "
-                    .  "   , method='$method' "
-                    .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
-                    .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
-                    .  "   , per_clerk_seq_num=$per_clerk_seq_num "
-                    )
-                    or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
-                 $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
-                    or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
-                 //
-                 $result = $db_link->query
-                    (
-                    "select resident_base.name"
-                    . " , concat(house_num,' ',street.name) as address1"
-                    . " , city.name as city"
-                    . " , state.abbreviation as state"
-                    . " , null as zip"
-                    . " from " . $mode . "resident_base"
-                      . " join street on (street.id=resident_base.street_id)"
-                      . " join city on (city.id=street.city_id)"
-                      . " join state on (state.id=city.state_id)"
-                    . " where resident_base.id='$id'"
-                    )
-                    or die("Master record lookup failed with error: " . mysqli_error($db_link));
-                 extract(mysqli_fetch_array($result));
-                 //
-                 echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                    . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
-                    . "   <input type=hidden name=bpn value=$bpn>\n"
-                    . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
-                    . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
-                    . "<small><dl>\n"
-                    . "<dt>ROD#:</dt><dd>$id</dd>\n"
-                    . "<dt>Lookup data:</dt>\n"
-                    . "   <dd>\n"
-                    . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                    . "         $name<br>$address1<br>$city $state\n"
-                    . "      </a>\n"
-                    . "   </dd>\n";
-                 if ($num_priors)
+                 extract(mysqli_fetch_array($db_link->query("select agency as this_rod_agency from resident_base where id = '$id'")));
+                 if ($this_rod_agency == $agency)
                     {
-                    echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
-                       . "on record\n";
+                    //
+                    // Determine next value for per_clerk_seq_num.
+                    //
+                    $per_clerk_seq_num = 1;
+                    extract
+                       (
+                       mysqli_fetch_array
+                          (
+                          $db_link->query
+                             (
+                             "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
+                             . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                             )
+                          )
+                       );
+                    //
+                    // Check for prior donations.
+                    //
+                    $num_priors = "";
+                    $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                       or die("Check for priors failed with error: " . mysqli_error($db_link));
+                    extract(mysqli_fetch_array($result));
+                    //
+                    $db_link->query
+                       ($qry =
+                       "insert into " . $mode . "donation "
+                       .  "set id=$id "
+                       .  "   , amount=$amount "
+                       .  "   , date=CURRENT_DATE "
+                       .  "   , prospectivity='$prospectivity' "
+                       .  "   , method='$method' "
+                       .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
+                       .  "   , note='" . addslashes(trim($note)) . "' "
+                       .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                       .  "   , per_clerk_seq_num=$per_clerk_seq_num "
+                       )
+                       or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                    $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
+                       or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                    //
+                    $result = $db_link->query
+                       (
+                       "select resident_base.name"
+                       . " , concat(house_num,' ',street.name) as address1"
+                       . " , city.name as city"
+                       . " , state.abbreviation as state"
+                       . " , null as zip"
+                       . " from " . $mode . "resident_base"
+                         . " join street on (street.id=resident_base.street_id)"
+                         . " join city on (city.id=street.city_id)"
+                         . " join state on (state.id=city.state_id)"
+                       . " where resident_base.id='$id'"
+                       )
+                       or die("Master record lookup failed with error: " . mysqli_error($db_link));
+                    extract(mysqli_fetch_array($result));
+                    //
+                    echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
+                       . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                       . "   <input type=hidden name=bpn value=$bpn>\n"
+                       . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
+                       . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
+                       . "<small><dl>\n"
+                       . "<dt>ROD#:</dt><dd>$id</dd>\n"
+                       . "<dt>Lookup data:</dt>\n"
+                       . "   <dd>\n"
+                       . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                       . "         $name<br>$address1<br>$city $state\n"
+                       . "      </a>\n"
+                       . "   </dd>\n";
+                    if ($num_priors)
+                       {
+                       echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                          . "on record\n";
+                       }
+                    echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
+                       . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
+                       . "<dt>Method:</dt><dd>$method</dd>\n"
+                       . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
+                       . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
+                       . "</dl>\n\n"
+                       . "</small>\n";
                     }
-                 echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
-                    . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
-                    . "<dt>Method:</dt><dd>$method</dd>\n"
-                    . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
-                    . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
-                    . "</dl>\n\n"
-                    . "</small>\n";
+                 else
+                    {
+                    echo "<p><b>FAILED</b></p>\n"
+                       . "<p><b>The specified ROD # is not associated with your agency.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
+                       . "problem.</b></p>\n";
+                    }
                  }
               else
                  {

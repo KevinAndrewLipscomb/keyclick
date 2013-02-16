@@ -5,7 +5,7 @@
 function ReadDump_RODBYNAM0
    (
    $db_link,
-   $sql_query,
+   $agency,
    $bpn,
    $mode = ""
    )
@@ -24,7 +24,7 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . " address1 tinytext NOT NULL,"
    . " city tinytext NOT NULL,"
    . " state tinytext NOT NULL,"
-   . " agency enum('KVRS') NOT NULL default 'KVRS',"
+//   . " agency enum('KVRS') NOT NULL default 'KVRS',"
    . " PRIMARY KEY (id),"
    . " KEY name (name)"
    . " )"
@@ -35,13 +35,14 @@ $statement_array[++$i] = "INSERT INTO " . $mode . "temp"
    . " , concat(house_num,' ',street.name) as address1"
    . " , city.name as city"
    . " , state.abbreviation as state"
-   . " , agency"
+//   . " , agency"
    . " FROM " . $mode . "resident_base"
      . " join street on (street.id=resident_base.street_id)"
      . " join city on (city.id=street.city_id)"
      . " join state on (state.id=city.state_id)"
-   . " WHERE resident_base.name is not null";
-$statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
+   . " WHERE resident_base.name is not null"
+     . " and agency = '$agency'";
+//$statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
 //
 $num_statements = count($statement_array);

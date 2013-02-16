@@ -224,11 +224,12 @@ require_once("f_stateselectionlist.phtml");
               //
               $result = $db_link->query
                  (
-                 "select resident_base.name "
-                 .  ", house_num"
-                 .  ", street_id "
-                 .  "from " . $mode . "resident_base "
-                 .  "where resident_base.id='$id' "
+                 "select resident_base.name"
+                 . " , house_num"
+                 . " , street_id"
+                 . " from " . $mode . "resident_base"
+                 . " where resident_base.id = '$id'"
+                 .   " and agency = '$agency'"
                  )
                  or die("Query failed with error: " . mysqli_error($db_link));
               $num_rows = mysqli_num_rows($result);
@@ -433,7 +434,7 @@ require_once("f_stateselectionlist.phtml");
               else
                  {
                  ?>
-                 <p><b>No such Resident ID found.</b></p>
+                 <p><b>No such Resident ID found in association with your agency.</b></p>
                  <blockquote>
                     <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                        Edit and retry:
