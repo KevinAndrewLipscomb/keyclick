@@ -309,7 +309,7 @@ require_once("f_stateselectionlist.phtml");
                     . "      <tr>\n"
                     . "         <td colspan=3 align=center>\n"
                     . "            Next Resident ID to modify/remove (optional):\n"
-                    . "            <input type=text name=id value=\"\" maxlength=5 size=5>\n"
+                    . "            <input type=text name=id value=\"\" maxlength=6 size=6>\n"
                     . "         </td>\n"
                     . "      </tr>\n"
                     . "      <tr><td colspan=3><hr></td></tr>\n"
@@ -439,7 +439,7 @@ require_once("f_stateselectionlist.phtml");
                     <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
                        Edit and retry:
                        <input type=hidden name=bpn value=<? echo $bpn; ?>>
-                       <input type=text name=id maxlength=5 size=5 value=<? echo $id; ?>>
+                       <input type=text name=id maxlength=6 size=6 value=<? echo $id; ?>>
                        <input type=submit value="Go!">
                     </form>
                  </blockquote>
@@ -456,7 +456,7 @@ require_once("f_stateselectionlist.phtml");
                  . "   <form action=" . $mode . "form-act-singly.phtml method=post>\n"
                  . "      <input type=hidden name=bpn value=$bpn>\n"
                  . "      Specify a Resident ID:\n"
-                 . "      <input type=text name=id maxlength=5 size=5 value=$id>\n"
+                 . "      <input type=text name=id maxlength=6 size=6 value=$id>\n"
                  . "      <input type=submit value=\"Go!\"><br>\n"
                  . "      <br>\n"
                  . "      -- or --<br>\n"
