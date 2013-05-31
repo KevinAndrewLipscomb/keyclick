@@ -109,7 +109,7 @@ require_once("f_stateselectionlist.phtml");
               if ($action == "update")
                  {
                  if (
-                       (($name = trim($name)) != "")
+                       (($name = strtoupper(trim($name))) != "")
                     and
                        (($street_id = trim($street_id)) != "")
                     )
