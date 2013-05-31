@@ -19,7 +19,7 @@ function ProspectivitySelectionList
       {
       echo "<select name=prospectivity>\n";
       //
-      if ($selected_option == "NONE")
+      if (($selected_option == "") || ($selected_option == "NONE"))
          {
          //
          // First time is a special case.  If the cardinality of the first row is 0 (zero), then the row should be selected by

@@ -157,13 +157,13 @@ require_once("f_stateselectionlist.phtml");
                     extract(mysqli_fetch_array($result));
                     //
                     echo "<p><b>SUCCEEDED</b></p>\n"
-                       . "<small><dl>\n"
+                       . "<a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id_to_save><small><dl>\n"
                        . "<dt>Resident ID:</dt><dd>$id_to_save</dd>\n"
                        . "<dt>Name:</dt><dd>$name</dd>\n"
                        . "<dt>Address:</dt><dd>$address1</dd>\n"
                        . "<dt>City:</dt><dd>$city</dd>\n"
                        . "<dt>State:</dt><dd>$state</dd>\n"
-                       . "</dl></small>\n";
+                       . "</dl></small></a>\n";
                     }
                  else
                     {
@@ -307,8 +307,10 @@ require_once("f_stateselectionlist.phtml");
                     . "      <tr>\n"
                     . "         <td align=right valign=top>Action:</td>\n"
                     . "         <td colspan=2>\n"
-                    . "            <input type=radio name=action value=update checked>Update<br>\n"
-                    . "            <input type=radio name=action value=delete>Delete\n"
+                    . "            <label><input type=radio name=action value=update checked>Update</label><br/><br/>\n"
+                    . "            <label><input type=radio name=action value=delete>Delete</label><br/><br/>\n"
+                    . "            <label><input type=radio name=action value=lognew onclick=\"window.location.href = 'form-add-donation.phtml?bpn=$bpn&cross_id=$id';\">Log a new donation</label><br/><br/>\n"
+                    . "            <label><input type=radio name=action value=logold onclick=\"window.location.href = 'form-add-donation-old.phtml?bpn=$bpn&cross_id=$id';\">Log an old donation</label><br/>\n"
                     . "         </td>\n"
                     . "      </tr>\n"
                     . "      <tr><td colspan=3><hr></td></tr>\n"
