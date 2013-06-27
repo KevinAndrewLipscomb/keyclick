@@ -249,12 +249,12 @@ else
                  . "      <tr>\n"
                  . "         <td align=right>ROD #:</td>\n"
                  . "         <td colspan=2>\n"
-                 . "            <input type=text name=id size=6 maxlength=6 value=$cross_id>\n"
+                 . "            <input type=text name=id size=6 maxlength=6 tabindex=1 value=$cross_id>\n"
                  . "            &nbsp;&nbsp;&nbsp;\n"
                  . "            (Click <a href=" . $mode . "form-add-donation-ooa.phtml?bpn=$bpn><b>here</b></a> to log an Out-Of-Area donation.)\n"
                  . "         </td>\n"
                  . "      </tr>\n"
-                 . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
+                 . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10 tabindex=2></td></tr>\n"
                  . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
               echo ProspectivitySelectionList($db_link,$agency,$mode);
               echo "      </td></tr>\n"
