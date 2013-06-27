@@ -45,7 +45,7 @@ require_once("f_stateselectionlist.phtml");
 <title>KEYclick - Modify or remove resident record</title>
 </head>
 
-<? BodyOpen(); ?>
+<? BodyOpen("CurrentOperation.name"); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
@@ -267,7 +267,7 @@ require_once("f_stateselectionlist.phtml");
                  //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<blockquote>\n"
-                    . "<form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                    . "<form name=CurrentOperation action=" . $mode . "form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n";
                  if ($num_journal_rows or $num_donations)
