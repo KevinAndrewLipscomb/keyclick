@@ -109,7 +109,7 @@ require_once("f_stateselectionlist.phtml");
               if ($action == "update")
                  {
                  if (
-                       (($name = strtoupper(trim($name))) != "")
+                       ((($name = strtoupper(trim($name))) != "") or (($email_address = trim($email_address)) != ""))
                     and
                        (($street_id = trim($street_id)) != "")
                     )
@@ -125,6 +125,15 @@ require_once("f_stateselectionlist.phtml");
                        .  "limit 1 "
                        )
                        or die("Update failed with error: " . mysqli_error($db_link));
+                    //
+                    $db_link->query($qry = "delete from web_donor where resident_id = '$id_to_save'")
+                       or die("Replacement of old email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                    if (trim($email_address) != "")
+                      {
+                      $result = $db_link->query
+                         ($qry = "insert ignore web_donor set email_address = '$email_address', resident_id = '$id_to_save' on duplicate key update resident_id = '$id_to_save'")
+                         or die("Update of email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                      }
                     //
                     $result = $db_link->query
                        (
@@ -163,6 +172,7 @@ require_once("f_stateselectionlist.phtml");
                        . "<dt>Address:</dt><dd>$address1</dd>\n"
                        . "<dt>City:</dt><dd>$city</dd>\n"
                        . "<dt>State:</dt><dd>$state</dd>\n"
+                       . "<dt>Email address:</dt><dd>$email_address</dd>\n"
                        . "</dl></small></a>\n";
                     }
                  else
@@ -207,7 +217,7 @@ require_once("f_stateselectionlist.phtml");
               //
               echo "</small>\n";
               //
-              $name = $address1 = $city = $state = $zip = "";
+              $name = $address1 = $city = $state = $zip = $email_address = "";
               //
               }
            else
@@ -230,10 +240,12 @@ require_once("f_stateselectionlist.phtml");
                  . " , concat(house_num,' ',street.name) as address1"
                  . " , city.name as city"
                  . " , state.abbreviation as state"
+                 . " , email_address"
                  . " from " . $mode . "resident_base"
                  .   " join street on (street.id=resident_base.street_id)"
                  .   " join city on (city.id=street.city_id)"
                  .   " join state on (state.id=city.state_id)"
+                 .   " left join web_donor on (web_donor.resident_id=resident_base.id)"
                  . " where resident_base.id = '$id'"
                  .   " and agency = '$agency'"
                  )
@@ -301,9 +313,10 @@ require_once("f_stateselectionlist.phtml");
                     . "      <tr><td align=right><b>Resident ID:</b></td><td colspan=2><b>$id</b></td></tr>\n"
                     . "      <tr><td align=right>Name:</td><td colspan=2><input type=text name=name value=\"$name\" size=50 maxlength=50></td></tr>\n"
                     . "      <tr><td align=right>House #:</td><td colspan=2><input type=text name=house_num value=\"$house_num\" size=15 maxlength=15></td></tr>\n"
-                    . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
+                    . "      <tr><td align=right nowrap=nowrap>Street, City, State:</td><td colspan=2>";
                  StreetSelectionList($db_link,$mode,$street_id);
                  echo "</td></tr>\n"
+                    . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address value=\"$email_address\" size=60 maxlength=254></td></tr>\n"
                     . "      <tr>\n"
                     . "         <td align=right valign=top>Action:</td>\n"
                     . "         <td colspan=2>\n"
@@ -394,6 +407,7 @@ require_once("f_stateselectionlist.phtml");
                           . "            <input type=hidden name=cross_amount value=$amount>\n"
                           . "            <input type=hidden name=cross_prospectivity value=$prospectivity>\n"
                           . "            <input type=hidden name=cross_in_mem_of value=\"$in_mem_of\">\n"
+                          . "            <input type=hidden name=cross_email_address value=\"$email_address\">\n"
                           . "            <input type=hidden name=cross_method value=$method>\n"
                           . "            <input type=hidden name=cross_note value=\"$note\">\n"
                           . "            <input type=submit name=edit value=\"Edit above entry\">\n"
