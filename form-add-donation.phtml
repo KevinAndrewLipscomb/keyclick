@@ -158,6 +158,12 @@ else
                        or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                     $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                        or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                    if (trim($email_address) != "")
+                      {
+                      $db_link->query
+                         ($qry = "insert ignore web_donor set email_address = '$email_address', resident_id = '$id' on duplicate key update resident_id = '$id'")
+                         or die("Save of email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                      }
                     //
                     $result = $db_link->query
                        (
@@ -166,10 +172,12 @@ else
                        . " , city.name as city"
                        . " , state.abbreviation as state"
                        . " , null as zip"
+                       . " , email_address"
                        . " from " . $mode . "resident_base"
                          . " join street on (street.id=resident_base.street_id)"
                          . " join city on (city.id=street.city_id)"
                          . " join state on (state.id=city.state_id)"
+                         . " left join web_donor on (web_donor.resident_id=resident_base.id)"
                        . " where resident_base.id='$id'"
                        )
                        or die("Master record lookup failed with error: " . mysqli_error($db_link));
@@ -185,7 +193,7 @@ else
                        . "<dt>Lookup data:</dt>\n"
                        . "   <dd>\n"
                        . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                       . "         $name<br>$address1<br>$city $state\n"
+                       . "         $name<br>$address1<br>$city $state<br>$email_address\n"
                        . "      </a>\n"
                        . "   </dd>\n";
                     if ($num_priors)
@@ -218,7 +226,7 @@ else
               echo "</small>\n";
               //
               $id = $name = $address1 = $city = $state = $amount = $prospectivity = $method = $in_mem_of =
-                 $note = "";
+                 $note = $email_address = "";
               //
               }
            elseif ($undo)
@@ -262,6 +270,7 @@ else
               echo MethodSelectionList($db_link,$agency,$mode);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
+                 . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
                  . "      <tr>\n"
                  . "         <td colspan=2>\n"
