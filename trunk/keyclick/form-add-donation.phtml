@@ -158,6 +158,8 @@ else
                        or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                     $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                        or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                    $db_link->query($qry = "delete from web_donor where resident_id = '$id'")
+                       or die("Replacement of old email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                     if (trim($email_address) != "")
                       {
                       $db_link->query

@@ -241,6 +241,14 @@ else
                                 or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                              $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                                 or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                             $db_link->query($qry = "delete from web_donor where resident_id = '$id'")
+                                or die("Replacement of old email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                             if (trim($email_address) != "")
+                               {
+                               $db_link->query
+                                  ($qry = "insert ignore web_donor set email_address = '$email_address', resident_id = '$id' on duplicate key update resident_id = '$id'")
+                                  or die("Save of email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
+                               }
                              //
                              echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
                                 . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
@@ -252,7 +260,7 @@ else
                                 . "<dt>Lookup data:</dt>\n"
                                 . "   <dd>\n"
                                 . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
-                                . "         $name<br>$address1<br>$city $state $zip\n"
+                                . "         $name<br>$address1<br>$city $state<br>$email_address\n"
                                 . "      </a>\n"
                                 . "   </dd>\n";
                              if ($num_priors)
@@ -333,7 +341,7 @@ else
                  {
                  //
                  $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
-                    $note = "";
+                    $note = $email_address = "";
                  //
                  // On first time in, must set $year_num to something, else it's possible to insert date 0000-00-00.
                  //
@@ -398,6 +406,7 @@ else
                     echo MethodSelectionList($db_link,$agency,$mode);
                     echo "      </td></tr>\n"
                        . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
+                       . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254></td></tr>\n"
                        . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
                        . "      <tr>\n"
                        . "         <td colspan=2>\n"
