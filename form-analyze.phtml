@@ -17,13 +17,13 @@ if (!ini_get('register_globals'))
     }
   }
 require_once("f_runmode.phtml");
-$mode = RunMode($PHP_SELF);
+$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $parent_enumeral_expression = stripslashes($parent_enumeral_expression);
 //
-if ($mode) error_reporting(E_ALL);
+if (RunMode($PHP_SELF)) error_reporting(E_ALL);
 //
 require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
