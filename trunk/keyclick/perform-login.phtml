@@ -3,12 +3,12 @@
 // $Id$
 //
 require_once("f_runmode.phtml");
-$mode = RunMode($PHP_SELF);
+$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 //
-if ($mode) error_reporting(E_ALL);
+if (RunMode($PHP_SELF)) error_reporting(E_ALL);
 //
 $foundation_dir = "../../foundation";
 $pear_dir = "../../pear";

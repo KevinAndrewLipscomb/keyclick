@@ -17,7 +17,7 @@ if (!ini_get('register_globals'))
     }
   }
 require_once("f_runmode.phtml");
-$mode = RunMode($PHP_SELF);
+$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
@@ -26,7 +26,7 @@ $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
 //
-if ($mode) error_reporting(E_ALL);
+if (RunMode($PHP_SELF)) error_reporting(E_ALL);
 //
 require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
