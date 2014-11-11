@@ -109,7 +109,7 @@ require_once("f_stateselectionlist.phtml");
               if ($action == "update")
                  {
                  if (
-                       ((($name = strtoupper(trim($name))) != "") or (($email_address = trim($email_address)) != ""))
+                       ($house_num != "")
                     and
                        (($street_id = trim($street_id)) != "")
                     )
@@ -118,7 +118,7 @@ require_once("f_stateselectionlist.phtml");
                     $result = $db_link->query
                        (
                        "update " . $mode . "resident_base "
-                       .  "set name='" . addslashes($name) . "' "
+                       .  "set name='" . addslashes(strtoupper(trim($name))) . "' "
                        .  "   , house_num='" . addslashes($house_num) . "' "
                        .  "   , street_id='" . addslashes($street_id) . "' "
                        .  "where id=$id_to_save "
