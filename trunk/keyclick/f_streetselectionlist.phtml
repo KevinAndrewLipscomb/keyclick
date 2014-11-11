@@ -26,6 +26,10 @@ function StreetSelectionList
       {
       echo "<select name=street_id>\n";
       //
+      if ($selected_option == "")
+        {
+        echo "   <option value=\"\">-- Select --</option>\n";
+        }
       while($row = mysqli_fetch_array($result))
          {
          $id = $spec = "";
