@@ -112,6 +112,8 @@ require_once("f_stateselectionlist.phtml");
                        ($house_num != "")
                     and
                        (($street_id = trim($street_id)) != "")
+                    and
+                       ((trim($email_address == "") or filter_var($email_address,FILTER_VALIDATE_EMAIL)))
                     )
                  // then
                     {
@@ -178,8 +180,7 @@ require_once("f_stateselectionlist.phtml");
                  else
                     {
                     echo "<p><b><u>FAILED</u></b></p>\n"
-                       . "<p><b>One or more fields were missing.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the "
-                       . "problem.</b></p>\n";
+                       . "<p><b>One or more fields were missing or invalid.&nbsp; Press your browser's [<-&nbsp;BACK] button to fix the problem.</b></p>\n";
                     }
                  }
               elseif ($action == "delete")
