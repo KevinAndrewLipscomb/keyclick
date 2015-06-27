@@ -113,6 +113,8 @@ else
                        (($id != "") and is_numeric($id))
                     and
                        (($amount != "") and is_numeric($amount))
+                    and
+                       ((trim($email_address == "") or filter_var($email_address,FILTER_VALIDATE_EMAIL)))
                     )
                  // then
                     {
