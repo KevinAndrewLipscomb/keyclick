@@ -21,6 +21,10 @@ $mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
+$be_interested_in_patient_care = $be_interested_in_patient_care;
+$be_interested_in_support = $be_interested_in_support;
+$be_interested_in_volunteering = $be_interested_in_volunteering;
+$be_interested_in_bequesting = $be_interested_in_bequesting;
 $save = $save;
 $cancel = $cancel;
 //
@@ -35,7 +39,6 @@ require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
-require_once("f_prospectivityselectionlist.phtml");
 require_once("f_methodselectionlist.phtml");
 ?>
 <html>
@@ -106,12 +109,15 @@ require_once("f_methodselectionlist.phtml");
                        )
                     );
                  //
-                 $db_link->query
+                $db_link->query
                     ($qry =
                     "update " . $mode . "donation "
                     .  "set amount=$amount "
                     .  "   , date='" . $year_num . '-' . $month_num . '-' . $day_num . "' "
-                    .  "   , prospectivity='$prospectivity' "
+                    .  "   , be_interested_in_patient_care=" . ($be_interested_in_patient_care ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_support=" . ($be_interested_in_support ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_volunteering=" . ($be_interested_in_volunteering ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_bequesting=" . ($be_interested_in_bequesting ? "TRUE" : "FALSE")
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
