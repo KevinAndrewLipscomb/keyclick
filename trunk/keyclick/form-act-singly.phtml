@@ -273,7 +273,7 @@ require_once("f_stateselectionlist.phtml");
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
                     .  "from " . $mode . "donation "
-                    .  "where id=$id order by date desc"
+                    .  "where id=$id order by date desc, timestamp desc"
                     )
                     or die("Donation query failed with error: " . mysqli_error($db_link));
                  $num_donations = mysqli_num_rows($donation_query_result);
