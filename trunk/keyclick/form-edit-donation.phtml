@@ -22,8 +22,10 @@ $mode = "";
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $bpn = $bpn;
-$be_rescuer_prospect = $be_rescuer_prospect;
-$be_support_prospect = $be_support_prospect;
+$be_interested_in_patient_care = $be_interested_in_patient_care;
+$be_interested_in_support = $be_interested_in_support;
+$be_interested_in_volunteering = $be_interested_in_volunteering;
+$be_interested_in_bequesting = $be_interested_in_bequesting;
 $method = $method;
 $in_mem_of = $in_mem_of;
 $note = $note;
@@ -44,7 +46,6 @@ require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
-require_once("f_prospectivityselectionlist.phtml");
 require_once("f_methodselectionlist.phtml");
 ?>
 <html>
@@ -133,7 +134,10 @@ require_once("f_methodselectionlist.phtml");
                     .  "set id=$id "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
-                    .  "   , prospectivity='$prospectivity' "
+                    .  "   , be_interested_in_patient_care=" . ($be_interested_in_patient_care ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_support=" . ($be_interested_in_support ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_volunteering=" . ($be_interested_in_volunteering ? "TRUE" : "FALSE")
+                    .  "   , be_interested_in_bequesting=" . ($be_interested_in_bequesting ? "TRUE" : "FALSE")
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
@@ -177,7 +181,10 @@ require_once("f_methodselectionlist.phtml");
                        . "on record\n";
                     }
                  echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
-                    . "<dt>Prospectivity:</dt><dd>$prospectivity&nbsp;</dd>\n"
+                    . "<dt>Interested in patient care:</dt><dd>" . ($be_interested_in_patient_care ? "YES" : "no") . "&nbsp;</dd>\n"
+                    . "<dt>Interested in support:</dt><dd>" . ($be_interested_in_support ? "YES" : "no") . "&nbsp;</dd>\n"
+                    . "<dt>Interested in volunteering:</dt><dd>" . ($be_interested_in_volunteering ? "YES" : "no") . "&nbsp;</dd>\n"
+                    . "<dt>Interested in bequesting:</dt><dd>" . ($be_interested_in_bequesting ? "YES" : "no") . "&nbsp;</dd>\n"
                     . "<dt>Method:</dt><dd>$method</dd>\n"
                     . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
                     . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
@@ -193,8 +200,8 @@ require_once("f_methodselectionlist.phtml");
               //
               echo "</small>\n";
               //
-              $id = $name = $address1 = $city = $state = $zip = $amount = $prospectivity = $method = $in_mem_of =
-                 $note = "";
+              $id = $name = $address1 = $city = $state = $zip = $amount = $be_interested_in_patient_care = $be_interested_in_support = $be_interested_in_volunteering =
+                 $be_interested_in_bequesting = $method = $in_mem_of = $note = "";
               //
               }
            elseif ($undo)
@@ -277,9 +284,10 @@ require_once("f_methodselectionlist.phtml");
                  . "         </td>\n"
                  . "      </tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount value=$cross_amount size=6 maxlength=10></td></tr>\n"
-                 . "      <tr><td align=right>Wants info on:</td><td colspan=2>\n";
-              echo ProspectivitySelectionList($db_link,$agency,$mode,$cross_prospectivity);
-              echo "      </td></tr>\n"
+                  . "      <tr><td align=right>Interested in patient care:</td><td colspan=2><input type=checkbox name=be_interested_in_patient_care " . ($cross_be_interested_in_patient_care ? "checked" : "") . "></td></tr>\n"
+                 . "      <tr><td align=right>Interested in support:</td><td colspan=2><input type=checkbox name=be_interested_in_support " . ($cross_be_interested_in_support ? "checked" : "") . "></td></tr>\n"
+                 . "      <tr><td align=right>Interested in volunteering:</td><td colspan=2><input type=checkbox name=be_interested_in_volunteering " . ($cross_be_interested_in_volunteering ? "checked" : "") . "></td></tr>\n"
+                 . "      <tr><td align=right>Interested in bequesting:</td><td colspan=2><input type=checkbox name=be_interested_in_bequesting " . ($cross_be_interested_in_bequesting ? "checked" : "") . "></td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
               echo MethodSelectionList($db_link,$agency,$mode,$cross_method);
               echo "      </td></tr>\n"

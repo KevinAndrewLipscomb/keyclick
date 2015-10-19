@@ -370,21 +370,29 @@ require_once("f_stateselectionlist.phtml");
                           case "WEB":
                              echo "Via the Internet;<br>\n";
                              break;
+                          case "LOVELETTER":
+                             echo "In response to a Love Letter;<br>\n";
+                             break;
                           }
                        if (($method != "INMEMOF") and ($in_mem_of))
                           {
                           echo "Also in memory of '$in_mem_of';<br>\n";
                           }
-                       switch ($prospectivity)
+                       if ($be_interested_in_patient_care)
                           {
-                          case "NONE":
-                             break;
-                          case "RESCUE":
-                             echo "<b>Interested in volunteering for Patient Care</b>;<br>\n";
-                             break;
-                          case "SUPPORT":
-                             echo "<b>Interested in volunteering for Non-Emergency Support</b>;<br>\n";
-                             break;
+                          echo "<b>Interested in volunteering for Patient Care</b>;<br>\n";
+                          }
+                       if ($be_interested_in_support)
+                          {
+                          echo "<b>Interested in volunteering for Non-Emergency Support</b>;<br>\n";
+                          }
+                       if ($be_interested_in_volunteering)
+                          {
+                          echo "<b>Interested in volunteering</b>;<br>\n";
+                          }
+                       if ($be_interested_in_bequesting)
+                          {
+                          echo "<b>Interested in bequesting</b>;<br>\n";
                           }
                        if ($note)
                           {
@@ -406,7 +414,10 @@ require_once("f_stateselectionlist.phtml");
                           . "            <input type=hidden name=cross_zip value=\"$zip\">\n"
                           . "            <input type=hidden name=cross_date value=$date>\n"
                           . "            <input type=hidden name=cross_amount value=$amount>\n"
-                          . "            <input type=hidden name=cross_prospectivity value=$prospectivity>\n"
+                          . "            <input type=hidden name=cross_be_interested_in_patient_care value=$be_interested_in_patient_care>\n"
+                          . "            <input type=hidden name=cross_be_interested_in_support value=$be_interested_in_support>\n"
+                          . "            <input type=hidden name=cross_be_interested_in_volunteering value=$be_interested_in_volunteering>\n"
+                          . "            <input type=hidden name=cross_be_interested_in_bequesting value=$be_interested_in_bequesting>\n"
                           . "            <input type=hidden name=cross_in_mem_of value=\"$in_mem_of\">\n"
                           . "            <input type=hidden name=cross_method value=$method>\n"
                           . "            <input type=hidden name=cross_note value=\"$note\">\n"
