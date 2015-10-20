@@ -13,6 +13,10 @@ grant select
   to 'ki-keyclickk'@'localhost' identified by '~ki-keyclickk-password~'
 ;
 grant select
+  on oscardotnetdb.member
+  to 'ki-keyclick'@'localhost' identified by '~ki-keyclick-password~'
+;
+grant select
  , insert
  , update
  , delete
@@ -25,3 +29,7 @@ grant select
 grant select
   on kalipso.*
   to 'ki-keyclickk'@'70.84.138.98' identified by '~ki-keyclickk-password~'
+;
+grant select
+  on oscardotnetdb.member
+  to 'ki-keyclick'@'70.84.138.98' identified by '~ki-keyclick-password~'
