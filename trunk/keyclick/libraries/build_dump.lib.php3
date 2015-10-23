@@ -462,7 +462,7 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
      * @access  public
      */
 //    function PMA_getTableCsv($db, $table, $limit_from = 0, $limit_to = 0, $sep, $enc_by, $esc_by, $handler, $error_url)
-    function PMA_getTableCsv($whole_query, $handler, $error_url, &$add_character, &$tmp_buffer)
+    function PMA_getTableCsv($db_link, $whole_query, $handler, $error_url, &$add_character, &$tmp_buffer)
     {
             $sep     = ',';
             $enc_by  = '"';
