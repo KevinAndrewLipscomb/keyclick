@@ -348,7 +348,7 @@ require_once("f_kickoff.phtml");
                        echo "            <input type=hidden name=format value=zip>(Zip file only)\n"
                           . "               &nbsp;&nbsp;&nbsp;\n";
                        }
-                    echo "            <input type=hidden name=be_drill_down_available value=" . ($enumeral == "OUTOFAREA" ? "FALSE" : "TRUE") . ">\n";
+                    echo "            <input type=hidden name=be_drill_down_available value=" . ($enumeral == "OUTOFAREA" || $enumeral == "POPNAMCNTSV" ? "FALSE" : "TRUE") . ">\n";
                     echo "            <input type=submit value=\"Go!\">\n"
                        . "         </form>\n"
                        . "      </td>\n"
