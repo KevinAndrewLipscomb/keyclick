@@ -10,6 +10,7 @@ function ReadDump
    $allow_dynamic_sorting = '1',
    $mode = "",
    $be_viewable_result = "TRUE",
+   $be_drill_down_available = 'TRUE',
    $table_border = 0,
    $cell_padding = 3,
    $max_text_field_display_len = 64,
@@ -414,7 +415,8 @@ if ($sql_query != '') {
           $table_border,
           $cell_padding,
           $max_text_field_display_len,
-          $allow_dynamic_sorting
+          $allow_dynamic_sorting,
+          ($be_drill_down_available == 'TRUE' ? 'urnn00000' : 'nnnn00000') // for row_action_designator
           );
        }
 
@@ -454,7 +456,8 @@ if ($sql_query != '') {
                   $table_border,
                   $cell_padding,
                   $max_text_field_display_len,
-                  $allow_dynamic_sorting
+                  $allow_dynamic_sorting,
+                  ($be_drill_down_available == 'TRUE' ? 'urnn00000' : 'nnnn00000') // for row_action_designator
                   );
                exit();
                }
