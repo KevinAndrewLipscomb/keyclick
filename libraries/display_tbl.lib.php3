@@ -500,9 +500,9 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 
         //     ... else if no button, displays empty(ies) col(s) if required
         else if (($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn')) {
-            $vertical_display['emptypre'] = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn') ? 2 : 1;
+           $vertical_display['emptypre'] = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn') ? 2 : 1;
             if ($disp_direction == 'horizontal') {
-                echo "\n";
+              echo "\n";
                 ?>
     <td<?php echo $colspan; ?>></td>
                 <?php
@@ -1236,7 +1236,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 <!-- Results table -->
 <table border="<?php echo $table_border; ?>" cellpadding="<? echo $cell_padding; ?>">
         <?php
-        echo "\n";
+       echo "\n";
         PMA_displayTableHeaders($bpn, $sql_query, $mode, $is_display, $fields_meta, $fields_cnt);
         PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt, $cfgLimitChars, $bpn, $mode);
         // lem9: vertical output case

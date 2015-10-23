@@ -145,7 +145,7 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                                    );
                                 break;
                              default:
-                                ReadDump
+                               ReadDump
                                    (
                                    $db_link,
                                    $sql_query,
@@ -212,19 +212,7 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                                    $mode
                                    );
                                 break;
-                             case "OUTOFAREA":
-                                ReadDump
-                                   (
-                                   $db_link,
-                                   $sql_query,
-                                   $bpn,
-                                   '1',  // do allow_dynamic_sorting
-                                   $mode,
-                                   'TRUE', // for be_viewable_result
-                                   'FALSE' // for be_drill_down_available
-                                   );
-                                break;
-                             case "FNDNAMADR":
+                            case "FNDNAMADR":
                                 //
                                 // Replace spaces and stars with the regexp wildcard character.
                                 //
@@ -254,13 +242,15 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                                 // DON'T break
                                 //
                              default:
-                                ReadDump
+                               ReadDump
                                    (
                                    $db_link,
                                    $sql_query,
                                    $bpn,
                                    '1',  // do allow_dynamic_sorting
-                                   $mode
+                                   $mode,
+                                   'TRUE', // for be_viewable_result
+                                   $be_drill_down_available
                                    );
                                 break;
                              }

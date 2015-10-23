@@ -109,13 +109,13 @@ require_once("f_methodselectionlist.phtml");
                  )
               // then
                  {
-                 if ($apt_num) $street_num = "$street_num-$apt_num";
+                 if ($apt_num) $street_num = trim($street_num) . "-" . trim($apt_num);
                  //
-                 $name = strtoupper("$last_name $name_detail");
-                 $address1 = strtoupper("$street_num $address1");
-                 $city = strtoupper($city);
-                 $state = strtoupper($state);
-                 $zip = strtoupper($zip);
+                 $name = strtoupper(trim($last_name) . " " . trim($name_detail));
+                 $address1 = strtoupper(trim($street_num) . " " . trim($address1));
+                 $city = strtoupper(trim($city));
+                 $state = strtoupper(trim($state));
+                 $zip = strtoupper(trim($zip));
                  //
                  extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from " . $mode . "resident_base")));
                  //
