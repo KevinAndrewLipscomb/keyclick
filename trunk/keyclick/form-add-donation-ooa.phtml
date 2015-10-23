@@ -22,10 +22,6 @@ $mode = "";
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $bpn = $bpn;
-$be_interested_in_patient_care = $be_interested_in_patient_care;
-$be_interested_in_support = $be_interested_in_support;
-$be_interested_in_volunteering = $be_interested_in_volunteering;
-$be_interested_in_bequesting = $be_interested_in_bequesting;
 $method = $method;
 $in_mem_of = $in_mem_of;
 $note = $note;
@@ -134,6 +130,7 @@ require_once("f_methodselectionlist.phtml");
                     .  "   , id=0 "
                     .  "   , op='UPDATE' "
                     .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , amount='" . $amount . "' "
                     )
                     or die("Journal entry failed with error: " . mysqli_error($db_link));
                  //
@@ -160,10 +157,6 @@ require_once("f_methodselectionlist.phtml");
                     .  "set id=0 "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
-                    .  "   , be_interested_in_patient_care=" . ($be_interested_in_patient_care ? "TRUE" : "FALSE")
-                    .  "   , be_interested_in_support=" . ($be_interested_in_support ? "TRUE" : "FALSE")
-                    .  "   , be_interested_in_volunteering=" . ($be_interested_in_volunteering ? "TRUE" : "FALSE")
-                    .  "   , be_interested_in_bequesting=" . ($be_interested_in_bequesting ? "TRUE" : "FALSE")
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
@@ -182,10 +175,6 @@ require_once("f_methodselectionlist.phtml");
                     . "<small><dl>\n"
                     . "<dt>Journaled data:</dt><dd>$name<br>$address1<br>$city $state $zip</dd>\n"
                     . "<dt>Amount:</dt><dd>\$$amount</dd>\n"
-                    . "<dt>Interested in patient care:</dt><dd>" . ($be_interested_in_patient_care ? "YES" : "no") . "&nbsp;</dd>\n"
-                    . "<dt>Interested in support:</dt><dd>" . ($be_interested_in_support ? "YES" : "no") . "&nbsp;</dd>\n"
-                    . "<dt>Interested in volunteering:</dt><dd>" . ($be_interested_in_volunteering ? "YES" : "no") . "&nbsp;</dd>\n"
-                    . "<dt>Interested in bequesting:</dt><dd>" . ($be_interested_in_bequesting ? "YES" : "no") . "&nbsp;</dd>\n"
                     . "<dt>Method:</dt><dd>$method</dd>\n"
                     . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
                     . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
@@ -201,8 +190,7 @@ require_once("f_methodselectionlist.phtml");
               //
               echo "</small>\n";
               //
-              $name = $address1 = $city = $state = $zip = $amount = $be_interested_in_patient_care = $be_interested_in_support = $be_interested_in_volunteering =
-                 $be_interested_in_bequesting = $method = $in_mem_of = $note = "";
+              $name = $address1 = $city = $state = $zip = $amount = $method = $in_mem_of = $note = "";
               //
               }
            elseif ($undo)
@@ -239,12 +227,8 @@ require_once("f_methodselectionlist.phtml");
                  . "      <tr><td align=right>State:</td><td colspan=2><input type=text name=state size=2 maxlength=2></td></tr>\n"
                  . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
-                 . "      <tr><td align=right>Interested in patient care:</td><td colspan=2><input type=checkbox name=be_interested_in_patient_care></td></tr>\n"
-                 . "      <tr><td align=right>Interested in support:</td><td colspan=2><input type=checkbox name=be_interested_in_support></td></tr>\n"
-                 . "      <tr><td align=right>Interested in volunteering:</td><td colspan=2><input type=checkbox name=be_interested_in_volunteering></td></tr>\n"
-                 . "      <tr><td align=right>Interested in bequesting:</td><td colspan=2><input type=checkbox name=be_interested_in_bequesting></td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($db_link,$agency,$mode);
+              echo MethodSelectionList($db_link,$agency,$mode,"LOVELETTER");
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
