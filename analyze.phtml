@@ -267,8 +267,8 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                     //
                  case "zip":
                  default:
-                    ZipDump($sql_query,$parent_enumeral);
-                    break;
+                   ZipDump($db_link,$sql_query,$parent_enumeral);
+                   break;
                  }
               }
            }
