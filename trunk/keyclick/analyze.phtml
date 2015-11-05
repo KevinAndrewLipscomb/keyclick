@@ -250,7 +250,7 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                                    '1',  // do allow_dynamic_sorting
                                    $mode,
                                    'TRUE', // for be_viewable_result
-                                   $be_drill_down_available
+                                   (isset($be_drill_down_available) ? $be_drill_down_available : 'TRUE') // for be_drilldown_available
                                    );
                                 break;
                              }
