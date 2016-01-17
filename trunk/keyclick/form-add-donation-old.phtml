@@ -283,7 +283,18 @@ else
                                 . "<dt>Method:</dt><dd>$method</dd>\n"
                                 . "<dt>In memory of:</dt><dd>$in_mem_of&nbsp;</dd>\n"
                                 . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
-                                . "</dl>\n\n"
+                                . "</dl>\n"
+                                . "<br/>\n"
+                                . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack.aspx'>\n"
+                                .   "<input type=hidden name=agency value='$agency'>\n"
+                                .   "<input type=hidden name=donor_name value='$name'>\n"
+                                .   "<input type=hidden name=address value='$address1'>\n"
+                                .   "<input type=hidden name=city value='$city'>\n"
+                                .   "<input type=hidden name=state value='$state'>\n"
+                                .   "<input type=hidden name=amount value='$amount'>\n"
+                                .   "<input type=hidden name=date value='$year_num-$month_num-$day_num'>\n"
+                                .   "<input type=submit name=donation_ack value='Gen ack letter'>\n"
+                                . "</form>\n"
                                 . "</small>\n";
                              }
                           else
