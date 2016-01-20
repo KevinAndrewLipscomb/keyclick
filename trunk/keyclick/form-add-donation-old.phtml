@@ -285,7 +285,7 @@ else
                                 . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
                                 . "</dl>\n"
                                 . "<br/>\n"
-                                . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack.aspx' method=post>\n"
+                                . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_letter.aspx' method=post>\n"
                                 .   "<input type=hidden name=agency value='$agency'>\n"
                                 .   "<input type=hidden name=donor_name value='$name'>\n"
                                 .   "<input type=hidden name=address value='$address1'>\n"
@@ -293,9 +293,21 @@ else
                                 .   "<input type=hidden name=state value='$state'>\n"
                                 .   "<input type=hidden name=amount value='$amount'>\n"
                                 .   "<input type=hidden name=date value='$year_num-$month_num-$day_num'>\n"
-                                .   "<input type=submit name=donation_ack value='Gen ack letter'>\n"
-                                . "</form>\n"
-                                . "</small>\n";
+                                .   "<input type=submit name=donation_ack_letter value='Gen ack letter'>\n"
+                                . "</form>\n";
+                             if (trim($email_address) != "")
+                                {
+                                echo "<br/>\n"
+                                   . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_email.aspx' method=post>\n"
+                                   .   "<input type=hidden name=agency value='$agency'>\n"
+                                   .   "<input type=hidden name=donor_name value='$name'>\n"
+                                   .   "<input type=hidden name=amount value='$amount'>\n"
+                                   .   "<input type=hidden name=date value=''>\n"
+                                   .   "<input type=hidden name=donor_email_address value='$email_address'>\n"
+                                   .   "<input type=submit name=donation_ack_email value='Gen ack email'>\n"
+                                   . "</form>\n";
+                                }
+                             echo "</small>\n";
                              }
                           else
                              {
