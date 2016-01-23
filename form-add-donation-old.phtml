@@ -298,8 +298,9 @@ else
                              if (trim($email_address) != "")
                                 {
                                 echo "<br/>\n"
-                                   . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_email.aspx' method=post>\n"
+                                   . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_email_trigger.aspx' method=post>\n"
                                    .   "<input type=hidden name=agency value='$agency'>\n"
+                                   .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
                                    .   "<input type=hidden name=donor_name value='$name'>\n"
                                    .   "<input type=hidden name=amount value='$amount'>\n"
                                    .   "<input type=hidden name=date value=''>\n"
