@@ -303,7 +303,7 @@ else
                                    .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
                                    .   "<input type=hidden name=donor_name value='$name'>\n"
                                    .   "<input type=hidden name=amount value='$amount'>\n"
-                                   .   "<input type=hidden name=date value=''>\n"
+                                   .   "<input type=hidden name=date value='$year_num-$month_num-$day_num'>\n"
                                    .   "<input type=hidden name=donor_email_address value='$email_address'>\n"
                                    .   "<input type=submit name=donation_ack_email value='Gen ack email'>\n"
                                    . "</form>\n";
