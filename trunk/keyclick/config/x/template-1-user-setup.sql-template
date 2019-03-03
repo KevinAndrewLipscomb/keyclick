@@ -20,8 +20,8 @@ grant select
  , alter
  , drop
   on keyclick_x.*
-  to 'ki-keyclick-x'@'70.84.138.98' identified by '~ki-keyclick-x-password~'
+  to 'ki-keyclick-x'@'51.79.5.240' identified by '~ki-keyclick-x-password~'
 ;
 grant select
   on kalipso_x.*
-  to 'ki-keyclickk-x'@'70.84.138.98' identified by '~ki-keyclickk-x-password~'
+  to 'ki-keyclickk-x'@'51.79.5.240' identified by '~ki-keyclickk-x-password~'

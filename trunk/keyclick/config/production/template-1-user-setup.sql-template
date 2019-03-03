@@ -20,8 +20,8 @@ grant select
  , alter
  , drop
   on keyclick.*
-  to 'ki-keyclick'@'70.84.138.98' identified by '~ki-keyclick-password~'
+  to 'ki-keyclick'@'51.79.5.240' identified by '~ki-keyclick-password~'
 ;
 grant select
   on kalipso.*
-  to 'ki-keyclickk'@'70.84.138.98' identified by '~ki-keyclickk-password~'
+  to 'ki-keyclickk'@'51.79.5.240' identified by '~ki-keyclickk-password~'
