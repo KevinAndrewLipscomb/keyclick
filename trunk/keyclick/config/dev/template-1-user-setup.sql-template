@@ -6,11 +6,11 @@ grant select
  , alter
  , drop
   on keyclick_d.*
-  to 'ki-keyclick-d'@'::1' identified by '~ki-keyclick-d-password~'
+  to 'ki-keyclick-d'@'127.0.0.1' identified by '~ki-keyclick-d-password~'
 ;
 grant select
   on kalipso_d.*
-  to 'ki-keyclickk-d'@'::1' identified by '~ki-keyclickk-d-password~'
+  to 'ki-keyclickk-d'@'127.0.0.1' identified by '~ki-keyclickk-d-password~'
 ;
 grant select
  , insert
