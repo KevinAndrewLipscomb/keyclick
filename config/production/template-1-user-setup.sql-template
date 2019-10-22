@@ -1,3 +1,4 @@
+create user if not exists 'ki-keyclick'@'127.0.0.1' identified by '~ki-keyclick-password~';
 grant select
  , insert
  , update
@@ -6,12 +7,18 @@ grant select
  , alter
  , drop
   on keyclick.*
-  to 'ki-keyclick'@'127.0.0.1' identified by '~ki-keyclick-password~'
+  to 'ki-keyclick'@'127.0.0.1'
 ;
+create user if not exists 'ki-keyclickk'@'127.0.0.1' identified by '~ki-keyclickk-password~';
 grant select
   on kalipso.*
-  to 'ki-keyclickk'@'127.0.0.1' identified by '~ki-keyclickk-password~'
+  to 'ki-keyclickk'@'127.0.0.1'
 ;
+grant select
+  on oscardotnetdb.*
+  to 'ki-keyclick'@'127.0.0.1'
+;
+create user if not exists 'ki-keyclick'@'51.79.5.240' identified by '~ki-keyclick-password~';
 grant select
  , insert
  , update
@@ -20,8 +27,13 @@ grant select
  , alter
  , drop
   on keyclick.*
-  to 'ki-keyclick'@'51.79.5.240' identified by '~ki-keyclick-password~'
+  to 'ki-keyclick'@'51.79.5.240'
 ;
+create user if not exists 'ki-keyclickk'@'51.79.5.240' identified by '~ki-keyclickk-password~';
 grant select
   on kalipso.*
-  to 'ki-keyclickk'@'51.79.5.240' identified by '~ki-keyclickk-password~'
+  to 'ki-keyclickk'@'51.79.5.240'
+;
+grant select
+  on oscardotnetdb.*
+  to 'ki-keyclick'@'51.79.5.240'
