@@ -27,7 +27,7 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
      *     bookmark feature and the expand/collapse text/blob fields button.
      *     Of course '0'/'1' means the feature won't/will be enabled.
      *
-     * @param   string   the synthetic value for display_mode (see §1 a few
+     * @param   string   the synthetic value for display_mode (see section 1 a few
      *                   lines above for explanations)
      * @param   integer  the total number of rows returned by the sql query
      *                   without any programmatically appended "LIMIT" clause
