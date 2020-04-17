@@ -75,69 +75,6 @@ if (!defined('PMA_BUILD_DUMP_LIB_INCLUDED')){
             return $schema_create;
         } // end if MySQL >= 3.23.20
 
-        // For MySQL < 3.23.20
-        $schema_create .= 'CREATE TABLE ' . PMA_htmlFormat(PMA_backquote($table), $use_backquotes) . ' (' . $crlf;
-
-        $local_query   = 'SHOW FIELDS FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table);
-        $result        = $db_link->query($local_query) or PMA_mysqlDie('', $local_query, '', $error_url);
-        while ($row = mysqli_fetch_array($result)) {
-            $schema_create     .= '   ' . PMA_htmlFormat(PMA_backquote($row['Field'], $use_backquotes)) . ' ' . $row['Type'];
-            if (isset($row['Default']) && $row['Default'] != '') {
-                $schema_create .= ' DEFAULT \'' . PMA_htmlFormat(PMA_sqlAddslashes($row['Default'])) . '\'';
-            }
-            if ($row['Null'] != 'YES') {
-                $schema_create .= ' NOT NULL';
-            }
-            if ($row['Extra'] != '') {
-                $schema_create .= ' ' . $row['Extra'];
-            }
-            $schema_create     .= ',' . $crlf;
-        } // end while
-        mysqli_free_result($result);
-        $schema_create         = ereg_replace(',' . $crlf . '$', '', $schema_create);
-
-        $local_query = 'SHOW KEYS FROM ' . PMA_backquote($db) . '.' . PMA_backquote($table);
-        $result      = $db_link->query($local_query) or PMA_mysqlDie('', $local_query, '', $error_url);
-        while ($row = mysqli_fetch_array($result))
-        {
-            $kname    = $row['Key_name'];
-            $comment  = (isset($row['Comment'])) ? $row['Comment'] : '';
-            $sub_part = (isset($row['Sub_part'])) ? $row['Sub_part'] : '';
-
-            if ($kname != 'PRIMARY' && $row['Non_unique'] == 0) {
-                $kname = "UNIQUE|$kname";
-            }
-            if ($comment == 'FULLTEXT') {
-                $kname = 'FULLTEXT|$kname';
-            }
-            if (!isset($index[$kname])) {
-                $index[$kname] = array();
-            }
-            if ($sub_part > 1) {
-                $index[$kname][] = PMA_htmlFormat(PMA_backquote($row['Column_name'], $use_backquotes)) . '(' . $sub_part . ')';
-            } else {
-                $index[$kname][] = PMA_htmlFormat(PMA_backquote($row['Column_name'], $use_backquotes));
-            }
-        } // end while
-        mysqli_free_result($result);
-
-        while (list($x, $columns) = @each($index)) {
-            $schema_create     .= ',' . $crlf;
-            if ($x == 'PRIMARY') {
-                $schema_create .= '   PRIMARY KEY (';
-            } else if (substr($x, 0, 6) == 'UNIQUE') {
-                $schema_create .= '   UNIQUE ' . substr($x, 7) . ' (';
-            } else if (substr($x, 0, 8) == 'FULLTEXT') {
-                $schema_create .= '   FULLTEXT ' . substr($x, 9) . ' (';
-            } else {
-                $schema_create .= '   KEY ' . $x . ' (';
-            }
-            $schema_create     .= implode($columns, ', ') . ')';
-        } // end while
-
-        $schema_create .= $crlf . ')';
-
-        return $schema_create;
     } // end of the 'PMA_getTableDef()' function
 
 
