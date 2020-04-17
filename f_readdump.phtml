@@ -152,7 +152,7 @@ function PMA_splitSqlFile(&$ret, $sql, $release)
     } // end for
 
     // add any rest to the returned array
-    if (!empty($sql) && ereg('[^[:space:]]+', $sql)) {
+    if (!empty($sql) && preg_match('/[^[:space:]]+/', $sql)) {
         $ret[] = $sql;
     }
 
@@ -187,7 +187,7 @@ function ExecSelect
       {
       $sql_query = $select_statement;
       }
-   if (eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $sql_query))
+   if (preg_match('/^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)/i', $sql_query))
       {
       $reload = 1;
       }
@@ -232,7 +232,7 @@ if (!function_exists('is_uploaded_file')) {
         $tmp_file     .= '/' . basename($filename);
 
         // User might have trailing slash in php.ini...
-        return (ereg_replace('/+', '/', $tmp_file) == $filename);
+        return (preg_replace('|/+|', '/', $tmp_file) == $filename);
     } // end of the 'is_uploaded_file()' emulated function
 } // end if
 
@@ -369,7 +369,7 @@ if (!empty($prev_sql_query)) {
 
 // Drop database is not allowed -> ensure the query can be run
 if (!$cfgAllowUserDropDatabase
-    && eregi('DROP[[:space:]]+(IF EXISTS[[:space:]]+)?DATABASE ', $sql_query)) {
+    && preg_match('/DROP[[:space:]]+(IF EXISTS[[:space:]]+)?DATABASE /i', $sql_query)) {
     // Checks if the user is a Superuser
     // TODO: set a global variable with this information
     // loic1: optimized query
@@ -433,7 +433,7 @@ if ($sql_query != '') {
                   $my_die = $a_sql_query;
                   break;
                   }
-               if (!isset($reload) && eregi('^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)', $a_sql_query))
+               if (!isset($reload) && preg_match('/^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)/i', $a_sql_query))
                   {
                   $reload = 1;
                   }

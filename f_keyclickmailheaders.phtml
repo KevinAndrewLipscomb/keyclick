@@ -2,12 +2,17 @@
 //
 // $Id$
 //
-function KeyclickMailHeaders($mode = "")
+function KeyclickMailHeaders($db_link)
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $header_string = "From: KEYclick <" . RoleEmailAddress($db_link,"",$mode) . ">\r\n"
-      . "Reply-to: KEYclick <" . RoleEmailAddress($db_link,"",$mode) . ">\r\n";
+   $mode="";
+      //
+      // Set to "" for production use, "x_" to debug.
+      //
+   //
+   $header_string = RoleEmailAddress($db_link,"",$mode) . "\r\n" //from
+      . RoleEmailAddress($db_link,"",$mode) . "\r\n"; //reply_to
    //
    error_reporting($saved_error_level);
    return $header_string;
