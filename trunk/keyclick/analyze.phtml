@@ -216,9 +216,9 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                                 //
                                 // Replace spaces and stars with the regexp wildcard character.
                                 //
-                                $parsed_basic_criteria = strtolower(ereg_replace("[[:space:]]+", " ",$search_text));
-                                $parsed_basic_criteria = ereg_replace("\*"," ",$parsed_basic_criteria);
-                                $parsed_basic_criteria = ereg_replace(" ",".*",$parsed_basic_criteria);
+                                $parsed_basic_criteria = strtolower(preg_replace("/[[:space:]]+/", " ",$search_text));
+                                $parsed_basic_criteria = preg_replace("/\*/"," ",$parsed_basic_criteria);
+                                $parsed_basic_criteria = preg_replace("/ /",".*",$parsed_basic_criteria);
                                 //
                                 $sql_query = "select resident_base.id "
                                    . " , resident_base.name "
