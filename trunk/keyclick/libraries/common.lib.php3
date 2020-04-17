@@ -8,7 +8,7 @@
      * located after we are connected to db to get the MySql version (see
      * below).
      */
-    include('./libraries/defines_lib.php3');
+    include('./libraries/defines.lib.php');
 
     /**
      * Adds backquotes on both sides of a database, table or field name.
@@ -93,7 +93,7 @@
     {
         $the_crlf = "\n";
 
-        // The 'PMA_USR_OS' constant is defined in "./libraries/defines_lib.php3"
+        // The 'PMA_USR_OS' constant is defined in "./libraries/defines.lib.php"
         // Win case
         if (PMA_USR_OS == 'Win') {
             $the_crlf = "\r\n";
