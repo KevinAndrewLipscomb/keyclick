@@ -48,9 +48,6 @@
     function PMA_mysqlDie($error_message = '', $the_query = '',
                           $is_modify_link = TRUE, $back_url = '')
     {
-        if (!$error_message) {
-            $error_message = mysqli_error();
-        }
         if (!$the_query && !empty($GLOBALS['sql_query'])) {
             $the_query = $GLOBALS['sql_query'];
         }
@@ -61,7 +58,7 @@
         // username/password
         if (!empty($the_query) && !strstr($the_query, 'connect')) {
             $query_base = htmlspecialchars($the_query);
-            $query_base = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $query_base);
+            $query_base = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $query_base);
             echo '<p>' . "\n";
             echo '    ' . $GLOBALS['strSQLQuery'] . '&nbsp;:&nbsp;' . "\n";
             echo '<pre>' . "\n" . $query_base . "\n" . '</pre>' . "\n";
@@ -69,7 +66,7 @@
         } // end if
         if (!empty($error_message)) {
             $error_message = htmlspecialchars($error_message);
-            $error_message = ereg_replace("((\015\012)|(\015)|(\012)){3,}", "\n\n", $error_message);
+            $error_message = preg_replace("/((\015\012)|(\015)|(\012)){3,}/", "\n\n", $error_message);
         }
         echo '<p>' . "\n";
         echo '    ' . $GLOBALS['strMySQLSaid'] . '<br />' . "\n";
