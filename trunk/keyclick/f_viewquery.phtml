@@ -58,7 +58,6 @@ if ($is_select) {
 /**
  * Executes the query and displays results
  */
-else {
     $is_count    = (preg_match('/^SELECT[[:space:]]+COUNT\((.*\.+)?.*\)/i', $sql_query));
     $is_export   = (preg_match('/[[:space:]]+INTO OUTFILE[[:space:]]+/i', $sql_query));
     $full_sql_query      = $sql_query;
@@ -114,7 +113,6 @@ else {
 
     } // end rows returned
 
-} // end executes the query
 echo "\n\n";
 
 }

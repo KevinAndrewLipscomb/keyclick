@@ -17,14 +17,12 @@ function ReadDump
    $is_js_confirmed = "0",
    $lang = "en",
    $server = "1",
-   $db = "keyclick",
    $pos = "0",
    $goto = "form-analyze.phtml",
    $zero_rows = "None found.",
    $prev_sql_query = ""
    )
 {
-
 /**
  * Removes comment lines and splits up large sql files into individual queries
  *
@@ -39,18 +37,16 @@ function ReadDump
  *
  * @access  public
  */
-function PMA_splitSqlFile(&$ret, $sql, $release)
+function PMA_splitSqlFile(&$ret, $sql)
 {
     $sql          = trim($sql);
     $sql_len      = strlen($sql);
     $char         = '';
     $string_start = '';
     $in_string    = FALSE;
-    $time0        = time();
 
     for ($i = 0; $i < $sql_len; ++$i) {
         $char = $sql[$i];
-
         // We are in a string, check for not escaped end of strings except for
         // backquotes that can't be escaped
         if ($in_string) {
@@ -138,25 +134,12 @@ function PMA_splitSqlFile(&$ret, $sql, $release)
             } // end if...else
         } // end else if (is comment)
 
-        // ... and finally disactivate the "/*!...*/" syntax if MySQL < 3.22.07
-        else if ($release < 32270
-                 && ($char == '!' && $i > 1  && $sql[$i-2] . $sql[$i-1] == '/*')) {
-            $sql[$i] = ' ';
-        } // end else if
-
-        // loic1: send a fake header each 30 sec. to bypass browser timeout
-        $time1     = time();
-        if ($time1 >= $time0 + 30) {
-            $time0 = $time1;
-            header('X-pmaPing: Pong');
-        } // end if
     } // end for
 
     // add any rest to the returned array
-    if (!empty($sql) && preg_match('/[^[:space:]]+/', $sql)) {
-        $ret[] = $sql;
+    if (!empty($sql)) {
+        array_push($ret[],$sql);
     }
-
     return TRUE;
 } // end of the 'PMA_splitSqlFile()' function
 
@@ -177,7 +160,6 @@ function ExecSelect
    $allow_dynamic_sorting = '1',
    $row_action_designator = 'urnn00000'  // send 'nnnn00000' to preserve header/data column alignment if no drill-down will be available
    )
-//
    {
    // ViewQuery will stripslash the query if get_magic_quotes_gpc
    if (get_magic_quotes_gpc() == 1)
@@ -187,10 +169,6 @@ function ExecSelect
    else
       {
       $sql_query = $select_statement;
-      }
-   if (preg_match('/^(DROP|CREATE)[[:space:]]+(IF EXISTS[[:space:]]+)?(TABLE|DATABASE)[[:space:]]+(.+)/i', $sql_query))
-      {
-      $reload = 1;
       }
    require_once('f_viewquery.phtml');
    ViewQuery
@@ -208,17 +186,12 @@ function ExecSelect
       $mode,
       $row_action_designator
       );
-   exit();
    }
 
 
     $pieces       = array();
-    PMA_splitSqlFile($pieces, $sql_query, PMA_MYSQL_INT_VERSION);
+    PMA_splitSqlFile($pieces, $sql_query);
     $pieces_count = count($pieces);
-
-    // Copy of the cleaned sql statement for display purpose only (see near the
-    // beginning of "db_details.php3" & "tbl_properties.php3")
-    $sql_query_cpy = implode(";\n", $pieces) . ';';
 
     // Only one query to run
     if ($pieces_count == 1 && !empty($pieces[0]) && ($be_viewable_result == 'TRUE'))
@@ -242,7 +215,7 @@ function ExecSelect
        }
 
     // Runs multiple queries
-    else if (mysqli_select_db($db_link,$db)) {
+    else {
         for ($i = 0; $i < $pieces_count; $i++) {
             $a_sql_query = $pieces[$i];
             //

@@ -47,5 +47,8 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>bin\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security.Principal.Windows">
+      <HintPath>bin\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
