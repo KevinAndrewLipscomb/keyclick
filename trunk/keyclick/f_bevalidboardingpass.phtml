@@ -61,9 +61,9 @@ function BeValidBoardingPass
                (
                "update " . $mode . "manifest "
                .  " set expiration_time = expiration_time + " . $bump_factor*60
-               .  " where bpn=$bpn "
-               .  "    and ip=$ip "
-               .  "    and agency=$agency "
+               .  " where bpn='$bpn' "
+               .  "    and ip='$ip' "
+               .  "    and agency='$agency' "
                );
             }
          else

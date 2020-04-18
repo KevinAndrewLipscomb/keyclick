@@ -21,7 +21,10 @@ $mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
-$parent_enumeral_expression = stripslashes($parent_enumeral_expression);
+if (!is_null($parent_enumeral_expression))
+  {
+  $parent_enumeral_expression = stripslashes($parent_enumeral_expression);
+  }
 //
 if (RunMode($PHP_SELF)) error_reporting(E_ALL);
 //
@@ -30,7 +33,6 @@ require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_connectselectdbinstanceunpublished.phtml");
-require_once("f_connectselectdb.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 ?>
@@ -84,6 +86,7 @@ require_once("f_kickoff.phtml");
               //
               switch ($parent_enumeral_expression)
               {
+              case null:
               case "":
                  {
                  //
