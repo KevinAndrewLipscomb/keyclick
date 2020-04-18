@@ -193,7 +193,7 @@ else
                              . "order by timestamp desc "
                              . "limit 1 "
                              )
-                             or die("Check for preemptive op failed with error: " . mysqli_errno());
+                             or die("Check for preemptive op failed with error: " . mysqli_errno($db_link));
                           if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));  //Sets $possible_preemptive_op
                           }
                        //

@@ -100,7 +100,7 @@ if (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE")
 
    $tmp_buffer = '';
 //   PMA_getTableCsv($db, $table, $limit_from, $limit_to, $separator, $enclosed, $escaped, 'PMA_myCsvHandler', $err_url);
-   PMA_getTableCsv($db_link,stripslashes($whole_query), 'PMA_myCsvHandler', $err_url);
+   PMA_getTableCsv($db_link,stripslashes($whole_query), 'PMA_myCsvHandler', $err_url, $add_character, $tmp_buffer);
    $dump_buffer .= $tmp_buffer;
 
    /**
