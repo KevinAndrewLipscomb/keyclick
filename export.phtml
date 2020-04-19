@@ -18,103 +18,20 @@ if (!ini_get('register_globals'))
 require_once("f_runmode.phtml");
 $mode = "";
 
-require("f_homepageurl.phtml");
 require("f_bevalidboardingpass.phtml");
 require("f_kickoff.phtml");
-
-/**
- *
- * @param   string  the insert statement
- *
- * @global  string  the character to add at the end of lines
- * @global  string  the buffer containing formatted strings
- */
-function PMA_myCsvHandler($sql_insert)
-{
-    global $add_character;
-    global $tmp_buffer;
-
-    $tmp_buffer .= $sql_insert . $add_character;
-
-} // end of the 'PMA_myCsvHandler()' function
-
-/**
- * Get the variables sent or posted to this script and a core script
- */
-require('./libraries/common.lib.php3');
-require('./libraries/build_dump.lib.php3');
-require('./libraries/zip.lib.php3');
-
 require_once("f_connectselectdbinstanceunpublished.phtml");
+require_once("f_zipdump.phtml");
 //
 if (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE")
-   {
-   if (BeValidBoardingPass($db_link,$bpn,$mode) == "")
-      {
-      KickOff($mode);
-      }
-   else
-   {
-
-   /**
-    * Defines the url to return to in case of error in a sql statement
-    */
-   $err_url = HomePageUrl();
-
-   /**
-    * Increase time limit for script execution and initializes some variables
-    */
-   @set_time_limit($cfgExecTimeLimit);
-   $dump_buffer = '';
-   // Defines the default <CR><LF> format
-   $crlf        = PMA_whichCrlf();
-
-   /**
-    * Send headers
-    */
-   // Define extension and mime types
-   $ext       = 'zip';
-   $mime_type = 'application/x-zip';
-
-   // Send headers
-   header('Content-Type: ' . $mime_type);
-   // lem9 & loic1: IE need specific headers
-   if (PMA_USR_BROWSER_AGENT == 'IE') {
-      header('Content-Disposition: inline; filename="' . $filename . '.' . $ext . '"');
-      header('Expires: 0');
-      header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-      header('Pragma: public');
-   } else {
-      header('Content-Disposition: attachment; filename="' . $filename . '.' . $ext . '"');
-      header('Expires: 0');
-      header('Pragma: no-cache');
-   }
-
-   /**
-    * Builds the dump
-    */
-   $num_tables = 1;
-   $single     = TRUE;
-
-   $add_character = "\015\012";
-
-   $tmp_buffer = '';
-//   PMA_getTableCsv($db, $table, $limit_from, $limit_to, $separator, $enclosed, $escaped, 'PMA_myCsvHandler', $err_url);
-   PMA_getTableCsv($db_link,stripslashes($whole_query), 'PMA_myCsvHandler', $err_url, $add_character, $tmp_buffer);
-   $dump_buffer .= $tmp_buffer;
-
-   /**
-    * "Displays" the dump...
-    */
-   // 1. as a gzipped file
-   if (PMA_PHP_INT_VERSION >= 40000 && @function_exists('gzcompress')) {
-      $extbis = '.csv';
-      $zipfile = new zipfile();
-      $zipfile -> addFile($dump_buffer, $filename . $extbis);
-      echo $zipfile -> file();
-   }
-
-   } // BeValidBoardingPass
-
-   }
+  {
+  if (BeValidBoardingPass($db_link,$bpn,$mode) == "")
+    {
+    KickOff($mode);
+    }
+  else
+    {
+    ZipDump($db_link,$whole_query,$bpn,$filename);
+    }
+  }
 ?>
