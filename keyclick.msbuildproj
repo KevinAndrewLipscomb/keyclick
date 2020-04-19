@@ -20,6 +20,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Peachpie.App" Version="0.9.961" />
     <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.961" />
     <PackageReference Include="Peachpie.Library" Version="0.9.961" />
     <PackageReference Include="Peachpie.Library.MySql" Version="0.9.961" />
@@ -32,6 +33,7 @@
     <PackageReference Include="Peachpie.RequestHandler" Version="0.9.961" />
     <PackageReference Include="Peachpie.Runtime" Version="0.9.961" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ki">
@@ -47,11 +49,11 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>bin\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security.AccessControl">
+      <HintPath>bin\System.Security.AccessControl.dll</HintPath>
+    </Reference>
     <Reference Include="System.Security.Principal.Windows">
       <HintPath>bin\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Peachpie.App" Version="0.9.961" />
   </ItemGroup>
 </Project>
