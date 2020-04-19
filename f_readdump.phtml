@@ -55,7 +55,7 @@ function PMA_splitSqlFile(&$ret, $sql)
                 // No end of string found -> add the current substring to the
                 // returned array
                 if (!$i) {
-                    $ret[] = $sql;
+                    array_push($ret[],$sql);
                     return TRUE;
                 }
                 // Backquotes or no backslashes before quotes: it's indeed the
@@ -92,7 +92,7 @@ function PMA_splitSqlFile(&$ret, $sql)
         // We are not in a string, first check for delimiter...
         else if ($char == ';') {
             // if delimiter found, add the parsed part to the returned array
-            $ret[]      = substr($sql, 0, $i);
+            array_push($ret[],substr($sql, 0, $i));
             $sql        = ltrim(substr($sql, min($i + 1, $sql_len)));
             $sql_len    = strlen($sql);
             if ($sql_len) {
@@ -123,7 +123,7 @@ function PMA_splitSqlFile(&$ret, $sql)
                 // no eol found after '#', add the parsed part to the returned
                 // array if required and exit
                 if ($start_of_comment > 0) {
-                    $ret[]    = trim(substr($sql, 0, $start_of_comment));
+                    array_push($ret[],trim(substr($sql, 0, $start_of_comment)));
                 }
                 return TRUE;
             } else {
