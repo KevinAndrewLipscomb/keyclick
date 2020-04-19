@@ -2,15 +2,9 @@
 //
 // $Id$
 //
-function ZipDump($db_link,$sql_query,$filename)
+function ZipDump($db_link,$sql_query,$bpn,$filename)
 {
-/**
- *
- * @param   string  the insert statement
- *
- * @global  string  the character to add at the end of lines
- * @global  string  the buffer containing formatted strings
- */
+
 function PMA_myCsvHandler($sql_insert, &$add_character, &$tmp_buffer)
    {
    $tmp_buffer .= $sql_insert . $add_character;
@@ -21,7 +15,7 @@ function PMA_myCsvHandler($sql_insert, &$add_character, &$tmp_buffer)
  */
 require('./libraries/common.lib.php3');
 require('./libraries/build_dump.lib.php3');
-require('./libraries/zip.lib.php3');
+require_once("f_homepageurl.phtml");
 
    /**
     * Defines the url to return to in case of error in a sql statement
@@ -62,23 +56,24 @@ require('./libraries/zip.lib.php3');
     */
    $num_tables = 1;
    $single     = TRUE;
-
    $add_character = "\015\012";
-
    $tmp_buffer = '';
-//   PMA_getTableCsv($db, $table, $limit_from, $limit_to, $separator, $enclosed, $escaped, 'PMA_myCsvHandler', $err_url);
    PMA_getTableCsv($db_link,stripslashes($sql_query), 'PMA_myCsvHandler', $err_url, $add_character, $tmp_buffer);
    $dump_buffer .= $tmp_buffer;
 
    /**
-    * "Displays" the dump...
+    * "Displays" the dump as a ZIP file
     */
-   // 1. as a gzipped file
-   if (PMA_PHP_INT_VERSION >= 40000 && @function_exists('gzcompress')) {
-      $extbis = '.csv';
-      $zipfile = new zipfile();
-      $zipfile -> addFile($dump_buffer, $filename . $extbis);
-      echo $zipfile -> file();
-   }
+   $scratch_bpn_path = "scratch/$bpn";
+   mkdir($scratch_bpn_path);
+   $zip_archive_name = "$scratch_bpn_path/$filename.zip";
+   $zip_archive = new ZipArchive;
+   $zip_archive->open($zip_archive_name,ZipArchive::CREATE | ZipArchive::OVERWRITE) or die("ZipArchive::open failed.");
+   $zip_archive->addFromString("$filename.csv",$dump_buffer) or die ("ZipArchive::addFromString failed.");
+   $zip_archive->close() or die("ZipArchive::close failed.");
+   readfile($zip_archive_name);
+   unlink($zip_archive_name) or die("unlink failed.");
+   rmdir($scratch_bpn_path);
+
 }
 ?>
