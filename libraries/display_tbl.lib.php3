@@ -44,7 +44,6 @@
      */
     function PMA_setDisplayMode(&$the_disp_mode, &$the_total)
     {
-        global $db, $table;
         global $unlim_num_rows, $fields_meta;
         global $err_url;
 
@@ -149,407 +148,27 @@
     } // end of the 'PMA_setDisplayMode()' function
 
     /**
-     * Displays a navigation bar to browse among the results of a sql query
-     *
-     * @param   integer  the offset for the "next" page
-     * @param   integer  the offset for the "previous" page
-     * @param   string   the url-encoded query
-     *
-     * @global  string   the current language
-     * @global  integer  the server to use (refers to the number in the
-     *                   configuration file)
-     * @global  string   the database name
-     * @global  string   the table name
-     * @global  string   the url to go back in case of errors
-     * @global  integer  the total number of rows returned by the sql query
-     * @global  integer  the total number of rows returned by the sql query
-     *                   without any programmatically appended "LIMIT" clause
-     * @global  integer  the current position in results
-     * @global  mixed    the maximum number of rows per page ('all' = no limit)
-     * @global  string   the display mode (horizontal/vertical)
-     * @global  integer  the number of row to display between two table headers
-     * @global  boolean  whether to limit the number of displayed characters of
-     *                   text type fields or not
-     *
-     * @access  private
-     *
-     * @see     PMA_displayTable()
-     */
-    function PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_query)
-    {
-        global $lang, $server, $db, $table;
-        global $goto;
-        global $num_rows, $unlim_num_rows, $pos, $session_max_rows;
-        global $disp_direction, $repeat_cells;
-        global $dontlimitchars;
-        ?>
-
-<!-- Navigation bar -->
-<table border="0">
-<tr>
-        <?php
-        // Move to the beginning or to the previous page
-        if ($pos > 0 && $session_max_rows != 'all') {
-            // loic1: patch #474210 from Gosha Sakovich - part 1
-            if ($GLOBALS['cfgNavigationBarIconic']) {
-                $caption1 = '&lt;&lt;';
-                $caption2 = '&nbsp;&lt;&nbsp;';
-                $title1   = ' title="' . $GLOBALS['strPos1'] . '"';
-                $title2   = ' title="' . $GLOBALS['strPrevious'] . '"';
-            } else {
-                $caption1 = $GLOBALS['strPos1'] . ' &lt;&lt;';
-                $caption2 = $GLOBALS['strPrevious'] . ' &lt;';
-                $title1   = '';
-                $title2   = '';
-            } // end if... else...
-            ?>
-    <td>
-        <form action="sql.php3" method="post">
-            <input type="hidden" name="lang" value="<?php echo $lang; ?>" />
-            <input type="hidden" name="server" value="<?php echo $server; ?>" />
-            <input type="hidden" name="db" value="<?php echo $db; ?>" />
-            <input type="hidden" name="table" value="<?php echo $table; ?>" />
-            <input type="hidden" name="sql_query" value="<?php echo $encoded_query; ?>" />
-            <input type="hidden" name="pos" value="0" />
-            <input type="hidden" name="session_max_rows" value="<?php echo $session_max_rows; ?>" />
-            <input type="hidden" name="disp_direction" value="<?php echo $disp_direction; ?>" />
-            <input type="hidden" name="repeat_cells" value="<?php echo $repeat_cells; ?>" />
-            <input type="hidden" name="goto" value="<?php echo $goto; ?>" />
-            <input type="hidden" name="dontlimitchars" value="<?php echo $dontlimitchars; ?>" />
-            <input type="submit" name="navig" value="<?php echo $caption1; ?>"<?php echo $title1; ?> />
-        </form>
-    </td>
-    <td>
-        <form action="sql.php3" method="post">
-            <input type="hidden" name="lang" value="<?php echo $lang; ?>" />
-            <input type="hidden" name="server" value="<?php echo $server; ?>" />
-            <input type="hidden" name="db" value="<?php echo $db; ?>" />
-            <input type="hidden" name="table" value="<?php echo $table; ?>" />
-            <input type="hidden" name="sql_query" value="<?php echo $encoded_query; ?>" />
-            <input type="hidden" name="pos" value="<?php echo $pos_prev; ?>" />
-            <input type="hidden" name="session_max_rows" value="<?php echo $session_max_rows; ?>" />
-            <input type="hidden" name="disp_direction" value="<?php echo $disp_direction; ?>" />
-            <input type="hidden" name="repeat_cells" value="<?php echo $repeat_cells; ?>" />
-            <input type="hidden" name="goto" value="<?php echo $goto; ?>" />
-            <input type="hidden" name="dontlimitchars" value="<?php echo $dontlimitchars; ?>" />
-            <input type="submit" name="navig" value="<?php echo $caption2; ?>"<?php echo $title2; ?> />
-        </form>
-    </td>
-            <?php
-        } // end move back
-        echo "\n";
-        ?>
-    <td>
-        &nbsp;&nbsp;&nbsp;
-    </td>
-    <td align="center">
-    </td>
-    <td>
-        &nbsp;&nbsp;&nbsp;
-    </td>
-        <?php
-        // Move to the next page or to the last one
-        if (($pos + $session_max_rows < $unlim_num_rows) && $num_rows >= $session_max_rows
-            && $session_max_rows != 'all') {
-            // loic1: patch #474210 from Gosha Sakovich - part 2
-            if ($GLOBALS['cfgNavigationBarIconic']) {
-                $caption3 = '&nbsp;&gt;&nbsp;';
-                $caption4 = '&gt;&gt;';
-                $title3   = ' title="' . $GLOBALS['strNext'] . '"';
-                $title4   = ' title="' . $GLOBALS['strEnd'] . '"';
-            } else {
-                $caption3 = '&gt; ' . $GLOBALS['strNext'];
-                $caption4 = '&gt;&gt; ' . $GLOBALS['strEnd'];
-                $title3   = '';
-                $title4   = '';
-            } // end if... else...
-            echo "\n";
-            ?>
-    <td>
-        <form action="sql.php3" method="post">
-            <input type="hidden" name="lang" value="<?php echo $lang; ?>" />
-            <input type="hidden" name="server" value="<?php echo $server; ?>" />
-            <input type="hidden" name="db" value="<?php echo $db; ?>" />
-            <input type="hidden" name="table" value="<?php echo $table; ?>" />
-            <input type="hidden" name="sql_query" value="<?php echo $encoded_query; ?>" />
-            <input type="hidden" name="pos" value="<?php echo $pos_next; ?>" />
-            <input type="hidden" name="session_max_rows" value="<?php echo $session_max_rows; ?>" />
-            <input type="hidden" name="disp_direction" value="<?php echo $disp_direction; ?>" />
-            <input type="hidden" name="repeat_cells" value="<?php echo $repeat_cells; ?>" />
-            <input type="hidden" name="goto" value="<?php echo $goto; ?>" />
-            <input type="hidden" name="dontlimitchars" value="<?php echo $dontlimitchars; ?>" />
-            <input type="submit" name="navig" value="<?php echo $caption3; ?>"<?php echo $title3; ?> />
-        </form>
-    </td>
-    <td>
-        <form action="sql.php3" method="post"
-            onsubmit="return <?php echo (($pos + $session_max_rows < $unlim_num_rows && $num_rows >= $session_max_rows) ? 'true' : 'false'); ?>">
-            <input type="hidden" name="lang" value="<?php echo $lang; ?>" />
-            <input type="hidden" name="server" value="<?php echo $server; ?>" />
-            <input type="hidden" name="db" value="<?php echo $db; ?>" />
-            <input type="hidden" name="table" value="<?php echo $table; ?>" />
-            <input type="hidden" name="sql_query" value="<?php echo $encoded_query; ?>" />
-            <input type="hidden" name="pos" value="<?php echo $unlim_num_rows - $session_max_rows; ?>" />
-            <input type="hidden" name="session_max_rows" value="<?php echo $session_max_rows; ?>" />
-            <input type="hidden" name="disp_direction" value="<?php echo $disp_direction; ?>" />
-            <input type="hidden" name="repeat_cells" value="<?php echo $repeat_cells; ?>" />
-            <input type="hidden" name="goto" value="<?php echo $goto; ?>" />
-            <input type="hidden" name="dontlimitchars" value="<?php echo $dontlimitchars; ?>" />
-            <input type="submit" name="navig" value="<?php echo $caption4; ?>"<?php echo $title4; ?> />
-        </form>
-    </td>
-            <?php
-        } // end move toward
-
-        // Show all the records if allowed
-        if ($GLOBALS['cfgShowAll'] && ($num_rows < $unlim_num_rows)) {
-            echo "\n";
-            ?>
-    <td>
-        &nbsp;&nbsp;&nbsp;
-    </td>
-    <td>
-        <form action="sql.php3" method="post">
-            <input type="hidden" name="lang" value="<?php echo $lang; ?>" />
-            <input type="hidden" name="server" value="<?php echo $server; ?>" />
-            <input type="hidden" name="db" value="<?php echo $db; ?>" />
-            <input type="hidden" name="table" value="<?php echo $table; ?>" />
-            <input type="hidden" name="sql_query" value="<?php echo $encoded_query; ?>" />
-            <input type="hidden" name="pos" value="0" />
-            <input type="hidden" name="session_max_rows" value="all" />
-            <input type="hidden" name="disp_direction" value="<?php echo $disp_direction; ?>" />
-            <input type="hidden" name="repeat_cells" value="<?php echo $repeat_cells; ?>" />
-            <input type="hidden" name="goto" value="<?php echo $goto; ?>" />
-            <input type="hidden" name="dontlimitchars" value="<?php echo $dontlimitchars; ?>" />
-            <input type="submit" name="navig" value="<?php echo $GLOBALS['strShowAll']; ?>" />
-        </form>
-    </td>
-            <?php
-        } // end show all
-        echo "\n";
-        ?>
-</tr>
-</table>
-
-        <?php
-    } // end of the 'PMA_displayTableNavigation()' function
-
-    /**
      * Displays the headers of the results table
      */
     function PMA_displayTableHeaders
        (
-       $bpn,
-       $sql_query,
-       $mode,
-       &$is_display,
        &$fields_meta,
-       $fields_cnt = 0,
-       $disp_direction = 'horizontal'
+       $fields_cnt = 0
        )
     {
-        global $lang, $server, $db, $table;
-        global $goto;
-        global $num_rows, $pos, $session_max_rows;
-        global $repeat_cells;
-        global $dontlimitchars;
-
-        if ($disp_direction == 'horizontal') {
-            ?>
+?>
 <!-- Results table headers -->
-<tr>
-            <?php
-            echo "\n";
-        }
-
-        // 1. Displays the full/partial text button (part 1)...
-        if ($disp_direction == 'horizontal') {
-            $colspan  = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn')
-                      ? ' colspan="2"'
-                      : '';
-        } else {
-            $rowspan  = ($is_display['edit_lnk'] != 'nn' && $is_display['del_lnk'] != 'nn')
-                      ? ' rowspan="2"'
-                      : '';
-        }
-        $text_url = $mode . 'analyze.phtml'
-                  . '?bpn=' . $bpn
-                  . '&amp;sql_query=' . urlencode($sql_query)
-                  . '&amp;format=html';
-
-        //     ... before the result table
-        if (($is_display['edit_lnk'] == 'nn' && $is_display['del_lnk'] == 'nn')
-            && $is_display['text_btn'] == '1') {
-            if ($disp_direction == 'horizontal') {
-                ?>
-    <td colspan="<?php echo $fields_cnt; ?>" align="center">
-        <a href="<?php echo $text_url; ?>">
-            <img src="./images/<?php echo (($dontlimitchars) ? 'partialtext' : 'fulltext'); ?>.png" border="0" width="50" height="20" alt="<?php echo (($dontlimitchars) ? $GLOBALS['strPartialText'] : $GLOBALS['strFullText']); ?>" /></a>
-    </td>
-</tr>
-
-<tr>
-                <?php
-            } // end horizontal mode
-        }
-
-        //     ... at the left column of the result table header if possible
-        //     and required
-        else if ($is_display['text_btn'] == '1') {
-            if ($disp_direction == 'horizontal') {
-                echo "\n";
-                ?>
-    <td<?php echo $colspan; ?> align="center">
-        <a href="<?php echo $text_url; ?>">
-            <img src="./images/<?php echo (($dontlimitchars) ? 'partialtext' : 'fulltext'); ?>.png" border="0" width="50" height="20" alt="<?php echo (($dontlimitchars) ? $GLOBALS['strPartialText'] : $GLOBALS['strFullText']); ?>" /></a>
-    </td>
-                <?php
-            } // end horizontal mode
-        }
-
-        //     ... else if no button, displays empty(ies) col(s) if required
-        else if (($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn')) {
-            if ($disp_direction == 'horizontal') {
-              echo "\n";
-                ?>
-    <td<?php echo $colspan; ?>></td>
-                <?php
-                echo "\n";
-            } // end horizontal mode
-        }
-
-        // 2. Displays the fields' name
-        // 2.0 If sorting links should be used, checks if the query is a "JOIN"
-        //     statement (see 2.1.3)
-        if ($is_display['sort_lnk'] == '1') {
-            $is_join = preg_match('/(.*)[[:space:]]+FROM[[:space:]]+.*[[:space:]]+JOIN/i', $sql_query, $select_stt);
-        } else {
-            $is_join = FALSE;
-        }
+  <tr>
+    <td></td>
+<?
         for ($i = 0; $i < $fields_cnt; $i++) {
-
-            // 2.1 Results can be sorted
-            if ($is_display['sort_lnk'] == '1') {
-                // Defines the url used to append/modify a sorting order
-                // 2.1.1 Checks if an hard coded 'order by' clause exists
-                if (preg_match('/(.*)( ORDER BY (.*))/i', $sql_query, $regs1)) {
-                    if (preg_match('/((.*)( ASC| DESC)( |$))(.*)/i', $regs1[2], $regs2)) {
-                        $unsorted_sql_query = trim($regs1[1] . ' ' . $regs2[5]);
-                        $sql_order          = trim($regs2[1]);
-                    }
-                    else if (preg_match('/((.*)) (LIMIT (.*)|PROCEDURE (.*)|FOR UPDATE|LOCK IN SHARE MODE)/i', $regs1[2], $regs3)) {
-                        $unsorted_sql_query = trim($regs1[1] . ' ' . $regs3[3]);
-                        $sql_order          = trim($regs3[1]) . ' ASC';
-                    } else {
-                        $unsorted_sql_query = trim($regs1[1]);
-                        $sql_order          = trim($regs1[2]) . ' ASC';
-                    }
-                } else {
-                    $unsorted_sql_query     = $sql_query;
-                }
-                // 2.1.2 Checks if the current column is used to sort the
-                //       results
-                if (empty($sql_order)) {
-                    $is_in_sort = FALSE;
-                } else {
-                    $is_in_sort = preg_match('/ (`?)/i' . str_replace('\\', '\\\\', $fields_meta[$i]->name) . '(`?)[ ,$]', $sql_order);
-                }
-                // 2.1.3 Checks if the table name is required (it's the case
-                //       for a query with a "JOIN" statement and if the column
-                //       isn't aliased)
-                if ($is_join
-                    && !preg_match('/([^[:space:],]|`[^`]`)[[:space:]]+(as[[:space:]]+)?/i' . $fields_meta[$i]->name, $select_stt[1], $parts)) {
-                    $sort_tbl = PMA_backquote($fields_meta[$i]->table) . '.';
-                } else {
-                    $sort_tbl = '';
-                }
-                // 2.1.4 Do define the sorting url
-                if (!$is_in_sort) {
-                    // loic1: patch #455484 ("Smart" order)
-                    $cfgOrder     = strtoupper($GLOBALS['cfgOrder']);
-                    if ($cfgOrder == 'SMART') {
-                        $cfgOrder = (preg_match('/time|date/i', $fields_meta[$i]->type)) ? 'DESC' : 'ASC';
-                    }
-                    $sort_order = ' ORDER BY ' . $sort_tbl . PMA_backquote($fields_meta[$i]->name) . ' ' . $cfgOrder;
-                    $order_img  = '';
-                }
-                else if (substr($sql_order, -3) == 'ASC' && $is_in_sort) {
-                    $sort_order = ' ORDER BY ' . $sort_tbl . PMA_backquote($fields_meta[$i]->name) . ' DESC';
-                    $order_img  = '&nbsp;<img src="./images/asc_order.gif" border="0" width="7" height="7" alt="ASC" />';
-                }
-                else if (substr($sql_order, -4) == 'DESC' && $is_in_sort) {
-                    $sort_order = ' ORDER BY ' . $sort_tbl . PMA_backquote($fields_meta[$i]->name) . ' ASC';
-                    $order_img  = '&nbsp;<img src="./images/desc_order.gif" border="0" width="7" height="7" alt="DESC" />';
-                }
-                if (preg_match('/(.*)( LIMIT (.*)| PROCEDURE (.*)| FOR UPDATE| LOCK IN SHARE MODE)/i', $unsorted_sql_query, $regs3)) {
-                    $sorted_sql_query = $regs3[1] . $sort_order . $regs3[2];
-                } else {
-                    $sorted_sql_query = $unsorted_sql_query . $sort_order;
-                }
-                $url_query = 'bpn=' . $bpn
-                           . '&amp;sql_query=' . urlencode($sorted_sql_query)
-                           . '&amp;format=html';
-
-                // 2.1.5 Displays the sorting url
-                if ($disp_direction == 'horizontal') {
-                    echo "\n";
-                    ?>
-    <th>
-        <a href="<? echo $mode; ?>analyze.phtml?<?php echo $url_query; ?>">
-            <?php echo htmlspecialchars($fields_meta[$i]->name); ?></a><?php echo $order_img . "\n"; ?>
-    </th>
-                    <?php
-                }
-            } // end if (2.1)
-
-            // 2.2 Results can't be sorted
-            else {
-                if ($disp_direction == 'horizontal') {
-                    echo "\n";
-                    ?>
-    <th>
-        <?php echo htmlspecialchars($fields_meta[$i]->name) . "\n"; ?>
-    </th>
-                    <?php
-                }
-            } // end else (2.2)
+?>
+    <th><? echo htmlspecialchars($fields_meta[$i]->name); ?></th>
+<?
         } // end for
-
-        // 3. Displays the full/partial text button (part 2) at the right
-        //    column of the result table header if possible and required...
-        if ($GLOBALS['cfgModifyDeleteAtRight']
-            && ($is_display['edit_lnk'] != 'nn' || $is_display['del_lnk'] != 'nn')
-            && $is_display['text_btn'] == '1') {
-            if ($disp_direction == 'horizontal') {
-                echo "\n";
-                ?>
-    <td<?php echo $colspan; ?> align="center">
-        <a href="<?php echo $text_url; ?>">
-            <img src="./images/<?php echo (($dontlimitchars) ? 'partialtext' : 'fulltext'); ?>.png" border="0" width="50" height="20" alt="<?php echo (($dontlimitchars) ? $GLOBALS['strPartialText'] : $GLOBALS['strFullText']); ?>" /></a>
-    </td>
-                <?php
-            } // end horizontal mode
-        }
-
-        //     ... else if no button, displays empty cols if required
-        else if ($GLOBALS['cfgModifyDeleteAtRight']
-                 && ($is_display['edit_lnk'] == 'nn' && $is_display['del_lnk'] == 'nn')) {
-            if ($disp_direction == 'horizontal') {
-                echo "\n";
-                ?>
-    <td<?php echo $colspan; ?>></td>
-                <?php
-            } // end horizontal mode
-        }
-
-        if ($disp_direction == 'horizontal') {
-            echo "\n";
-            ?>
-</tr>
-            <?php
-        }
-        echo "\n";
-
+?>
+  </tr>
+<?
         return TRUE;
     } // end of the 'PMA_displayTableHeaders()' function
 
@@ -588,7 +207,6 @@
        (
        &$dt_result,
        &$is_display,
-       $map,
        $fields_meta,
        $fields_cnt,
        $cfgLimitChars,
@@ -597,22 +215,11 @@
        $disp_direction='horizontal'
        )
     {
-        global $lang, $server, $db, $table;
-        global $goto;
-        global $sql_query, $pos, $session_max_rowst;
-        global $repeat_cells;
         global $dontlimitchars;
 
-        if (!is_array($map)) {
-            $map = array();
-        }
-        ?>
+?>
 <!-- Results table body -->
-        <?php
-        echo "\n";
-
-        $foo                        = 0;
-
+<?
         // Correction uva 19991216 in the while below
         // Previous code assumed that all tables have keys, specifically that
         // the phpMyAdmin GUI should support row delete/edit only for such
@@ -629,48 +236,11 @@
         //        the NULL values
 
         while ($row = mysqli_fetch_array($dt_result)) {
-
-            $bgcolor = ($foo % 2) ? $GLOBALS['cfgBgcolorOne'] : $GLOBALS['cfgBgcolorTwo'];
-
-            if ($disp_direction == 'horizontal') {
-                // loic1: pointer code part
-                if ($GLOBALS['cfgBrowsePointerColor'] == '') {
-                    $on_mouse = '';
-                } else if ($GLOBALS['cfgBrowseMarkRow'] == '1') {
-                    $on_mouse = ' onmousedown="setPointer(this, \'' . $GLOBALS['cfgBrowsePointerColor'] . '\', \'' . $bgcolor . '\')"';
-                } else {
-                    $on_mouse = ' onmouseover="setPointer(this, \'' . $GLOBALS['cfgBrowsePointerColor'] . '\', \'' . $bgcolor . '\')" onmouseout="setPointer(this, \'' . $bgcolor . '\', \'' . $bgcolor . '\')"';
-                }
-                ?>
-<tr<?php echo $on_mouse; ?>>
-                <?php
-            }
-            echo (($disp_direction == 'horizontal') ? "\n" : '');
-
-            // 1. Prepares the row (gets primary keys to use)
-            if ($is_display['edit_lnk'] != 'nn') {
-
-                extract($row);  // Assumes that id field is present and sets $id.
-
-                // 1.2.1 Modify link(s)
-                if (isset($id) and ($is_display['edit_lnk'] == 'ur')) { // update row case
-                    $edit_url = $mode . 'form-act-singly.phtml'
-                              . '?bpn=' . $bpn
-                              . '&amp;id=' . $id;
-                    $edit_str = 'Visit';
-                } // end if (1.2.1)
-
-                // 1.3 Displays the links at left if required
-                    if (isset($id) and !empty($edit_url)) {
-                        ?>
-    <td bgcolor="<?php echo $bgcolor; ?>">
-        <a href="<?php echo $edit_url; ?>">
-            <?php echo $edit_str; ?></a>
-    </td>
-                        <?php
-                    } // end if (1.3)
-                echo (($disp_direction == 'horizontal') ? "\n" : '');
-            } // end if (1)
+            extract($row);  // Assumes that id field is present and sets $id.
+?>
+  <tr>
+    <td><a href="<?php echo $mode . 'form-act-singly.phtml' . '?bpn=' . $bpn . '&amp;id=' . $id; ?>">Visit</a></td>
+<?
 
             // 2. Displays the rows' values
             for ($i = 0; $i < $fields_cnt; ++$i) {
@@ -681,13 +251,28 @@
                 //        available or not
                 $pointer = (function_exists('is_null') ? $i : $primary->name);
 
-                if ($GLOBALS['cfgShowBlob'] == FALSE && preg_match('/BLOB/i', $primary->type)) {
+                if ($primary->numeric == 1) {
+                    if (!isset($row[$primary->name])
+                        || (function_exists('is_null') && is_null($row[$pointer]))) {
+                        $injectstring     = '    <td align="right" valign="top" bgcolor="' . $bgcolor . '"><i>NULL</i></td>' . "\n";
+                    } else if ($row[$pointer] != '') {
+                        $injectstring     = '    <td align="right" valign="top" bgcolor="' . $bgcolor . '">' . $row[$pointer] . '</td>' . "\n";
+                    } else {
+                        $injectstring     = '    <td align="right" valign="top" bgcolor="' . $bgcolor . '">&nbsp;</td>' . "\n";
+                    }
+                } else if ($GLOBALS['cfgShowBlob'] == FALSE && preg_match('/BLOB/i', $primary->type)) {
                     // loic1 : mysqli_fetch_fields returns BLOB in place of TEXT
                     // fields type, however TEXT fields must be displayed even
                     // if $cfgShowBlob is false -> get the true type of the
                     // fields.
                     $field_flags = "";  //mysqli_field_flags($dt_result, $i);
-                        if ($row[$pointer] != '') {
+                    if (preg_match('/BINARY/i', $field_flags)) {
+                        $injectstring     = '    <td align="center" valign="top" bgcolor="' . $bgcolor . '">[BLOB]</td>' . "\n";
+                    } else {
+                        if (!isset($row[$primary->name])
+                            || (function_exists('is_null') && is_null($row[$pointer]))) {
+                            $injectstring = '    <td valign="top" bgcolor="' . $bgcolor . '"><i>NULL</i></td>' . "\n";
+                        } else if ($row[$pointer] != '') {
                             if (strlen($row[$pointer]) > $cfgLimitChars && ($dontlimitchars != 1)) {
                                 $row[$pointer] = substr($row[$pointer], 0, $cfgLimitChars) . '...';
                             }
@@ -696,9 +281,16 @@
                             $row[$pointer]     = htmlspecialchars($row[$pointer]);
                             $row[$pointer]     = str_replace("\011", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace(' ', '&nbsp;', $row[$pointer]));
                             $row[$pointer]     = preg_replace("/((\015\012)|(\015)|(\012))/", '<br />', $row[$pointer]);
+                            $injectstring = '    <td valign="top" bgcolor="' . $bgcolor . '">' . $row[$pointer] . '</td>' . "\n";
+                        } else {
+                            $injectstring = '    <td valign="top" bgcolor="' . $bgcolor . '">&nbsp;</td>' . "\n";
                         }
+                    }
                 } else {
-                    if ($row[$pointer] != '') {
+                    if (!isset($row[$primary->name])
+                        || (function_exists('is_null') && is_null($row[$pointer]))) {
+                        $injectstring     = '    <td valign="top" bgcolor="' . $bgcolor . '"><i>NULL</i></td>' . "\n";
+                    } else if ($row[$pointer] != '') {
                         // loic1: Cut text/blob fields even if $cfgShowBlob is true
                         if (preg_match('/BLOB/i', $primary->type)) {
                             if (strlen($row[$pointer]) > $cfgLimitChars && ($dontlimitchars != 1)) {
@@ -721,43 +313,18 @@
                             $row[$pointer]     = str_replace("\011", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace(' ', '&nbsp;', $row[$pointer]));
                             $row[$pointer]     = preg_replace("/((\015\012)|(\015)|(\012))/", '<br />', $row[$pointer]);
                         }
+                        $injectstring     = '    <td valign="top" bgcolor="' . $bgcolor . '">' . $row[$pointer] . '</td>' . "\n";
+                    } else {
+                        $injectstring     = '    <td valign="top" bgcolor="' . $bgcolor . '">&nbsp;</td>' . "\n";
                     }
                 }
 
+                echo $injectstring;
+
             } // end for (2)
-
-            // 3. Displays the modify/delete links on the right if required
-            if ($GLOBALS['cfgModifyDeleteAtRight']
-                && ($disp_direction == 'horizontal')) {
-                if (!empty($edit_url)) {
-                    ?>
-    <td bgcolor="<?php echo $bgcolor; ?>">
-        <a href="<?php echo $edit_url; ?>">
-            <?php echo $edit_str; ?></a>
-    </td>
-                    <?php
-                }
-                if (!empty($del_url)) {
-                    echo "\n";
-                    ?>
-    <td bgcolor="<?php echo $bgcolor; ?>">
-        <a href="<?php echo $del_url; ?>"
-            <?php if (isset($js_conf)) echo 'onclick="return confirmLink(this, \'' . $js_conf . '\')"'; ?>>
-            <?php echo $del_str; ?></a>
-    </td>
-                    <?php
-                }
-            } // end if (3)
-
-            if ($disp_direction == 'horizontal') {
-                echo "\n";
-                ?>
-</tr>
-                <?php
-            } // end if
-
-            echo "\n";
-            $foo++;
+?>
+  </tr>
+<?
         } // end while
 
         return TRUE;
@@ -805,21 +372,12 @@
        $fields_meta,
        $fields_cnt,
        $bpn,
-       $sql_query,
        $cfgLimitChars,
        $mode = "",
        $table_border = 0,
        $cell_padding = 3
        )
     {
-        global $lang, $server, $cfgServer, $db, $table;
-        global $goto;
-        global $num_rows, $unlim_num_rows, $post;
-        global $disp_direction, $repeat_cells;
-        global $dontlimitchars;
-
-        // 1. ----- Prepares the work -----
-
         // 1.1 Gets the informations about which functionnalities should be
         //     displayed
         $total      = '';
@@ -828,87 +386,15 @@
             unset($total);
         }
 
-        // 1.2 Defines offsets for the next and previous pages
-        if ($is_display['nav_bar'] == '1') {
-            if (!isset($pos)) {
-                $pos          = 0;
-            }
-            if ($GLOBALS['session_max_rows'] == 'all') {
-                $pos_next     = 0;
-                $pos_prev     = 0;
-            } else {
-                $pos_next     = $pos + $GLOBALS['cfgMaxRows'];
-                $pos_prev     = $pos - $GLOBALS['cfgMaxRows'];
-                if ($pos_prev < 0) {
-                    $pos_prev = 0;
-                }
-            }
-        } // end if
-
-        // 1.3 Urlencodes the query to use in input form fields ($sql_query
-        //     will be stripslashed in 'sql.php3' if the 'magic_quotes_gpc'
-        //     directive is set to 'on')
-        if (get_magic_quotes_gpc()) {
-            $encoded_sql_query = urlencode(addslashes($sql_query));
-        } else {
-            $encoded_sql_query = urlencode($sql_query);
-        }
-
-//        // 2. ----- Displays the top of the page -----
-//        // 2.1 Displays a messages with position informations
-//        if ($is_display['nav_bar'] == '1' && isset($pos_next)) {
-//            if (isset($unlim_num_rows) && $unlim_num_rows != $total) {
-//                $selectstring = ', ' . $unlim_num_rows . ' ' . $GLOBALS['strSelectNumRows'];
-//            } else {
-//                $selectstring = '';
-//            }
-//            $last_shown_rec = ($GLOBALS['session_max_rows'] == 'all' || $pos_next > $total)
-//                            ? $total
-//                            : $pos_next;
-//            PMA_showMessage($GLOBALS['strShowingRecords'] . " $pos - $last_shown_rec ($total " . $GLOBALS['strTotal'] . $selectstring . ')');
-//        } else {
-//            PMA_showMessage($GLOBALS['strSQLQuery']);
-//        }
-
-//        // 2.3 Displays the navigation bars
-//        if (!isset($table) || strlen(trim($table)) == 0) {
-//            $table = $fields_meta[0]->table;
-//        }
-//        if ($is_display['nav_bar'] == '1') {
-//            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
-//            echo "\n";
-//        } else {
-//            echo "\n" . '<br /><br />' . "\n";
-//        }
-
-        // 2b ----- Get field references from Database -----
-        // (see the 'relation' config variable)
-        // loic1, 2002-03-02: extended to php3
-
-        // init map
-        $map = array();
-
         // 3. ----- Displays the results table -----
-        ?>
+?>
 <!-- Results table -->
 <table border="<?php echo $table_border; ?>" cellpadding="<? echo $cell_padding; ?>">
-        <?php
-       echo "\n";
-        PMA_displayTableHeaders($bpn, $sql_query, $mode, $is_display, $fields_meta, $fields_cnt);
-        PMA_displayTableBody($dt_result, $is_display, $map, $fields_meta, $fields_cnt, $cfgLimitChars, $bpn, $mode);
-        ?>
+<?
+        PMA_displayTableHeaders($fields_meta, $fields_cnt);
+        PMA_displayTableBody($dt_result, $is_display, $fields_meta, $fields_cnt, $cfgLimitChars, $bpn, $mode);
+?>
 </table>
-<br />
-        <?php
-
-        echo "\n";
-
-//        // 4. ----- Displays the navigation bar at the bottom if required -----
-//
-//        if ($is_display['nav_bar'] == '1') {
-//            PMA_displayTableNavigation($pos_next, $pos_prev, $encoded_sql_query);
-//        } else {
-//            echo "\n" . '<br />' . "\n";
-//        }
+<?
     } // end of the 'PMA_displayTable()' function
 ?>
