@@ -1,15 +1,8 @@
 <?php
 /* $Id$ */
-
-
 /**
  * Set of functions used to display the records returned by a sql query
  */
-
-
-
-if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
-    define('PMA_DISPLAY_TBL_LIB_INCLUDED', 1);
 
     /**
      * Defines the display mode to use for the results of a sql query
@@ -154,7 +147,6 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 
         return $do_display;
     } // end of the 'PMA_setDisplayMode()' function
-
 
     /**
      * Displays a navigation bar to browse among the results of a sql query
@@ -341,7 +333,6 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 
         <?php
     } // end of the 'PMA_displayTableNavigation()' function
-
 
     /**
      * Displays the headers of the results table
@@ -562,7 +553,6 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         return TRUE;
     } // end of the 'PMA_displayTableHeaders()' function
 
-
     /**
      * Displays the body of the results table
      *
@@ -773,7 +763,6 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
         return TRUE;
     } // end of the 'PMA_displayTableBody()' function
 
-
     /**
      * Displays a table of results returned by a sql query.
      * This function is called by the "sql.php3" script.
@@ -922,6 +911,4 @@ if (!defined('PMA_DISPLAY_TBL_LIB_INCLUDED')){
 //            echo "\n" . '<br />' . "\n";
 //        }
     } // end of the 'PMA_displayTable()' function
-
-} // $__PMA_DISPLAY_TBL_LIB__
 ?>

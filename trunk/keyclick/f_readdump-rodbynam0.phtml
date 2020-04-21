@@ -20,7 +20,7 @@ $statement_array[++$i] = "drop table if exists " . $mode . "temp";
 $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . " ("
    . " id bigint NOT NULL default '0',"
-   . " name varchar(255) NOT NULL,"
+   . " name varchar(50) NOT NULL,"
    . " address1 tinytext NOT NULL,"
    . " city tinytext NOT NULL,"
    . " state tinytext NOT NULL,"

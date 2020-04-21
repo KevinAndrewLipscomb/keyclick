@@ -3,117 +3,51 @@
 // $Id$
 //
 function ViewQuery
-   (
-   $db_link,
-   $bpn,
-   $sql_query,
-   $lang,
-   $server,
-   $zero_rows,
-   $goto,
-   $table_border,
-   $cell_padding,
-   $max_text_field_display_len,
-   $mode = "",
-   $disp_mode = ""
-   )
-{
-/**
- * Gets some core libraries
- */
-require('./libraries/common.lib.php3');
-
-
-/**
- * Gets the true sql query
- */
-// $sql_query has been urlencoded in the confirmation form for drop/delete
-// queries or in the navigation bar for browsing among records
-if (isset($btnDrop) || isset($navig)) {
-    $sql_query = urldecode($sql_query);
-}
-
-// If the query is a Select, extract the db and table names and modify
-// $db and $table, to have correct page headers, links and left frame.
-// db and table name may be enclosed with backquotes, db is optionnal,
-// query may contain aliases.
-// (todo: check for embedded comments...)
-
-$is_select = preg_match('/^SELECT[[:space:]]+/i', $sql_query);
-if ($is_select) {
-    preg_match('/^SELECT[[:space:]]+(.*)[[:space:]]+FROM[[:space:]]+(`[^`]+`|[A-Za-z0-9_$]+)([\.]*)(`[^`]*`|[A-Za-z0-9_$]*)/i', $sql_query, $tmp);
-
-    if ($tmp[3] == '.') {
-        $prev_db = $db;
-        $db      = str_replace('`', '', $tmp[2]);
-        $reload  = ($db == $prev_db) ? 0 : 1;
-        $table   = str_replace('`', '', $tmp[4]);
+  (
+  $db_link,
+  $bpn,
+  $sql_query,
+  $lang,
+  $server,
+  $zero_rows,
+  $goto,
+  $table_border,
+  $cell_padding,
+  $max_text_field_display_len,
+  $mode = "",
+  $disp_mode = ""
+  )
+  {
+  $result = $db_link->query($sql_query) or die("Query $sql_query returned '" . mysqli_error($db_link) . "'");
+  if(($num_rows = @mysqli_num_rows($result)) < 1)
+    {
+    echo "<p>$zero_rows</p>";
     }
-    else {
-        $table   = str_replace('`', '', $tmp[2]);
-    }
-} // end if
-
-
-/**
- * Executes the query and displays results
- */
-    $is_count    = (preg_match('/^SELECT[[:space:]]+COUNT\((.*\.+)?.*\)/i', $sql_query));
-    $is_export   = (preg_match('/[[:space:]]+INTO OUTFILE[[:space:]]+/i', $sql_query));
-    $full_sql_query      = $sql_query;
-
-    $result   = @$db_link->query($full_sql_query);
-
-    // Displays an error message if required and stop parsing the script
-    if (mysqli_error($db_link)) {
-        PMA_mysqlDie(mysqli_error($db_link), $full_sql_query, '');
-    }
-
-    // Gets the number of rows affected/returned
-    if (!$is_affected) {
-        $num_rows = @mysqli_num_rows($result);
-    } else if (!isset($num_rows)) {
-        $num_rows = @mysqli_affected_rows($db_link);
-    }
-
-    // No rows returned -> move back to the calling page
-    if ($num_rows < 1 || $is_affected) {
-        echo "<p>$zero_rows</p>";
-    } // end no rows returned
-
-    // At least one row is returned -> displays a table with results
-    else {
-        // Gets the list of fields properties
-        while ($field = mysqli_fetch_field($result)) {
-            $fields_meta[] = $field;
-        }
-        $fields_cnt        = count($fields_meta);
-
-        // Displays the results in a table
-        include('./libraries/display_tbl.lib.php3');
-        if (empty($disp_mode)) {
-            // see the "PMA_setDisplayMode()" function in
-            // libraries/display_tbl.lib.php3
-            $disp_mode = 'urdr11110';
-        }
-        PMA_displayTable
-           (
-           $result,
-           $disp_mode,
-           $fields_meta,
-           $fields_cnt,
-           $bpn,
-           $sql_query,
-           $max_text_field_display_len,
-           $mode,
-           $table_border,
-           $cell_padding
-           );
-        mysqli_free_result($result);
-
-    } // end rows returned
-
+  else
+    {
+    while (($field = mysqli_fetch_field($result)) === TRUE) // get the list of fields properties
+      {
+      $fields_meta[] = $field;
+      }
+    if (empty($disp_mode))
+      {
+      $disp_mode = 'urdr11110'; // see the "PMA_setDisplayMode()" function in libraries/display_tbl.lib.php3
+      }
+    PMA_displayTable
+      (
+      $result,
+      $disp_mode,
+      $fields_meta,
+      count($fields_meta),
+      $bpn,
+      $sql_query,
+      $max_text_field_display_len,
+      $mode,
+      $table_border,
+      $cell_padding
+      );
+    mysqli_free_result($result);
+  }
 echo "\n\n";
-
 }
 ?>
