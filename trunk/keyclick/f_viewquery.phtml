@@ -25,29 +25,20 @@ function ViewQuery
     }
   else
     {
-    while (($field = mysqli_fetch_field($result)) === TRUE) // get the list of fields properties
-      {
-      $fields_meta[] = $field;
-      }
-    if (empty($disp_mode))
-      {
-      $disp_mode = 'urdr11110'; // see the "PMA_setDisplayMode()" function in libraries/display_tbl.lib.php3
-      }
+    $fields_meta = mysqli_fetch_fields($result);
     PMA_displayTable
       (
       $result,
-      $disp_mode,
+      $disp_mode, // see the "PMA_setDisplayMode()" function in libraries/display_tbl.lib.php3
       $fields_meta,
       count($fields_meta),
       $bpn,
-      $sql_query,
       $max_text_field_display_len,
       $mode,
       $table_border,
       $cell_padding
       );
-    mysqli_free_result($result);
+    }
+  mysqli_free_result($result);
   }
-echo "\n\n";
-}
 ?>
