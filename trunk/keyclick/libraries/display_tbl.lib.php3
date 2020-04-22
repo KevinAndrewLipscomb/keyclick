@@ -152,15 +152,20 @@
      */
     function PMA_displayTableHeaders
        (
-       &$fields_meta,
+       $is_display,
+       $fields_meta,
        $fields_cnt = 0
        )
     {
 ?>
 <!-- Results table headers -->
   <tr>
+<?
+        if ($is_display['edit_lnk'] != 'nn') {
+?>
     <td></td>
 <?
+        }
         for ($i = 0; $i < $fields_cnt; $i++) {
 ?>
     <th><? echo htmlspecialchars($fields_meta[$i]->name); ?></th>
@@ -206,7 +211,7 @@
     function PMA_displayTableBody
        (
        &$dt_result,
-       &$is_display,
+       $is_display,
        $fields_meta,
        $fields_cnt,
        $cfgLimitChars,
@@ -236,11 +241,15 @@
         //        the NULL values
 
         while ($row = mysqli_fetch_array($dt_result)) {
-            extract($row);  // Assumes that id field is present and sets $id.
 ?>
   <tr>
+<?
+          if ($is_display['edit_lnk'] != 'nn') {
+            extract($row);  // Assumes that id field is present and sets $id.
+?>
     <td><a href="<?php echo $mode . 'form-act-singly.phtml' . '?bpn=' . $bpn . '&amp;id=' . $id; ?>">Visit</a></td>
 <?
+          }
 
             // 2. Displays the rows' values
             for ($i = 0; $i < $fields_cnt; ++$i) {
@@ -391,7 +400,7 @@
 <!-- Results table -->
 <table border="<?php echo $table_border; ?>" cellpadding="<? echo $cell_padding; ?>">
 <?
-        PMA_displayTableHeaders($fields_meta, $fields_cnt);
+        PMA_displayTableHeaders($is_display, $fields_meta, $fields_cnt);
         PMA_displayTableBody($dt_result, $is_display, $fields_meta, $fields_cnt, $cfgLimitChars, $bpn, $mode);
 ?>
 </table>
