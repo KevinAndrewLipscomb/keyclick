@@ -14,7 +14,7 @@ function CitySelectionList
    //
    $result = @$db_link->query("select id,name from " . $mode . "city order by name");
    //
-   if (!mysqli_error($db_link) and mysqli_num_rows($result))
+   if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {
       echo "<select name=city_id>\n";
       //

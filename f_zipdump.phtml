@@ -69,7 +69,7 @@ require_once("f_homepageurl.phtml");
    $zip_archive_name = "$scratch_bpn_path/$filename.zip";
    $zip_archive = new ZipArchive;
    $zip_archive->open($zip_archive_name,ZipArchive::CREATE | ZipArchive::OVERWRITE) or die("ZipArchive::open failed.");
-   $zip_archive->addFromString("$filename.csv",$dump_buffer) or die ("ZipArchive::addFromString failed.");
+   $zip_archive->addFromString("$filename.csv",$dump_buffer) or die("ZipArchive::addFromString failed.");
    $zip_archive->close() or die("ZipArchive::close failed.");
    readfile($zip_archive_name);
    unlink($zip_archive_name) or die("unlink failed.");

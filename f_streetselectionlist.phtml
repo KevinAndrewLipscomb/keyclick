@@ -22,7 +22,7 @@ function StreetSelectionList
       . " order by state.abbreviation,city.name,street.name"
       );
    //
-   if (!mysqli_error($db_link) and mysqli_num_rows($result))
+   if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {
       echo "<select name=street_id>\n";
       //

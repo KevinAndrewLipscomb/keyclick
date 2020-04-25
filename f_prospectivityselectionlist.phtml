@@ -15,7 +15,7 @@ function ProspectivitySelectionList
    //
    $result = @$db_link->query("select * from " . $mode . "prospectivity order by cardinality");
    //
-   if (!mysqli_error($db_link) and mysqli_num_rows($result))
+   if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {
       echo "<select name=prospectivity>\n";
       //

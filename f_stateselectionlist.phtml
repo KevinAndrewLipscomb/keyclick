@@ -14,7 +14,7 @@ function StateSelectionList
    //
    $result = @$db_link->query("select id,abbreviation from " . $mode . "state order by abbreviation");
    //
-   if (!mysqli_error($db_link) and mysqli_num_rows($result))
+   if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {
       echo "<select name=state_id>\n";
       //

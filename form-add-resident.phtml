@@ -82,7 +82,7 @@ require_once("f_streetselectionlist.phtml");
               echo "<table width=100%><tr>"
                  . "<td width=$feedback_column_width_percentage% valign=top bgcolor=#F7F7F7 cellspacing=10>"
                  . "<p><b><u>Previous operation</u></b></p>\n";
-              if (($add_and_repeat) or ($add_and_cancel))
+              if (($add_and_repeat) || ($add_and_cancel))
                  {
                  //
                  // User indicated that data should be saved.  Validate parameters.
@@ -178,7 +178,7 @@ require_once("f_streetselectionlist.phtml");
               //
               echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
               //
-              if ((!$add_and_cancel) and (!$cancel))
+              if ((!$add_and_cancel) && (!$cancel))
                  {
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<form name=CurrentOperation action=" . $mode . "form-add-resident.phtml method=post>\n"
