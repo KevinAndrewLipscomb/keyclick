@@ -86,7 +86,7 @@ require_once("f_stateselectionlist.phtml");
               //
               echo "<small>\n";
               //
-              if (($action == "update") or ($action == "delete"))
+              if (($action == "update") || ($action == "delete"))
                  {
                  $result = $db_link->query
                     (
@@ -112,7 +112,7 @@ require_once("f_stateselectionlist.phtml");
                     and
                        (($street_id = trim($street_id)) != "")
                     and
-                       ((trim($email_address == "") or filter_var($email_address,FILTER_VALIDATE_EMAIL)))
+                       ((trim($email_address == "") || filter_var($email_address,FILTER_VALIDATE_EMAIL)))
                     )
                  // then
                     {
@@ -283,7 +283,7 @@ require_once("f_stateselectionlist.phtml");
                     . "<form name=CurrentOperation action=" . $mode . "form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n";
-                 if ($num_journal_rows or $num_donations)
+                 if ($num_journal_rows || $num_donations)
                     {
                     echo "<ul>\n";
                     //
@@ -377,7 +377,7 @@ require_once("f_stateselectionlist.phtml");
                              echo "Prompted by handing out a Crew Card;<br>\n";
                              break;
                           }
-                       if (($method != "INMEMOF") and ($in_mem_of))
+                       if (($method != "INMEMOF") && ($in_mem_of))
                           {
                           echo "Also in memory of '$in_mem_of';<br>\n";
                           }
