@@ -15,16 +15,14 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-require_once("f_runmode.phtml");
-$mode = "";
 
 require("f_bevalidboardingpass.phtml");
 require("f_kickoff.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_zipdump.phtml");
 //
-if (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE")
-  {
+$ini = AppSettings();
+$db_link = DbLink($ini);
+//
   if (BeValidBoardingPass($db_link,$bpn,$mode) == "")
     {
     KickOff($mode);
@@ -33,5 +31,4 @@ if (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE")
     {
     ZipDump($db_link,$whole_query,$bpn,$filename);
     }
-  }
 ?>

@@ -6,14 +6,10 @@ $bpn = $bpn;
 //
 error_reporting(E_ALL);
 //
-require_once("f_runmode.phtml");
-$mode = "";
 //
-require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_serverstatus.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
@@ -21,9 +17,11 @@ require_once("f_numrecsinrod.phtml");
 require_once("f_numdonationsthiscycle.phtml");
 require_once("f_amtdonationsthiscycle.phtml");
 //
-$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
+$ini = AppSettings();
+$db_link = DbLink($ini);
+$dbkalipso_link = DbkalipsoLink($ini);
 //
-$border_thickness = 0;  //($mode != "");
+$border_thickness = 0;
 //
 ?>
 <html>
@@ -50,8 +48,7 @@ $border_thickness = 0;  //($mode != "");
                      <?
                      if ($connected)
                         {
-                        PutLibPhotoRandomPlaced("eye-candy",1);
-                        $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
+                        PutLibPhotoRandomPlaced($ini,$dbkalipso_link,"eye-candy",1);
                         }
                      else
                         {
@@ -67,12 +64,6 @@ $border_thickness = 0;  //($mode != "");
                      <td colspan=5><h3>Actions</h3></td>
                   </tr>
                   <?
-                  //
-                  // Connect to the database.
-                  //
-                  if ($connected)
-                     {
-                     //
                      $agency = BeValidBoardingPass($db_link,$bpn,$mode);
                      $be_valid_boarding_pass = ($agency != "");
                      if (!$be_valid_boarding_pass)
@@ -147,21 +138,6 @@ $border_thickness = 0;  //($mode != "");
                         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-export.phtml?bpn=<? echo $bpn; ?>>Export</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>the ROD for mailing label generation.</td></tr></table></td></tr>
                         <?
                         }
-                     }
-                  else
-                     {
-                     ?>
-                     <tr>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td align=right valign=top><b>Sorry...</b></td><td valign=top>KEYclick's main functions are unavailable because its database is
-                           offline.&nbsp; This condition is temporary.&nbsp; Please try again later.</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td valign=top>
-                           <p><i><small>Server&nbsp;status:<br><b>DB OFFLINE</b></small></i></p>
-                        </td>
-                     </tr>
-                     <?
-                     }
                   ?>
                   <tr><td colspan=5><h3><br>Administrivia</h3></td></tr>
                   <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right valign=top>

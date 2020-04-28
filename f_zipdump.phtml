@@ -15,12 +15,11 @@ function PMA_myCsvHandler($sql_insert, &$add_character, &$tmp_buffer)
  */
 require('./libraries/common.lib.php3');
 require('./libraries/build_dump.lib.php3');
-require_once("f_homepageurl.phtml");
 
    /**
     * Defines the url to return to in case of error in a sql statement
     */
-   $err_url = HomePageUrl();
+   $err_url = $ini[server][root_url];
 
    /**
     * Increase time limit for script execution and initializes some variables

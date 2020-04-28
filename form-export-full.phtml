@@ -16,23 +16,21 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-require_once("f_runmode.phtml");
-$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 //
-if (RunMode($PHP_SELF)) error_reporting(E_ALL);
-//
-require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 //
-$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
+$ini = AppSettings();
+$db_link = DbLink($ini);
+$dbkalipso_link = DbkalipsoLink($ini);
+//
+if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
 ?>
 <html>
 
@@ -46,14 +44,13 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
            <tr>
               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
               <td>
-                 <h6 align="center"><a href="<? echo HomePageUrl(); ?>">KEYCLICK SYSTEM</a></h6>
+                 <h6 align="center"><a href="javascript:close();">KEYCLICK SYSTEM</a></h6>
                  <h1 align="center">Export Full ROD</h1>
               </td>
               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
               <td>
                 <?
-                PutLibPhotoRandomPlaced("eye-candy",1);
-                $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
+                PutLibPhotoRandomPlaced($ini,$dbkalipso_link,"eye-candy",1);
                 ?>
               </td>
            </tr>
@@ -61,20 +58,6 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
         <hr>
         <br>
         <?
-        if ($connected != "TRUE")
-           {
-           ?>
-           <h2><i>Sorry...</i></h2>
-           <b>
-           <blockquote>
-              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
-           </blockquote>            
-           </b>
-           <?
-           }
-        else
-           {
-           //
            $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
@@ -125,7 +108,6 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
               </blockquote>
               <?
               }
-           }
         ?>
         <br>
         <p><small><small><em><pre>$Id$</pre></em></small></small>
