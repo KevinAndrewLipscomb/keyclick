@@ -1,0 +1,13 @@
+;<? die(); ?>
+
+[db]
+database = "keyclick_x"
+pwd = "~ki-keyclick-x-password~"
+server = "127.0.0.1"
+uid = "ki-keyclick-x"
+
+[dbkalipso]
+database = "kalipso_x"
+pwd = "~ki-keyclickk-x-password~"
+server = "127.0.0.1"
+uid = "ki-keyclickk-x"
