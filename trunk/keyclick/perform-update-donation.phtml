@@ -16,8 +16,6 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-require_once("f_runmode.phtml");
-$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
@@ -30,15 +28,16 @@ $cancel = $cancel;
 //
 error_reporting(E_ALL);
 //
-require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
 require_once("f_methodselectionlist.phtml");
+//
+$ini = AppSettings();
+$db_link = DbLink($ini);
 ?>
 <html>
 
@@ -50,28 +49,11 @@ require_once("f_methodselectionlist.phtml");
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
-        <h6 align="center"><a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+        <h6 align="center"><a href="javascript:close();">KEYCLICK SYSTEM</a></h6>
         <h1 align="center">Update donation</h1>
         <hr>
         <br>
         <?
-        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
-           {
-           ?>
-           <h2><i>Sorry...</i></h2>
-           <b>
-           <blockquote>
-              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
-           </blockquote>            
-           </b>
-           <?
-           }
-        else
-           {
-           //
-           // Database is up.
-           //
-           //
            $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
@@ -148,7 +130,6 @@ require_once("f_methodselectionlist.phtml");
            echo "</td></tr></table>\n";
            //
            } // BeValidBoardingPass
-           } // database up
         ?>
         <br>
         <p><small><small><em><pre>$Id$</pre></em></small></small>

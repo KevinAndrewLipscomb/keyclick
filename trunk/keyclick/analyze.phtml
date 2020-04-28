@@ -16,7 +16,6 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-require_once("f_runmode.phtml");
 $mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
@@ -28,33 +27,19 @@ $format = $format;
 $parent_enumeral = $parent_enumeral;
 $algorithm = $algorithm;
 //
-require_once("f_homepageurl.phtml");
 require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_zipdump.phtml");
 //
+$ini = AppSettings();
+$db_link = DbLink($ini);
+$dbkalipso_link = DbkalipsoLink($ini);
+//
 // error_reporting(E_ALL);  // Inappropriate because we're calling externally-authored routines.
 //
-$connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
-
-        if ($connected != "TRUE")
-           {
-           ?>
-           <h2><i>Sorry...</i></h2>
-           <b>
-           <blockquote>
-              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
-           </blockquote>            
-           </b>
-           <?
-           }
-        else
-           {
-           //
            $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
@@ -78,12 +63,11 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                        . "                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"
                        . "                     <td>\n"
                        . "                        ";
-                    PutLibPhotoRandomPlaced("eye-candy",1);
-                    $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
+                    PutLibPhotoRandomPlaced($ini,$dbkalipso_link,"eye-candy",1);
                     echo "                     </td>\n"
                        . "                     <td>\n"
                        . "                        <h6 align=center>\n"
-                       . "                           <a href=" . HomePageUrl() . ">KEYCLICK SYSTEM</a>\n"
+                       . "                           <a href=\"javascript:close();\">KEYCLICK SYSTEM</a>\n"
                        . "                        </h6>\n"
                        . "                        <h1 align=center>Query result</h1>\n"
                        . "                     </td>\n"
@@ -266,5 +250,4 @@ $connected = (ConnectSelectDbInstanceUNPUBLISHED($db_link) == "TRUE");
                    break;
                  }
               }
-           }
 ?>

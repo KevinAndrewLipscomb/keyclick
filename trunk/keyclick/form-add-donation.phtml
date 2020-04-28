@@ -16,8 +16,6 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-require_once("f_runmode.phtml");
-$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
@@ -37,15 +35,16 @@ $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
 //
-require_once("f_homepageurl.phtml");
 require_once("f_bodyopen.phtml");
-require_once("f_connectselectdbinstanceunpublished.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
 require_once("f_kickoff.phtml");
 require_once("f_formattednoteappendage.phtml");
 require_once("f_emailaddrofbpn.phtml");
 require_once("f_methodselectionlist.phtml");
+//
+$ini = AppSettings();
+$db_link = DbLink($ini);
 ?>
 <html>
 
@@ -66,28 +65,11 @@ else
 <table border="0" cellpadding="0" cellspacing="0" width="80%" align="center">
    <tr>
       <td>
-        <h6 align="center"><a href=<? echo HomePageUrl(); ?>>KEYCLICK SYSTEM</a></h6>
+        <h6 align="center"><a href="javascript:close();">KEYCLICK SYSTEM</a></h6>
         <h1 align="center">Log new donation</h1>
         <hr>
         <br>
         <?
-        if (ConnectSelectDbInstanceUNPUBLISHED($db_link) != "TRUE")
-           {
-           ?>
-           <h2><i>Sorry...</i></h2>
-           <b>
-           <blockquote>
-              <? echo "<p>KEYclick's database is temporarily offline.&nbsp; Please try again later.</p>"; ?>
-           </blockquote>            
-           </b>
-           <?
-           }
-        else
-           {
-           //
-           // Database is up.
-           //
-           //
            $agency = BeValidBoardingPass($db_link,$bpn,$mode);
            if ($agency == "")
               {
@@ -218,7 +200,7 @@ else
                        . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
                        . "</dl>\n"
                        . "<br/>\n"
-                       . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_letter.aspx' method=post>\n"
+                       . "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_letter.aspx' method=post>\n"
                        .   "<input type=hidden name=agency value='$agency'>\n"
                        .   "<input type=hidden name=donor_name value='$name'>\n"
                        .   "<input type=hidden name=address value='$address1'>\n"
@@ -231,7 +213,7 @@ else
                     if (trim($email_address) != "")
                        {
                        echo "<br/>\n"
-                          . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_email_trigger.aspx' method=post>\n"
+                          . "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_email_trigger.aspx' method=post>\n"
                           .   "<input type=hidden name=agency value='$agency'>\n"
                           .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
                           .   "<input type=hidden name=donor_name value='$name'>\n"
@@ -329,7 +311,6 @@ else
            echo "</td></tr></table>\n";
            //
            } // BeValidBoardingPass
-           } // database up
         ?>
         <br>
         <p><small><small><em><pre>$Id$</pre></em></small></small>
