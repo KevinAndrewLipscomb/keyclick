@@ -1,7 +1,7 @@
 ;<? die(); ?>
 
 [db]
-database = "keyclick_"
+database = "keyclick"
 pwd = "~ki-keyclick-password~"
 server = "127.0.0.1"
 uid = "ki-keyclick"
