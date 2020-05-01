@@ -6,14 +6,13 @@ function ProspectivitySelectionList
    (
    $db_link,
    $agency,
-   $mode = "",
    $selected_option = ""
    )
 //
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $result = @$db_link->query("select * from " . $mode . "prospectivity order by cardinality");
+   $result = @$db_link->query("select * from prospectivity order by cardinality");
    //
    if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {

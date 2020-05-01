@@ -6,21 +6,21 @@ function RoleEmailAddress
    (
    $db_link,
    $role = "",
-   $mode = "",
    $agency = ""
    )
    {
    $saved_error_level = error_reporting(E_ALL);
    //
    $email_addr = "";
-   if ($role == "") $role = "sysadmin";
+   $role = (($role == "") ? "sysadmin" : kix\k::Safe($role,kix\k::PhpValueOf_safe_hint_type("HYPHENATED_ALPHA")));
    //
    $result = $db_link->query
       (
-      "select email_addr from " . $mode . "authority "
-      .  "   where role='$role' "
-      .  "      and agency='$agency' "
-      .  "   limit 1"
+      "select email_addr"
+      . " from authority"
+      . " where role='$role'"
+      .   " and agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'"
+      . " limit 1"
       )
       or die("RoleEmailAddress query failed with error:  " . mysqli_error($db_link));
    //

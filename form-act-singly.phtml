@@ -20,7 +20,15 @@ if (!ini_get('register_globals'))
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $save = $save;
-$id = $id;
+//
+// Make parameters safe
+//
+if (isset($email_address)) $email_address = kix\k::Safe($email_address,kix\k::PhpValueOf_safe_hint_type("EMAIL_ADDRESS"));
+if (isset($house_num)) $house_num = kix\k::Safe($house_num,kix\k::PhpValueOf_safe_hint_type("HYPHENATED_ALPHANUM"));
+if (isset($id)) $id = kix\k::Safe($id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($id_to_save)) $id_to_save = kix\k::Safe($id_to_save,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($name)) $name = kix\k::Safe($name,kix\k::PhpValueOf_safe_hint_type("HUMAN_NAME"));
+if (isset($street_id)) $street_id = kix\k::Safe($street_id,kix\k::PhpValueOf_safe_hint_type("NUM"));
 //
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
@@ -52,9 +60,9 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
         <hr>
         <br>
         <?
-           if (($agency = BeValidBoardingPass($db_link,$bpn,$mode)) == "")
+           if (($agency = BeValidBoardingPass($db_link,$bpn)) == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
            {
@@ -81,7 +89,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     .  " , city.name as old_city "
                     .  " , state.abbreviation as old_state "
                     .  " , null as old_zip "
-                    .  " from " . $mode . "resident_base "
+                    .  " from resident_base "
                        . " join street on (street.id=resident_base.street_id) "
                        . " join city on (city.id=street.city_id) "
                        . " join state on (state.id=city.state_id) "
@@ -104,7 +112,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     {
                     $result = $db_link->query
                        (
-                       "update " . $mode . "resident_base "
+                       "update resident_base "
                        .  "set name=NULLIF('" . addslashes(strtoupper(trim($name))) . "','') "
                        .  "   , house_num='" . addslashes($house_num) . "' "
                        .  "   , street_id='" . addslashes($street_id) . "' "
@@ -124,7 +132,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     //
                     $result = $db_link->query
                        (
-                       "insert into " . $mode . "resident_journal "
+                       "insert into resident_journal "
                        .  "set name='" . addslashes($old_name) . "' "
                        .  "   , address1='" . addslashes($old_address1) . "' "
                        .  "   , city='" . addslashes($old_city) . "' "
@@ -132,7 +140,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                        .  "   , zip='" . addslashes($old_zip) . "' "
                        .  "   , id=$id_to_save "
                        .  "   , op='UPDATE' "
-                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                        )
                        or die("Journal entry failed with error: " . mysqli_error($db_link));
                     //
@@ -142,7 +150,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                        .  " , concat(house_num,' ',street.name) as address1 "
                        .  " , city.name as city "
                        .  " , state.abbreviation as state "
-                       .  " from " . $mode . "resident_base "
+                       .  " from resident_base "
                           . " join street on (street.id=resident_base.street_id) "
                           . " join city on (city.id=street.city_id) "
                           . " join state on (state.id=city.state_id) "
@@ -153,7 +161,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     extract(mysqli_fetch_array($result));
                     //
                     echo "<p><b>SUCCEEDED</b></p>\n"
-                       . "<a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id_to_save><small><dl>\n"
+                       . "<a href=form-act-singly.phtml?bpn=$bpn&id=$id_to_save><small><dl>\n"
                        . "<dt>Resident ID:</dt><dd>$id_to_save</dd>\n"
                        . "<dt>Name:</dt><dd>$name</dd>\n"
                        . "<dt>Address:</dt><dd>$address1</dd>\n"
@@ -172,7 +180,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  {
                  $result = $db_link->query
                     (
-                    "delete from " . $mode . "resident_base "
+                    "delete from resident_base "
                     .  "where id=$id_to_save "
                     .  "limit 1"
                     )
@@ -180,7 +188,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  //
                  $result = $db_link->query
                     (
-                    "insert into " . $mode . "resident_journal "
+                    "insert into resident_journal "
                     .  "set name='" . addslashes($old_name) . "' "
                     .  "   , address1='" . addslashes($old_address1) . "' "
                     .  "   , city='" . addslashes($old_city) . "' "
@@ -188,7 +196,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     .  "   , zip='" . addslashes($old_zip) . "' "
                     .  "   , id=$id_to_save "
                     .  "   , op='DELETE' "
-                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     )
                     or die("Journal entry failed with error: " . mysqli_error($db_link));
                  //
@@ -227,7 +235,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  . " , city.name as city"
                  . " , state.abbreviation as state"
                  . " , email_address"
-                 . " from " . $mode . "resident_base"
+                 . " from resident_base"
                  .   " join street on (street.id=resident_base.street_id)"
                  .   " join city on (city.id=street.city_id)"
                  .   " join state on (state.id=city.state_id)"
@@ -247,7 +255,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  $journal_query_result = $db_link->query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
-                    .  "from " . $mode . "resident_journal "
+                    .  "from resident_journal "
                     .  "where id=$id order by timestamp desc"
                     )
                     or die("Journal query failed with error: " . mysqli_error($db_link));
@@ -258,7 +266,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  $donation_query_result = $db_link->query
                     (
                     "select *, date_format(timestamp,'%H:%i:%s on %e %b %Y') as timestamp_string "
-                    .  "from " . $mode . "donation "
+                    .  "from donation "
                     .  "where id=$id order by date desc, timestamp desc"
                     )
                     or die("Donation query failed with error: " . mysqli_error($db_link));
@@ -266,7 +274,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  //
                  echo "<p><b><u>Current operation:</u></b></p>\n"
                     . "<blockquote>\n"
-                    . "<form name=CurrentOperation action=" . $mode . "form-act-singly.phtml method=post>\n"
+                    . "<form name=CurrentOperation action=form-act-singly.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=id_to_save value=$id>\n";
                  if ($num_journal_rows || $num_donations)
@@ -279,7 +287,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                           (
                           mysqli_fetch_array
                              (
-                             $db_link->query("select sum(amount) as sum from " . $mode . "donation where id=$id group by id")
+                             $db_link->query("select sum(amount) as sum from donation where id=$id group by id")
                              )
                           );
                        echo "<li><a href=#Donations>$num_donations donation"
@@ -301,7 +309,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     . "      <tr><td align=right>Name:</td><td colspan=2><input type=text name=name value=\"$name\" size=50 maxlength=50></td></tr>\n"
                     . "      <tr><td align=right>House #:</td><td colspan=2><input type=text name=house_num value=\"$house_num\" size=15 maxlength=15></td></tr>\n"
                     . "      <tr><td align=right nowrap=nowrap>Street, City, State:</td><td colspan=2>";
-                 StreetSelectionList($db_link,$mode,$street_id);
+                 StreetSelectionList($db_link,$street_id);
                  echo "</td></tr>\n"
                     . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address value=\"$email_address\" size=60 maxlength=254></td></tr>\n"
                     . "      <tr>\n"
@@ -309,8 +317,8 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     . "         <td colspan=2>\n"
                     . "            <label><input type=radio name=action value=update checked>Update</label><br/><br/>\n"
                     . "            <label><input type=radio name=action value=delete>Delete</label><br/><br/>\n"
-                    . "            <label><input type=radio name=action value=lognew onclick=\"window.location.href = 'form-add-donation.phtml?bpn=$bpn&cross_id=$id';\">Log a new donation</label><br/><br/>\n"
-                    . "            <label><input type=radio name=action value=logold onclick=\"window.location.href = 'form-add-donation-old.phtml?bpn=$bpn&cross_id=$id';\">Log an old donation</label><br/>\n"
+                    . "            <label><input type=radio name=action value=lognew onclick=\"window.location.href = 'form-add-donation.phtml?bpn=$bpn&cross_id=$id&cross_email_address=$email_address';\">Log a new donation</label><br/><br/>\n"
+                    . "            <label><input type=radio name=action value=logold onclick=\"window.location.href = 'form-add-donation-old.phtml?bpn=$bpn&cross_id=$id&cross_email_address=$email_address';\">Log an old donation</label><br/>\n"
                     . "         </td>\n"
                     . "      </tr>\n"
                     . "      <tr><td colspan=3><hr></td></tr>\n"
@@ -394,7 +402,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                           .        " <table>\n"
                           .          " <tr>\n"
                           .            " <td>\n"
-                          .      "         <form action=" . $mode . "form-edit-donation.phtml method=post>\n"
+                          .      "         <form action=form-edit-donation.phtml method=post>\n"
                           .      "            <input type=hidden name=bpn value=$bpn>\n"
                           .      "            <input type=hidden name=cross_entered_by value=$entered_by>\n"
                           .      "            <input type=hidden name=cross_per_clerk_seq_num value=$per_clerk_seq_num>\n"
@@ -435,7 +443,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                              . "<td>\n"
                              .   "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_email_trigger.aspx' method=post>\n"
                              .     "<input type=hidden name=agency value='$agency'>\n"
-                             .     "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
+                             .     "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn) . "'>\n"
                              .     "<input type=hidden name=donor_name value='$name'>\n"
                              .     "<input type=hidden name=amount value='$amount'>\n"
                              .     "<input type=hidden name=date value='$date'>\n"
@@ -492,7 +500,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  ?>
                  <p><b>No such Resident ID found in association with your agency.</b></p>
                  <blockquote>
-                    <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
+                    <form action=form-act-singly.phtml method=post>
                        Edit and retry:
                        <input type=hidden name=bpn value=<? echo $bpn; ?>>
                        <input type=text name=id maxlength=6 size=6 value=<? echo $id; ?>>
@@ -509,7 +517,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
               //
               echo "<p><b>No Resident ID specified</b></p>\n"
                  . "<blockquote>\n"
-                 . "   <form action=" . $mode . "form-act-singly.phtml method=post>\n"
+                 . "   <form action=form-act-singly.phtml method=post>\n"
                  . "      <input type=hidden name=bpn value=$bpn>\n"
                  . "      Specify a Resident ID:\n"
                  . "      <input type=text name=id maxlength=6 size=6 value=$id>\n"
@@ -517,11 +525,11 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  . "      <br>\n"
                  . "      -- or --<br>\n"
                  . "      <br>\n"
-                 . "      <a href=" . $mode . "form-add-donation.phtml?bpn=$bpn>Go to <b>Log a NEW donation</b> page.</a><br>\n"
+                 . "      <a href=form-add-donation.phtml?bpn=$bpn>Go to <b>Log a NEW donation</b> page.</a><br>\n"
                  . "      <br>\n"
                  . "      -- or --<br>\n"
                  . "      <br>\n"
-                 . "      <a href=" . $mode . "form-add-donation-old.phtml?bpn=$bpn>Go to <b>Log an OLD donation</b> page.</a><br>\n"
+                 . "      <a href=form-add-donation-old.phtml?bpn=$bpn>Go to <b>Log an OLD donation</b> page.</a><br>\n"
                  . "      <br>\n"
                  . "      -- or --<br>\n"
                  . "      <br>\n"

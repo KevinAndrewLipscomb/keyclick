@@ -5,19 +5,17 @@
 function ReadDump_RODBYNAM0
    (
    $db_link,
-   $agency,
-   $bpn,
-   $mode = ""
+   $agency
    )
 {
 extract(  // Sets $chunk_size
    mysqli_fetch_array(
-      $db_link->query('select value as chunk_size from ' . $mode . 'tuning_parm where name=\'rodbynam0-chunk-size\'')));
+      $db_link->query('select value as chunk_size from tuning_parm where name=\'rodbynam0-chunk-size\'')));
 //
 $statement_array = array();
-$statement_array[$i = 0] = "drop table if exists " . $mode . "rod_by_name";
-$statement_array[++$i] = "drop table if exists " . $mode . "temp";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
+$statement_array[$i = 0] = "drop table if exists rod_by_name";
+$statement_array[++$i] = "drop table if exists temp";
+$statement_array[++$i] = "CREATE TABLE temp "
    . " ("
    . " id bigint NOT NULL default '0',"
    . " name varchar(50) NOT NULL,"
@@ -29,21 +27,21 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp "
    . " KEY name (name)"
    . " )"
    . " ENGINE=MyISAM";
-$statement_array[++$i] = "INSERT INTO " . $mode . "temp"
+$statement_array[++$i] = "INSERT INTO temp"
    . " SELECT resident_base.id"
    . " , resident_base.name"
    . " , concat(house_num,' ',street.name) as address1"
    . " , city.name as city"
    . " , state.abbreviation as state"
 //   . " , agency"
-   . " FROM " . $mode . "resident_base"
+   . " FROM resident_base"
      . " join street on (street.id=resident_base.street_id)"
      . " join city on (city.id=street.city_id)"
      . " join state on (state.id=city.state_id)"
    . " WHERE resident_base.name is not null"
-     . " and agency = '$agency'";
-//$statement_array[++$i] = "ALTER TABLE " . $mode . "temp DROP agency";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_name select * from " . $mode . "temp order by name limit 0,$chunk_size";
+     . " and agency = '" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'";
+//$statement_array[++$i] = "ALTER TABLE temp DROP agency";
+$statement_array[++$i] = "CREATE TABLE rod_by_name select * from temp order by name limit 0,$chunk_size";
 //
 $num_statements = count($statement_array);
 //
@@ -56,7 +54,7 @@ for ($i = 0; $i < $num_statements; $i++)
 //
 // Figure out how many rows are in the intermediate table.
 //
-$result = $db_link->query("select count(*) as num_temp_rows from " . $mode . "temp")
+$result = $db_link->query("select count(*) as num_temp_rows from temp")
    or die("Count failed with error: " . mysqli_error($db_link));
 extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 //
@@ -65,7 +63,7 @@ extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 //
 for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
    {
-   $result = $db_link->query("select id from " . $mode . "rod_by_name limit $i,$chunk_size")
+   $result = $db_link->query("select id from rod_by_name limit $i,$chunk_size")
       or die("Selection of IDs newly-inserted into target table failed with error: " . mysqli_error($db_link));
    $id_list = "";
    while ($row = mysqli_fetch_array($result))
@@ -75,17 +73,17 @@ for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
       }
    $id_list .= $id;  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
-   $db_link->query("delete from " . $mode . "temp where id in ($id_list)")
+   $db_link->query("delete from temp where id in ($id_list)")
       or die("Scattered delete failed with error: " . mysqli_error($db_link) . " id_list=$id_list");
    //
    $db_link->query
       (
-      "insert into " . $mode . "rod_by_name "
-      . "select * from " . $mode . "temp "
+      "insert into rod_by_name "
+      . "select * from temp "
       . "order by name limit $chunk_size"
       )
       or die("Ordered insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error($db_link));
    }
-$db_link->query("drop table " . $mode . "temp") or die("Drop of temp table failed with error: " . mysqli_error($db_link));
+$db_link->query("drop table temp") or die("Drop of temp table failed with error: " . mysqli_error($db_link));
 }
 ?>

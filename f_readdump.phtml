@@ -8,7 +8,6 @@ function ReadDump
   $sql_query,
   $bpn,
   $allow_dynamic_sorting = '1',
-  $mode = "",
   $be_viewable_result = "TRUE",
   $be_drill_down_available = 'TRUE',
   $table_border = 0,
@@ -32,11 +31,10 @@ function ReadDump
     $lang,
     $server,
     $zero_rows,
-    ($mode . $goto),
+    ("" . $goto),
     $table_border,
     $cell_padding,
     $max_text_field_display_len,
-    $mode,
     ($be_drill_down_available == 'TRUE' ? 'urnn00000' : 'nnnn00000') // for row_action_designator -- send 'nnnn00000' to preserve header/data column alignment if no drill-down will be available
     );
   }

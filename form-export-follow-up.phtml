@@ -20,7 +20,6 @@ if (!ini_get('register_globals'))
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 //
-require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -58,16 +57,16 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
               {
               $current_year_num = date('Y');
               echo "<p>To generate a Follow-Up ROD, KEYclick needs some additional information.</p>\n"
-                 . "<form action=" . $mode . "analyze.phtml method=post>\n"
+                 . "<form action=analyze.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <input type=hidden name=algorithm value=RODFOLUP0>\n"
                  . "   <input type=hidden name=parent_enumeral value=RODFOLUP0>\n"

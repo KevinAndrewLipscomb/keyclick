@@ -28,6 +28,17 @@ $cancel = $cancel;
 //
 error_reporting(E_ALL);
 //
+if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
+if (isset($cross_entered_by)) $cross_entered_by = kix\k::Safe($cross_entered_by,kix\k::PhpValueOf_safe_hint_type("EMAIL_ADDRESS"));
+if (isset($cross_per_clerk_seq_num)) $cross_per_clerk_seq_num = kix\k::Safe($cross_per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($day_num)) $day_num = kix\k::Safe($day_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($in_mem_of)) $in_mem_of = kix\k::Safe($in_mem_of,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($month_num)) $month_num = kix\k::Safe($month_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($note)) $note = kix\k::Safe($note,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($per_clerk_seq_num)) $per_clerk_seq_num = kix\k::Safe($per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($year_num)) $year_num = kix\k::Safe($year_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+//
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -54,10 +65,10 @@ $db_link = DbLink($ini);
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
            {
@@ -84,15 +95,15 @@ $db_link = DbLink($ini);
                        (
                        $db_link->query
                           (
-                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from donation "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                           )
                        )
                     );
                  //
                 $db_link->query
                     ($qry =
-                    "update " . $mode . "donation "
+                    "update donation "
                     .  "set amount=$amount "
                     .  "   , date='" . $year_num . '-' . $month_num . '-' . $day_num . "' "
                     .  "   , be_interested_in_patient_care=" . ($be_interested_in_patient_care ? "TRUE" : "FALSE")
@@ -102,7 +113,7 @@ $db_link = DbLink($ini);
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     .  "where entered_by='$cross_entered_by' "
                     .  "   and per_clerk_seq_num=$cross_per_clerk_seq_num "
@@ -126,7 +137,7 @@ $db_link = DbLink($ini);
               }
            //
            echo "</td><td width=5%>&nbsp;</td><td valign=top>\n";
-           echo "<p><b><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$cross_id>Return to parent ROD record.</a></b></p>\n";
+           echo "<p><b><a href=form-act-singly.phtml?bpn=$bpn&id=$cross_id>Return to parent ROD record.</a></b></p>\n";
            echo "</td></tr></table>\n";
            //
            } // BeValidBoardingPass

@@ -5,8 +5,7 @@
 function NumDonationsThisCycle
    (
    $db_link,
-   $agency,
-   $mode = ""
+   $agency
    )
    {
    $saved_error_level = error_reporting(E_ALL);
@@ -15,7 +14,7 @@ function NumDonationsThisCycle
    $qry = "select count(*) as num_donations_this_cycle"
    . " from donation"
      . " left join resident_base using (id)"
-   . " where agency='$agency'"
+   . " where agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'"
      .  " and date > '" . date('Y') . "-05-01'"
    . " group by agency";
    $result = $db_link->query($qry)

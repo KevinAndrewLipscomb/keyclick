@@ -5,11 +5,12 @@
 function BeValidBoardingPass
    (
    $db_link,
-   $bpn,
-   $mode = ""
+   $bpn
    )
    {
    $saved_error_level = error_reporting(E_ALL);
+
+   $bpn = kix\k::Safe($bpn,kix\k::PhpValueOf_safe_hint_type("HEX"));
 
    global $REMOTE_ADDR;
 
@@ -23,13 +24,13 @@ function BeValidBoardingPass
    //
    extract(  //Sets $debug.
       mysqli_fetch_array(
-         $db_link->query("select value as debug from " . $mode . "tuning_parm where name='debug-boarding-pass'")));
+         $db_link->query("select value as debug from tuning_parm where name='debug-boarding-pass'")));
    //
    // Now see if the specified boarding pass is valid.
    //
    $result = $db_link->query
       (
-      "select agency,ip,expiration_time from " . $mode . "manifest "
+      "select agency,ip,expiration_time from manifest "
       .  "   where bpn='$bpn' "
       )
       or die("BeValidBoardingPass query failed with error:  " . mysqli_error($db_link));
@@ -53,13 +54,13 @@ function BeValidBoardingPass
             extract(  //Sets $bump_factor
                mysqli_fetch_array(
                   $db_link->query(
-                     "select value as bump_factor from " . $mode . "tuning_parm where name='boarding-pass-valid-minutes'")));
+                     "select value as bump_factor from tuning_parm where name='boarding-pass-valid-minutes'")));
             //
             // Extend expiration date
             //
             $result = $db_link->query
                (
-               "update " . $mode . "manifest "
+               "update manifest "
                .  " set expiration_time = expiration_time + " . $bump_factor*60
                .  " where bpn='$bpn' "
                .  "    and ip='$ip' "
@@ -86,7 +87,7 @@ function BeValidBoardingPass
    //
    // Remove all expired records.
    //
-   $result = $db_link->query("delete from " . $mode . "manifest where expiration_time < " . time())
+   $result = $db_link->query("delete from manifest where expiration_time < " . time())
       or die("Removal of expired boarding passes failed with error: " . mysqli_error($db_link));
    //
    error_reporting($saved_error_level);
