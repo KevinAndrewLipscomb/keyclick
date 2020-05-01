@@ -24,9 +24,6 @@ $be_interested_in_patient_care = $be_interested_in_patient_care;
 $be_interested_in_support = $be_interested_in_support;
 $be_interested_in_volunteering = $be_interested_in_volunteering;
 $be_interested_in_bequesting = $be_interested_in_bequesting;
-$method = $method;
-$in_mem_of = $in_mem_of;
-$note = $note;
 $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
@@ -34,6 +31,13 @@ $undo = $undo;
 $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
+//
+if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
+if (isset($id)) $id = kix\k::Safe($id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($in_mem_of)) $in_mem_of = kix\k::Safe($in_mem_of,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($note)) $note = kix\k::Safe($note,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($per_clerk_seq_num)) $per_clerk_seq_num = kix\k::Safe($per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
 //
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
@@ -61,10 +65,10 @@ $db_link = DbLink($ini);
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
            {
@@ -96,8 +100,8 @@ $db_link = DbLink($ini);
                        (
                        $db_link->query
                           (
-                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from donation "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                           )
                        )
                     );
@@ -105,13 +109,13 @@ $db_link = DbLink($ini);
                  // Check for prior donations.
                  //
                  $num_priors = "";
-                 $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                 $result = $db_link->query("select count(*) as num_priors from donation where id=$id")
                     or die("Check for priors failed with error: " . mysqli_error($db_link));
                  extract(mysqli_fetch_array($result));
                  //
                  $db_link->query
                     ($qry =
-                    "insert into " . $mode . "donation "
+                    "insert into donation "
                     .  "set id=$id "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
@@ -122,7 +126,7 @@ $db_link = DbLink($ini);
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
                     or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
@@ -134,7 +138,7 @@ $db_link = DbLink($ini);
                     . " , city.name as city"
                     . " , state.abbreviation as state"
                     . " , null as zip"
-                    . " from " . $mode . "resident_base"
+                    . " from resident_base"
                       . " join street on (street.id=resident_base.street_id)"
                       . " join city on (city.id=street.city_id)"
                       . " join state on (state.id=city.state_id)"
@@ -144,7 +148,7 @@ $db_link = DbLink($ini);
                  extract(mysqli_fetch_array($result));
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                    . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                    . "<td align=right><form action=form-add-donation.phtml>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
                     . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
@@ -152,13 +156,13 @@ $db_link = DbLink($ini);
                     . "<dt>ROD#:</dt><dd>$id</dd>\n"
                     . "<dt>Lookup data:</dt>\n"
                     . "   <dd>\n"
-                    . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                    . "      <a href=form-act-singly.phtml?bpn=$bpn&id=$id>"
                     . "         $name<br>$address1<br>$city $state $zip\n"
                     . "      </a>\n"
                     . "   </dd>\n";
                  if ($num_priors)
                     {
-                    echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                    echo "<hr><a href=form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
                        . "on record\n";
                     }
                  echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
@@ -189,8 +193,8 @@ $db_link = DbLink($ini);
               {
               $db_link->query
                  (
-                 "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                 "delete from donation "
+                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
                  or die("Undo failed with error: " . mysqli_error($db_link));
@@ -209,10 +213,10 @@ $db_link = DbLink($ini);
               //
               // Break the given ISO date string into its constituent parts.
               //
-              sscanf($cross_date,"%4u-%2u-%2u",$year_num,$month_num,$day_num);
+              list($year_num,$month_num,$day_num) = sscanf($cross_date,"%4u-%2u-%2u"); // sscanf($cross_date,"%4u-%2u-%2u",$year_num,$month_num,$day_num); //would not work under PeachPie 0.9.961.
               //
               echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form name=CurrentOperation action=" . $mode . "perform-update-donation.phtml method=post>\n"
+                 . "<form name=CurrentOperation action=perform-update-donation.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <input type=hidden name=cross_id value=$cross_id>\n"
                  . "   <input type=hidden name=cross_entered_by value=$cross_entered_by>\n"
@@ -270,7 +274,7 @@ $db_link = DbLink($ini);
                  . "      <tr><td align=right>Interested in volunteering:</td><td colspan=2><input type=checkbox name=be_interested_in_volunteering " . ($cross_be_interested_in_volunteering ? "checked" : "") . "></td></tr>\n"
                  . "      <tr><td align=right>Interested in bequesting:</td><td colspan=2><input type=checkbox name=be_interested_in_bequesting " . ($cross_be_interested_in_bequesting ? "checked" : "") . "></td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($db_link,$agency,$mode,$cross_method);
+              echo MethodSelectionList($db_link,$agency,$cross_method);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of value=\"$cross_in_mem_of\" size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap>$cross_note</textarea></td></tr>\n"

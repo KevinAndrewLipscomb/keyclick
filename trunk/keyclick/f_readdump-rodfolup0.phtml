@@ -8,29 +8,30 @@ function ReadDump_RODFOLUP0
    $year_num,
    $month_num,
    $day_num,
-   $bpn,
-   $agency,
-   $mode = ""
+   $agency
    )
 {
 $statement_array = array();
-$statement_array[$i = 0] = "drop table if exists " . $mode . "recent_donation";
-$statement_array[++$i] = "drop table if exists " . $mode . "resident_follow_up";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "recent_donation SELECT id FROM " . $mode . "donation WHERE date > '$year_num-$month_num-$day_num'";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "resident_follow_up"
-. " SELECT " . $mode . "resident_base.id"
+$statement_array[$i = 0] = "drop table if exists recent_donation";
+$statement_array[++$i] = "drop table if exists resident_follow_up";
+$statement_array[++$i] = "CREATE TABLE recent_donation"
+. " SELECT id"
+.   " FROM donation"
+.   " WHERE date > '" . kix\k::Safe($year_num,kix\k::PhpValueOf_safe_hint_type("NUM")) . "-" . kix\k::Safe($month_num,kix\k::PhpValueOf_safe_hint_type("NUM")) . "-" . kix\k::Safe($day_num,kix\k::PhpValueOf_safe_hint_type("NUM")) . "'";
+$statement_array[++$i] = "CREATE TABLE resident_follow_up"
+. " SELECT resident_base.id"
   . " , resident_base.name"
   . " , concat(house_num,' ',street.name) as address1"
   . " , city.name as city"
   . " , state.abbreviation as state"
-. " FROM " . $mode . "resident_base"
+. " FROM resident_base"
   . " join street on (street.id=resident_base.street_id)"
   . " join city on (city.id=street.city_id)"
   . " join state on (state.id=city.state_id)"
-  . " LEFT JOIN " . $mode . "recent_donation on (recent_donation.id=resident_base.id)"
-. " WHERE " . $mode . "recent_donation.id IS NULL"
-  . " and agency='$agency'";
-$statement_array[++$i] = "drop table " . $mode . "recent_donation";
+  . " LEFT JOIN recent_donation on (recent_donation.id=resident_base.id)"
+. " WHERE recent_donation.id IS NULL"
+  . " and agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'";
+$statement_array[++$i] = "drop table recent_donation";
 //
 $num_statements = count($statement_array);
 //

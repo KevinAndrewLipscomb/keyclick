@@ -20,9 +20,6 @@ if (!ini_get('register_globals'))
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $bpn = $bpn;
-$method = $method;
-$in_mem_of = $in_mem_of;
-$note = $note;
 $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
@@ -30,6 +27,17 @@ $undo = $undo;
 $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
+//
+if (isset($address1)) $address1 = kix\k::Safe($address1,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
+if (isset($city)) $city = kix\k::Safe($city,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($in_mem_of)) $in_mem_of = kix\k::Safe($in_mem_of,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($name)) $name = kix\k::Safe($name,kix\k::PhpValueOf_safe_hint_type("HUMAN_NAME"));
+if (isset($note)) $note = kix\k::Safe($note,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($per_clerk_seq_num)) $per_clerk_seq_num = kix\k::Safe($per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($state)) $state = kix\k::Safe($state,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($zip)) $zip = kix\k::Safe($zip,kix\k::PhpValueOf_safe_hint_type("HYPHENATED_NUM"));
 //
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
@@ -57,10 +65,10 @@ $db_link = DbLink($ini);
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
            {
@@ -98,11 +106,11 @@ $db_link = DbLink($ini);
                  $state = strtoupper(trim($state));
                  $zip = strtoupper(trim($zip));
                  //
-                 extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from " . $mode . "resident_base")));
+                 extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from resident_base")));
                  //
                  $result = $db_link->query
                     (
-                    "insert into " . $mode . "resident_journal "
+                    "insert into resident_journal "
                     .  "set name='" . addslashes($name) . "' "
                     .  "   , address1='" . addslashes($address1) . "' "
                     .  "   , city='" . addslashes($city) . "' "
@@ -110,7 +118,7 @@ $db_link = DbLink($ini);
                     .  "   , zip='" . addslashes($zip) . "' "
                     .  "   , id=0 "
                     .  "   , op='UPDATE' "
-                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     .  "   , amount='" . $amount . "' "
                     )
                     or die("Journal entry failed with error: " . mysqli_error($db_link));
@@ -124,8 +132,8 @@ $db_link = DbLink($ini);
                        (
                        $db_link->query
                           (
-                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                          "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from donation "
+                          . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                           )
                        )
                     );
@@ -134,14 +142,14 @@ $db_link = DbLink($ini);
                  //
                  $db_link->query
                     ($qry =
-                    "insert into " . $mode . "donation "
+                    "insert into donation "
                     .  "set id=0 "
                     .  "   , amount=$amount "
                     .  "   , date=CURRENT_DATE "
                     .  "   , method='$method' "
                     .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                     .  "   , note='" . addslashes(trim($note)) . "' "
-                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                     )
                     or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
@@ -149,7 +157,7 @@ $db_link = DbLink($ini);
                     or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                  //
                  echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                    . "<td align=right><form action=" . $mode . "form-add-donation-ooa.phtml>\n"
+                    . "<td align=right><form action=form-add-donation-ooa.phtml>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
                     . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
@@ -189,8 +197,8 @@ $db_link = DbLink($ini);
               {
               $db_link->query
                  (
-                 "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                 "delete from donation "
+                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
                  or die("Undo failed with error: " . mysqli_error($db_link));
@@ -207,7 +215,7 @@ $db_link = DbLink($ini);
            if ((!$add_and_cancel) && (!$cancel))
               {
               echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form name=CurrentOperation action=" . $mode . "form-add-donation-ooa.phtml method=post>\n"
+                 . "<form name=CurrentOperation action=form-add-donation-ooa.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
                  . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
@@ -220,7 +228,7 @@ $db_link = DbLink($ini);
                  . "      <tr><td align=right>Zip code:</td><td colspan=2><input type=text name=zip size=10 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10></td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($db_link,$agency,$mode,"LOVELETTER");
+              echo MethodSelectionList($db_link,$agency,"LOVELETTER");
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"

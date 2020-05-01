@@ -37,6 +37,14 @@ $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
 //
+if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
+if (isset($day_num)) $day_num = kix\k::Safe($day_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($email_address)) $email_address = kix\k::Safe($email_address,kix\k::PhpValueOf_safe_hint_type("EMAIL_ADDRESS"));
+if (isset($id)) $id = kix\k::Safe($id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($month_num)) $month_num = kix\k::Safe($month_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($per_clerk_seq_num)) $per_clerk_seq_num = kix\k::Safe($per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($year_num)) $year_num = kix\k::Safe($year_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+//
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -72,10 +80,10 @@ else
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
               {
@@ -112,7 +120,7 @@ else
                        . " , state.abbreviation as state"
                        . " , null as zip"
                        . " , agency as this_rod_agency"
-                       . " from " . $mode . "resident_base"
+                       . " from resident_base"
                          . " join street on (street.id=resident_base.street_id)"
                          . " join city on (city.id=street.city_id)"
                          . " join state on (state.id=city.state_id)"
@@ -134,7 +142,7 @@ else
                           . " , state"
                           . " , zip"
                           . " , agency as this_rod_agency"
-                          . " from " . $mode . "resident_journal"
+                          . " from resident_journal"
                           . " where id='$id'"
                           . " order by timestamp desc"
                           . " limit 1"
@@ -168,7 +176,7 @@ else
                           //
                           $result = $db_link->query
                              (
-                             "select op as possible_preemptive_op from " . $mode . "resident_journal "
+                             "select op as possible_preemptive_op from resident_journal "
                              . "where id='$id' "
                              . "   and timestamp > '$year_num-$month_num-$day_num' "
                              . "   and op = 'UPDATE' "
@@ -196,8 +204,8 @@ else
                                    (
                                    $db_link->query
                                       (
-                                      "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                                      . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                                      "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from donation "
+                                      . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                                       )
                                    )
                                 );
@@ -205,13 +213,13 @@ else
                              // Check for prior donations.
                              //
                              $num_priors = "";
-                             $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                             $result = $db_link->query("select count(*) as num_priors from donation where id=$id")
                                 or die("Check for priors failed with error: " . mysqli_error($db_link));
                              extract(mysqli_fetch_array($result));
                              //
                              $db_link->query
                                 ($qry =
-                                "insert into " . $mode . "donation "
+                                "insert into donation "
                                 .  "set id=$id "
                                 .  "   , date='$year_num-$month_num-$day_num' "
                                 .  "   , amount=$amount "
@@ -222,7 +230,7 @@ else
                                 .  "   , method='$method' "
                                 .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                                 .  "   , note='" . addslashes(trim($note)) . "' "
-                                .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                                .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                                 .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                                 )
                                 or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
@@ -238,7 +246,7 @@ else
                                }
                              //
                              echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                                . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                                . "<td align=right><form action=form-add-donation.phtml>\n"
                                 . "   <input type=hidden name=bpn value=$bpn>\n"
                                 . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
                                 . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
@@ -246,13 +254,13 @@ else
                                 . "<dt>ROD#:</dt><dd>$id</dd>\n"
                                 . "<dt>Lookup data:</dt>\n"
                                 . "   <dd>\n"
-                                . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                                . "      <a href=form-act-singly.phtml?bpn=$bpn&id=$id>"
                                 . "         $name<br>$address1<br>$city $state<br>$email_address\n"
                                 . "      </a>\n"
                                 . "   </dd>\n";
                              if ($num_priors)
                                 {
-                                echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                                echo "<hr><a href=form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
                                    . "on record\n";
                                 }
                              echo "<dt>Date:</dt><dd>$year_num-$month_num-$day_num</dd>\n"
@@ -266,7 +274,7 @@ else
                                 . "<dt>Note:</dt><dd>$note&nbsp;</dd>\n"
                                 . "</dl>\n"
                                 . "<br/>\n"
-                                . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_letter.aspx' method=post>\n"
+                                . "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_letter.aspx' method=post>\n"
                                 .   "<input type=hidden name=agency value='$agency'>\n"
                                 .   "<input type=hidden name=donor_name value='$name'>\n"
                                 .   "<input type=hidden name=address value='$address1'>\n"
@@ -279,9 +287,9 @@ else
                              if (trim($email_address) != "")
                                 {
                                 echo "<br/>\n"
-                                   . "<form action='https://frompaper2web.com/OscarTRACK/protected/donation_ack_email_trigger.aspx' method=post>\n"
+                                   . "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_email_trigger.aspx' method=post>\n"
                                    .   "<input type=hidden name=agency value='$agency'>\n"
-                                   .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
+                                   .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn) . "'>\n"
                                    .   "<input type=hidden name=donor_name value='$name'>\n"
                                    .   "<input type=hidden name=amount value='$amount'>\n"
                                    .   "<input type=hidden name=date value='$year_num-$month_num-$day_num'>\n"
@@ -336,8 +344,8 @@ else
                  {
                  $db_link->query
                     (
-                    "delete from " . $mode . "donation "
-                    . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                    "delete from donation "
+                    . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                     . "   and per_clerk_seq_num=$per_clerk_seq_num "
                     )
                     or die("Undo failed with error: " . mysqli_error($db_link));
@@ -364,7 +372,7 @@ else
                  if ((!$add_and_cancel) && (!$cancel))
                     {
                     echo "<p><b><u>Current operation:</u></b></p>\n"
-                       . "<form name=CurrentOperation action=" . $mode . "form-add-donation-old.phtml method=post>\n"
+                       . "<form name=CurrentOperation action=form-add-donation-old.phtml method=post>\n"
                        . "   <input type=hidden name=bpn value=$bpn>\n"
                        . "   <table>\n"
                        . "      <tr>\n"
@@ -418,10 +426,10 @@ else
                        . "      <tr><td align=right>Interested in volunteering: </td><td colspan=2><input type=checkbox name=be_interested_in_volunteering></td></tr>\n"
                        . "      <tr><td align=right>Interested in bequesting: </td><td colspan=2><input type=checkbox name=be_interested_in_bequesting></td></tr>\n"
                        . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-                    echo MethodSelectionList($db_link,$agency,$mode);
+                    echo MethodSelectionList($db_link,$agency);
                     echo "      </td></tr>\n"
                        . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
-                       . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254></td></tr>\n"
+                       . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254 value=$cross_email_address></td></tr>\n"
                        . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
                        . "      <tr>\n"
                        . "         <td colspan=2>\n"
@@ -436,7 +444,7 @@ else
                        . "      </tr>\n"
                        . "   </table>\n"
                        . "</form>\n";
-                    $cross_id = "";
+                    $cross_id = $cross_email_address = "";
                     }  // user wants to enter another old donation
                  else
                     {
@@ -453,9 +461,10 @@ else
                     . "<blockquote>\n"
                     . "   $name<br>$address1<br>$city $state $zip\n"
                     . "</blockquote>\n"
+                    . "<br/>\n"
                     . "<table>\n"
                     . "<tr><td>\n"
-                    . "   <form action=" . $mode . "form-add-donation-old.phtml method=post>"
+                    . "   <form action=form-add-donation-old.phtml method=post>"
                     . "      <input type=hidden name=bpn value=$bpn>\n"
                     . "      <input type=hidden name=year_num value=$year_num>\n"
                     . "      <input type=hidden name=month_num value=$month_num>\n"
@@ -468,6 +477,7 @@ else
                     . "      <input type=hidden name=be_interested_in_bequesting value=$be_interested_in_bequesting>\n"
                     . "      <input type=hidden name=method value=$method>\n"
                     . "      <input type=hidden name=in_mem_of value=$in_mem_of>\n"
+                    . "      <input type=hidden name=email_address value=$email_address>\n"
                     . "      <input type=hidden name=note value=$note>\n"
                     . "      <input type=hidden name=add_and_cancel value=$add_and_cancel>\n"
                     . "      <input type=hidden name=add_and_repeat value=$add_and_repeat>\n"
@@ -478,8 +488,9 @@ else
                     . "<td valign=top>if you are sure that the above person or party is <b>essentially the same</b> as "
                     . "   the person or party whose donation you are now logging.\n"
                     . "</td></tr>\n"
+                    . "<tr><td>&nbsp;</td></tr>\n"
                     . "<tr><td>\n"
-                    . "   <form action=" . $mode . "form-add-resident.phtml method=post>"
+                    . "   <form action=form-add-resident.phtml method=post>"
                     . "      <input type=hidden name=bpn value=$bpn>\n"
                     . "      <input type=submit value=\"CLICK HERE\">\n"
                     . "   </form>\n"

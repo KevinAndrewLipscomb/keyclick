@@ -5,7 +5,6 @@
 function StreetSelectionList
    (
    $db_link,
-   $mode = "",
    $selected_option = ""
    )
 //
@@ -16,9 +15,9 @@ function StreetSelectionList
       (
       "select street.id"
       . " , concat(street.name,', ',city.name,', ',state.abbreviation) as spec"
-      . " from " . $mode . "street"
-      .   " join " . $mode . "city on (city.id=street.city_id)"
-      .   " join " . $mode . "state on (state.id=city.state_id)"
+      . " from street"
+      .   " join city on (city.id=street.city_id)"
+      .   " join state on (state.id=city.state_id)"
       . " order by state.abbreviation,city.name,street.name"
       );
    //

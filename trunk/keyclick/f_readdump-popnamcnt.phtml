@@ -5,21 +5,19 @@
 function ReadDump_POPNAMCNT
    (
    $db_link,
-   $agency,
-   $bpn,
-   $mode = ""
+   $agency
    )
 {
 extract(  // Sets $chunk_size.
    mysqli_fetch_array(
-      $db_link->query("select value as chunk_size from " . $mode . "tuning_parm where name='popnamcnt-chunk-size'")));
+      $db_link->query("select value as chunk_size from tuning_parm where name='popnamcnt-chunk-size'")));
 //
 $statement_array = array();
-$statement_array[$i = 0] = "drop table if exists " . $mode . "name";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "name select name from " . $mode . "resident_base where name is not null and agency = '$agency'";
-$statement_array[++$i] = "drop table if exists " . $mode . "name_count";
-$statement_array[++$i] = "create table " . $mode . "name_count "
-   . "select name,count(*) as occurrences from " . $mode . "name group by name limit 0,$chunk_size";
+$statement_array[$i = 0] = "drop table if exists name";
+$statement_array[++$i] = "CREATE TABLE name select name from resident_base where name is not null and agency = '" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'";
+$statement_array[++$i] = "drop table if exists name_count";
+$statement_array[++$i] = "create table name_count "
+   . "select name,count(*) as occurrences from name group by name limit 0,$chunk_size";
 //
 $num_statements = count($statement_array);
 //
@@ -32,7 +30,7 @@ for ($i = 0; $i < $num_statements; $i++)
 //
 // Figure out how many rows are in the intermediate table.
 //
-$result = $db_link->query("select count(*) as num_name_rows from " . $mode . "name")
+$result = $db_link->query("select count(*) as num_name_rows from name")
    or die("Count failed with error: " . mysqli_error($db_link));
 extract(mysqli_fetch_array($result));  // Sets $num_name_rows.
 //
@@ -41,7 +39,7 @@ extract(mysqli_fetch_array($result));  // Sets $num_name_rows.
 //
 for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
    {
-   $result = $db_link->query("select name from " . $mode . "name_count limit $i,$chunk_size")
+   $result = $db_link->query("select name from name_count limit $i,$chunk_size")
       or die("Selection of quasi-keys newly-inserted into target table failed with error: " . mysqli_error($db_link));
    $quasi_key_list = "";
    while ($row = mysqli_fetch_array($result))
@@ -52,19 +50,19 @@ for ($i = 0; $i < $num_name_rows; $i += $chunk_size)
       }
    $quasi_key_list .= "'$name'";  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
-   $db_link->query("delete from " . $mode . "name where name in ($quasi_key_list)")
+   $db_link->query("delete from name where name in ($quasi_key_list)")
       or die("Scattered delete failed with error: " . mysqli_error($db_link) . " quasi_key_list=$quasi_key_list");
    //
    $db_link->query
       (
-      "insert into " . $mode . "name_count "
-      . "select name, count(*) as occurrences from " . $mode . "name "
+      "insert into name_count "
+      . "select name, count(*) as occurrences from name "
       . "group by name limit $chunk_size"
       )
       or die("Grouped insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error($db_link));
    }
-$db_link->query("drop table " . $mode . "name") or die("Drop of name table failed with error: " . mysqli_error($db_link));
-$db_link->query("delete from " . $mode . "name_count where occurrences = 1")
+$db_link->query("drop table name") or die("Drop of name table failed with error: " . mysqli_error($db_link));
+$db_link->query("delete from name_count where occurrences = 1")
    or die("Delete of singlets failed with error: " . mysqli_error($db_link));
 }
 ?>

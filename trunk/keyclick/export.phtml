@@ -23,9 +23,9 @@ require_once("f_zipdump.phtml");
 $ini = AppSettings();
 $db_link = DbLink($ini);
 //
-  if (BeValidBoardingPass($db_link,$bpn,$mode) == "")
+  if (BeValidBoardingPass($db_link,$bpn) == "")
     {
-    KickOff($mode);
+    KickOff();
     }
   else
     {

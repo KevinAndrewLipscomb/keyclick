@@ -24,6 +24,15 @@ $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
 //
+if (isset($address1)) $address1 = kix\k::Safe($address1,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($city)) $city = kix\k::Safe($city,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($house_num)) $house_num = kix\k::Safe($house_num,kix\k::PhpValueOf_safe_hint_type("HYPHENATED_ALPHANUM"));
+if (isset($id)) $id = kix\k::Safe($id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($name)) $name = kix\k::Safe($name,kix\k::PhpValueOf_safe_hint_type("HUMAN_NAME"));
+if (isset($state)) $state = kix\k::Safe($state,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($street_id)) $street_id = kix\k::Safe($street_id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+//
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -53,10 +62,10 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
         <hr>
         <br>
         <?php
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
               {
@@ -78,18 +87,18 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     )
                  // then
                     {
-                    if ($apt_num) $street_num = "$street_num-$apt_num";
+                    if ($apt_num) $house_num = "$house_num-$apt_num";
                     //
                     $name = strtoupper("$last_name $name_detail");
-                    $street_num = strtoupper("$street_num");
+                    $house_num = strtoupper("$house_num");
                     //
-                    extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from " . $mode . "resident_base")));
+                    extract(mysqli_fetch_array($db_link->query("select max(id)+1 as new_id from resident_base")));
                     //
                     $result = $db_link->query
                        (
-                       "insert into " . $mode . "resident_base"
+                       "insert into resident_base"
                        . " set name = '" . addslashes($name) . "'"
-                       . " , house_num = '" . addslashes($street_num) . "'"
+                       . " , house_num = '" . addslashes($house_num) . "'"
                        . " , street_id = '" . addslashes($street_id) . "'"
                        . " , id = '$new_id'"
                        . " , agency = '$agency'"
@@ -112,17 +121,17 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                              )
                           )
                        );
-                    $address1 = "$street_num $street_name";
+                    $address1 = "$house_num $street_name";
                     $result = $db_link->query
                        (
-                       "insert into " . $mode . "resident_journal "
+                       "insert into resident_journal "
                        .  "set name='" . addslashes($name) . "' "
                        .  "   , address1='" . $address1 . "' "
                        .  "   , city='" . addslashes($city_name) . "' "
                        .  "   , state='" . addslashes($state_abbreviation) . "' "
                        .  "   , id=$new_id "
                        .  "   , op='INSERT' "
-                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                       .  "   , user_email_addr='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                        )
                        or die("Journal entry failed with error: " . mysqli_error($db_link));
                     //
@@ -136,8 +145,8 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                        . "</dl></small>\n"
                        . "<u>Optional</u>: For this record, log:\n"
                        . "<table>\n"
-                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation.phtml?bpn=$bpn&cross_id=$new_id>NEW donation</a></small></td></tr>\n"
-                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=" . $mode . "form-add-donation-old.phtml?bpn=$bpn&cross_id=$new_id>OLD donation</a></small></td></tr>\n"
+                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=form-add-donation.phtml?bpn=$bpn&cross_id=$new_id>NEW donation</a></small></td></tr>\n"
+                       . "   <tr><td><small><li>&nbsp;</small></td><td><small><a href=form-add-donation-old.phtml?bpn=$bpn&cross_id=$new_id>OLD donation</a></small></td></tr>\n"
                        . "</table>\n";
                     }
                  else
@@ -149,7 +158,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  //
                  echo "</small>\n";
                  //
-                 $new_id = $last_name = $name_detail = $name = $street_num = $address1 = $apt_num = $city = $state =
+                 $new_id = $last_name = $name_detail = $name = $house_num = $address1 = $apt_num = $city = $state =
                     $zip = "";
                  //
                  }
@@ -163,14 +172,14 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
               if ((!$add_and_cancel) && (!$cancel))
                  {
                  echo "<p><b><u>Current operation:</u></b></p>\n"
-                    . "<form name=CurrentOperation action=" . $mode . "form-add-resident.phtml method=post>\n"
+                    . "<form name=CurrentOperation action=form-add-resident.phtml method=post>\n"
                     . "   <input type=hidden name=bpn value=$bpn>\n"
                     . "   <table>\n"
                     . "      <tr><td align=right>Last name:</td><td colspan=2><input type=text name=last_name size=20 maxlength=20></td></tr>\n"
                     . "      <tr><td align=right>First/other name(s):</td><td colspan=2><input type=text name=name_detail size=30 maxlength=30></td></tr>\n"
                     . "      <tr><td align=right>House/building #:</td><td colspan=2><input type=text name=street_num size=6 maxlength=10></td></tr>\n"
                     . "      <tr><td align=right>Street, City, State:</td><td colspan=2>";
-                 StreetSelectionList($db_link,$mode);
+                 StreetSelectionList($db_link);
                  echo "</td></tr>\n"
                     . "      <tr><td align=right>Apt #:</td><td colspan=2><input type=text name=apt_num size=4 maxlength=6></td></tr>\n"
                     . "      <tr>\n"

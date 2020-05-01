@@ -5,22 +5,21 @@
 function AmtDonationsThisCycle
    (
    $db_link,
-   $agency,
-   $mode = ""
+   $agency
    )
    {
    $saved_error_level = error_reporting(E_ALL);
    //
    $amt_donations_this_cycle = 0;
    $qry = "select sum(amount) as amt_donations_this_cycle from "
-      .  $mode . "donation left join " . $mode . "resident_base "
+      .  "donation left join resident_base "
       .  "on "
-      .  $mode . "donation.id = " . $mode . "resident_base.id "
-      .  "where agency='$agency' "
+      .  "donation.id = resident_base.id "
+      .  "where agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "' "
       .  "   and date > '" . date('Y') . "-05-01' "
       .  "group by agency ";
    $result = $db_link->query($qry)
-      or die("NumDonationsThisCycle query failed with error:  " . mysqli_error($db_link));
+      or die("AmtDonationsThisCycle query failed with error:  " . mysqli_error($db_link));
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));
    //
    error_reporting($saved_error_level);

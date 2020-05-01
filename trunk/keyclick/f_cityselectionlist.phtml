@@ -5,14 +5,13 @@
 function CitySelectionList
    (
    $db_link,
-   $mode = "",
    $selected_option = ""
    )
 //
    {
    $saved_error_level = error_reporting(E_ALL);
    //
-   $result = @$db_link->query("select id,name from " . $mode . "city order by name");
+   $result = @$db_link->query("select id,name from city order by name");
    //
    if (!mysqli_error($db_link) && mysqli_num_rows($result))
       {

@@ -6,8 +6,7 @@ function BeAuthorized
    (
    $db_link,
    $email_addr,
-   $agency,
-   $mode = ""
+   $agency
    )
    {
    $saved_error_level = error_reporting(E_ALL);
@@ -16,9 +15,9 @@ function BeAuthorized
    //
    $result = $db_link->query
       (
-      "select email_addr as found_email_addr from " . $mode . "user "
-      .  "   where email_addr='$email_addr'"
-      .  "      and agency='$agency' "
+      "select email_addr as found_email_addr from user "
+      .  "   where email_addr='" . kix\k::Safe($email_addr,kix\k::PhpValueOf_safe_hint_type("EMAIL_ADDRESS")) . "'"
+      .  "      and agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "' "
       )
       or die("BeAuthorized query failed with error:  " . mysqli_error($db_link));
    //

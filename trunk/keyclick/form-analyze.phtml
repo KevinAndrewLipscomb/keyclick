@@ -17,14 +17,8 @@ if (!ini_get('register_globals'))
     }
   }
 //
-// Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
+if (isset($parent_enumeral_expression)) $parent_enumeral_expression = kix\k::Safe($parent_enumeral_expression,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
 //
-if (!is_null($parent_enumeral_expression))
-  {
-  $parent_enumeral_expression = stripslashes($parent_enumeral_expression);
-  }
-//
-require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -54,21 +48,21 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
               {
               echo "<p>The following analyses are available in this context.&nbsp; For other analyses, contact "
-                 . "the <a href=mailto:\"" . RoleEmailAddress($db_link,"",$mode) . "\">KEYclick System Administrator</a>.</p><br>\n"
+                 . "the <a href=mailto:\"" . RoleEmailAddress($db_link) . "\">KEYclick System Administrator</a>.</p><br>\n"
                  . "<table align=center width=90%>\n";
               //
               extract(  // Sets $chunk_size.
                  mysqli_fetch_array(
                     $db_link->query(
-                       "select value as chunk_size from " . $mode . "tuning_parm where name='screen-view-chunk-size'")));
+                       "select value as chunk_size from tuning_parm where name='screen-view-chunk-size'")));
               //
               switch ($parent_enumeral_expression)
               {
@@ -89,7 +83,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  echo "   <tr>\n"
                     . "      <td><b>Simplified ROD sorted by Name &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
-                    . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "         <form action=analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
                     . "            <input type=hidden name=algorithm value=$enumeral>\n"
                     . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
@@ -117,7 +111,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  echo "   <tr>\n"
                     . "      <td><b>Simplified ROD sorted by Address &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
-                    . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "         <form action=analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
                     . "            <input type=hidden name=algorithm value=$enumeral>\n"
                     . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
@@ -149,7 +143,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  echo "   <tr>\n"
                     . "      <td><b>\"Popular\" names &nbsp; &nbsp; [$enumeral]</b><br><i>(complex)</i></td>\n"
                     . "      <td align=right>\n"
-                    . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "         <form action=analyze.phtml method=post>\n"
                     . "            <input type=hidden name=bpn value=$bpn>\n"
                     . "            <input type=hidden name=algorithm value=$enumeral>\n"
                     . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
@@ -174,10 +168,10 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  }
               case is_integer(strpos($parent_enumeral_expression,'RODBYNAM0')):
                  {
-                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_name";
+                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from rod_by_name";
                  extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $num_parts.
                  echo "   <tr>\n"
-                    . "      <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "      <form action=analyze.phtml method=post>\n"
                     . "         <input type=hidden name=bpn value=$bpn>\n"
                     . "         <input type=hidden name=format value=html>\n"
                     . "         <input type=hidden name=algorithm value=RODBYNAMSV>\n"
@@ -199,12 +193,12 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  for ($i = 1; $i <= $num_parts; $i++)
                     {
                     $top_offset = ($i - 1)*$chunk_size;
-                    $qry = "select left(name,7) as top_name from " . $mode . "rod_by_name limit $top_offset,1";
+                    $qry = "select left(name,7) as top_name from rod_by_name limit $top_offset,1";
                     extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $top_name.
                     if ($i < $num_parts)
                        {
                        $bottom_offset = ($i*$chunk_size - 1);
-                       $qry = "select left(name,7) as bottom_name from " . $mode . "rod_by_name limit $bottom_offset,1";
+                       $qry = "select left(name,7) as bottom_name from rod_by_name limit $bottom_offset,1";
                        extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $bottom_name.
                        }
                     else
@@ -226,10 +220,10 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  }
               case is_integer(strpos($parent_enumeral_expression,'RODBYADDR0')):
                  {
-                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from " . $mode . "rod_by_addr";
+                 $qry = "select ceiling(count(*)/$chunk_size) as num_parts from rod_by_addr";
                  extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $num_parts.
                  echo "   <tr>\n"
-                    . "      <form action=" . $mode . "analyze.phtml method=post>\n"
+                    . "      <form action=analyze.phtml method=post>\n"
                     . "         <input type=hidden name=bpn value=$bpn>\n"
                     . "         <input type=hidden name=format value=html>\n"
                     . "         <input type=hidden name=algorithm value=RODBYADDRSV>\n"
@@ -255,7 +249,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                        . "   , left(city,4) as top_city "
                        . "   , left(street,4) as top_street "
                        . "   , left(numb,4) as top_numb "
-                       . "from " . $mode . "rod_by_addr limit $top_offset,1";
+                       . "from rod_by_addr limit $top_offset,1";
                     extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $top_* vars.
                     $top_combo = "$top_numb-$top_street-$top_city-$top_state";
                     if ($i < $num_parts)
@@ -265,7 +259,7 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                           . "   , left(city,4) as bottom_city "
                           . "   , left(street,4) as bottom_street "
                           . "   , left(numb,4) as bottom_numb "
-                          . "from " . $mode . "rod_by_addr limit $bottom_offset,1";
+                          . "from rod_by_addr limit $bottom_offset,1";
                        extract(mysqli_fetch_array($db_link->query($qry)));  // Sets $bottom_* vars.
                        $bottom_combo = "$bottom_numb-$bottom_street-$bottom_city-$bottom_state";
                        }
@@ -288,19 +282,17 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                  }
               }
               //
-              $result = $db_link->query
-                 (
-                 "select short_description "
-                 . "   , enumeral "
-                 . "   , long_description "
-                 . "   , `sql` "
-                 . "   , be_avail_as_html "
-                 . "   , be_avail_as_zip "
-                 . "from " . $mode . "analysis "
-                 . "where agency='$agency' "
-                 . "   and $parent_enumeral_expression "
-                 . "order by position "
-                 )
+              $sql = "select short_description"
+              . " , enumeral"
+              . " , long_description"
+              . " , `sql`"
+              . " , be_avail_as_html"
+              . " , be_avail_as_zip"
+              . " from analysis"
+              . " where agency='$agency'"
+              .   " and " . preg_replace('/=(.+)/',"='$1'",$parent_enumeral_expression) // It was not safe to pass string delimiters to this routine in a GET or POST parameter, but we know anything to the right of the equals sign needs them.
+              . " order by position";
+              $result = $db_link->query($sql)
                  or die("Retrieval of analyses failed with error: " . mysqli_error($db_link));
               //
               if (!mysqli_num_rows($result))
@@ -316,10 +308,10 @@ if ($ini[app][do_report_all_errors]) error_reporting(E_ALL);
                     echo "   <tr>\n"
                        . "      <td><b>$short_description &nbsp; &nbsp; [$enumeral]</b></td>\n"
                        . "      <td align=right>\n"
-                       . "         <form action=" . $mode . "analyze.phtml method=post>\n"
+                       . "         <form action=analyze.phtml method=post>\n"
                        . "            <input type=hidden name=bpn value=$bpn>\n"
                        . "            <input type=hidden name=parent_enumeral value=$enumeral>\n"
-                       . "            <input type=hidden name=sql_query value=\"$sql\">\n";
+                       . "            <input type=hidden name=sql_query value=\"" . kix\k::ShieldedValueOfString($sql) . "\">\n";
                     if (($be_avail_as_html == 'TRUE') && ($be_avail_as_zip == 'TRUE'))
                        {
                        echo "            <input type=radio name=format value=html checked>View on screen\n"

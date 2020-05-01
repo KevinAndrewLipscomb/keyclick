@@ -16,18 +16,17 @@ if (!ini_get('register_globals'))
     extract($superglobal, EXTR_SKIP);
     }
   }
-$mode = "";
 //
 // Assign incoming arguments to themselves to prevent 'uninitialized variable' warnings later.
 //
 $bpn = $bpn;
 $filename = $filename;
-$sql_query = $sql_query;
 $format = $format;
 $parent_enumeral = $parent_enumeral;
 $algorithm = $algorithm;
 //
-require_once("f_putlibphotorandomplaced.phtml");
+if (isset($search_text)) $search_text = kix\k::Safe($search_text,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+//
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_bevalidboardingpass.phtml");
@@ -38,12 +37,14 @@ $ini = AppSettings();
 $db_link = DbLink($ini);
 $dbkalipso_link = DbkalipsoLink($ini);
 //
+if (isset($sql_query)) $sql_query = str_replace('oscardotnetdb',$ini[db][oscardotnet],kix\k::StringOfShieldedValue($sql_query));
+//
 // error_reporting(E_ALL);  // Inappropriate because we're calling externally-authored routines.
 //
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
               {
@@ -90,27 +91,21 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                 ReadDump_POPNAMCNT
                                    (
                                    $db_link,
-                                   $agency,
-                                   $bpn,
-                                   $mode
+                                   $agency
                                    );
                                 break;
                              case "RODBYADDR0":
                                 ReadDump_RODBYADDR0
                                    (
                                    $db_link,
-                                   $agency,
-                                   $bpn,
-                                   $mode
+                                   $agency
                                    );
                                 break;
                              case "RODBYNAM0":
                                 ReadDump_RODBYNAM0
                                    (
                                    $db_link,
-                                   $agency,
-                                   $bpn,
-                                   $mode
+                                   $agency
                                    );
                                 break;
                              case "RODFOLUP0":
@@ -118,9 +113,7 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                    (
                                    $db_link,
                                    $year_num,$month_num,$day_num,
-                                   $bpn,
-                                   $agency,
-                                   $mode
+                                   $agency
                                    );
                                 break;
                              default:
@@ -130,16 +123,15 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                    $sql_query,
                                    $bpn,
                                    '1',  // for allow_dynamic_sorting
-                                   $mode,
                                    'FALSE'  // for be_viewable_result
                                    );
                                 break;
                              }
                           echo "<p>The analysis nicknamed '<b>$parent_enumeral</b>' is complete.</p>\n"
                              . "<p><b>Next</b>, KEYclick will let you view or download the results of this analysis.</p>\n"
-                             . "<form action=" . $mode . "form-analyze.phtml method=post>\n"
+                             . "<form action=form-analyze.phtml method=post>\n"
                              . "   <input type=hidden name=bpn value=$bpn>\n"
-                             . "   <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral='$parent_enumeral'\">\n"
+                             . "   <input type=hidden name=parent_enumeral_expression value=\"parent_enumeral=$parent_enumeral\">\n"
                              . "   Click here to &nbsp; <input type=submit value=Proceed>.\n"
                              . "</form>\n";
                           break;
@@ -153,7 +145,7 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                 (
                                 $db_link->query
                                    (
-                                   "select value as chunk_size from " . $mode . "tuning_parm "
+                                   "select value as chunk_size from tuning_parm "
                                    .  "where name='screen-view-chunk-size' "
                                    )
                                 )
@@ -162,33 +154,31 @@ $dbkalipso_link = DbkalipsoLink($ini);
                           switch ($algorithm)
                              {
                              case "RODBYADDR0":
-                                ReadDump_RODBYADDR0($db_link,$agency,$bpn,$mode);
+                                ReadDump_RODBYADDR0($db_link,$agency);
                                 break;
                              case "RODBYNAM0":
-                                ReadDump_RODBYNAM0($db_link,$agency,$bpn,$mode);
+                                ReadDump_RODBYNAM0($db_link,$agency);
                                 break;
                              case "RODBYADDRSV":
-                                $sql_query = "select * from " . $mode . "rod_by_addr "
+                                $sql_query = "select * from rod_by_addr "
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
                                 ReadDump
                                    (
                                    $db_link,
                                    $sql_query,
                                    $bpn,
-                                   '0',  // don't allow_dynamic_sorting
-                                   $mode
+                                   '0'  // don't allow_dynamic_sorting
                                    );
                                 break;
                              case "RODBYNAMSV":
-                                $sql_query = "select * from " . $mode . "rod_by_name "
+                                $sql_query = "select * from rod_by_name "
                                    . "limit " . ($part_num - 1)*$chunk_size . ",$chunk_size";
                                 ReadDump
                                    (
                                    $db_link,
                                    $sql_query,
                                    $bpn,
-                                   '0',  // don't allow_dynamic_sorting
-                                   $mode
+                                   '0'  // don't allow_dynamic_sorting
                                    );
                                 break;
                             case "FNDNAMADR":
@@ -205,7 +195,7 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                    . " , city.name as city "
                                    . " , state.abbreviation as state "
                                    . " , null as zip "
-                                   . " from " . $mode . "resident_base "
+                                   . " from resident_base "
                                    .   " join street on (street.id=resident_base.street_id) "
                                    .   " join city on (city.id=street.city_id) "
                                    .   " join state on (state.id=city.state_id) "
@@ -227,7 +217,6 @@ $dbkalipso_link = DbkalipsoLink($ini);
                                    $sql_query,
                                    $bpn,
                                    '1',  // do allow_dynamic_sorting
-                                   $mode,
                                    'TRUE', // for be_viewable_result
                                    (isset($be_drill_down_available) ? $be_drill_down_available : 'TRUE') // for be_drilldown_available
                                    );

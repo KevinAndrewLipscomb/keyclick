@@ -5,15 +5,14 @@
 function NumRecsInRod
    (
    $db_link,
-   $agency,
-   $mode = ""
+   $agency
    )
    {
    $saved_error_level = error_reporting(E_ALL);
    //
    $num_recs_in_rod = 0;
-   $qry = "select count(*) as num_recs_in_rod from " . $mode . "resident_base "
-      .  "   where agency='$agency' ";
+   $qry = "select count(*) as num_recs_in_rod from resident_base "
+      .  "   where agency='" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'";
    $result = $db_link->query($qry)
       or die("NumRecsInRod query failed with error:  " . mysqli_error($db_link));
    if (mysqli_num_rows($result)) extract(mysqli_fetch_array($result));

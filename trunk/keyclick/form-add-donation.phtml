@@ -24,9 +24,6 @@ $be_interested_in_patient_care = $be_interested_in_patient_care;
 $be_interested_in_support = $be_interested_in_support;
 $be_interested_in_volunteering = $be_interested_in_volunteering;
 $be_interested_in_bequesting = $be_interested_in_bequesting;
-$method = $method;
-$in_mem_of = $in_mem_of;
-$note = $note;
 $add_and_cancel = $add_and_cancel;
 $add_and_repeat = $add_and_repeat;
 $cancel = $cancel;
@@ -34,6 +31,18 @@ $undo = $undo;
 $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
+//
+if (isset($address1)) $address1 = kix\k::Safe($address1,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
+if (isset($city)) $city = kix\k::Safe($city,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($email_address)) $email_address = kix\k::Safe($email_address,kix\k::PhpValueOf_safe_hint_type("EMAIL_ADDRESS"));
+if (isset($id)) $id = kix\k::Safe($id,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($in_mem_of)) $in_mem_of = kix\k::Safe($in_mem_of,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
+if (isset($name)) $name = kix\k::Safe($name,kix\k::PhpValueOf_safe_hint_type("HUMAN_NAME"));
+if (isset($note)) $note = kix\k::Safe($note,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
+if (isset($per_clerk_seq_num)) $per_clerk_seq_num = kix\k::Safe($per_clerk_seq_num,kix\k::PhpValueOf_safe_hint_type("NUM"));
+if (isset($state)) $state = kix\k::Safe($state,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
 //
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
@@ -70,10 +79,10 @@ else
         <hr>
         <br>
         <?
-           $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+           $agency = BeValidBoardingPass($db_link,$bpn);
            if ($agency == "")
               {
-              KickOff($mode);
+              KickOff();
               }
            else
            {
@@ -113,8 +122,8 @@ else
                           (
                           $db_link->query
                              (
-                             "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from " . $mode . "donation "
-                             . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                             "select ifnull(max(per_clerk_seq_num)+1,1) as per_clerk_seq_num from donation "
+                             . " where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                              )
                           )
                        );
@@ -122,13 +131,13 @@ else
                     // Check for prior donations.
                     //
                     $num_priors = "";
-                    $result = $db_link->query("select count(*) as num_priors from " . $mode . "donation where id=$id")
+                    $result = $db_link->query("select count(*) as num_priors from donation where id=$id")
                        or die("Check for priors failed with error: " . mysqli_error($db_link));
                     extract(mysqli_fetch_array($result));
                     //
                     $db_link->query
                        ($qry =
-                       "insert into " . $mode . "donation "
+                       "insert into donation "
                        .  "set id=$id "
                        .  "   , amount=$amount "
                        .  "   , date=CURRENT_DATE "
@@ -139,11 +148,11 @@ else
                        .  "   , method='$method' "
                        .  "   , in_mem_of='" . addslashes(trim($in_mem_of)) . "' "
                        .  "   , note='" . addslashes(trim($note)) . "' "
-                       .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                       .  "   , entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                        .  "   , per_clerk_seq_num=$per_clerk_seq_num "
                        )
                        or die("Insert failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
-                   $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
+                    $db_link->query($qry = "update resident_base set year_of_last_appeal_to_become_a_donor = null where id = '$id'")
                        or die("Update failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
                     $db_link->query($qry = "delete from web_donor where resident_id = '$id'")
                        or die("Replacement of old email address failed with error: " . mysqli_error($db_link) . ".  qry=[$qry]");
@@ -162,7 +171,7 @@ else
                        . " , state.abbreviation as state"
                        . " , null as zip"
                        . " , email_address"
-                       . " from " . $mode . "resident_base"
+                       . " from resident_base"
                          . " join street on (street.id=resident_base.street_id)"
                          . " join city on (city.id=street.city_id)"
                          . " join state on (state.id=city.state_id)"
@@ -173,7 +182,7 @@ else
                     extract(mysqli_fetch_array($result));
                     //
                     echo "<table width=100%><tr><td><b>SUCCEEDED</b></td>\n"
-                       . "<td align=right><form action=" . $mode . "form-add-donation.phtml>\n"
+                       . "<td align=right><form action=form-add-donation.phtml>\n"
                        . "   <input type=hidden name=bpn value=$bpn>\n"
                        . "   <input type=hidden name=per_clerk_seq_num value=$per_clerk_seq_num>\n"
                        . "   <input type=submit name=undo value=Undo></form></td></tr></table>\n"
@@ -181,13 +190,13 @@ else
                        . "<dt>ROD#:</dt><dd>$id</dd>\n"
                        . "<dt>Lookup data:</dt>\n"
                        . "   <dd>\n"
-                       . "      <a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>"
+                       . "      <a href=form-act-singly.phtml?bpn=$bpn&id=$id>"
                        . "         $name<br>$address1<br>$city $state<br>$email_address\n"
                        . "      </a>\n"
                        . "   </dd>\n";
                     if ($num_priors)
                        {
-                       echo "<hr><a href=" . $mode . "form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
+                       echo "<hr><a href=form-act-singly.phtml?bpn=$bpn&id=$id>$num_priors prior donation(s)</a> "
                           . "on record\n";
                        }
                     echo "<dt>Amount:</dt><dd>\$$amount</dd>\n"
@@ -215,7 +224,7 @@ else
                        echo "<br/>\n"
                           . "<form action='../" . $ini[app][superapp] . "/protected/donation_ack_email_trigger.aspx' method=post>\n"
                           .   "<input type=hidden name=agency value='$agency'>\n"
-                          .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "'>\n"
+                          .   "<input type=hidden name=member_email_address value='" . EmailAddrOfBpn($db_link,$bpn) . "'>\n"
                           .   "<input type=hidden name=donor_name value='$name'>\n"
                           .   "<input type=hidden name=amount value='$amount'>\n"
                           .   "<input type=hidden name=date value=''>\n"
@@ -249,8 +258,8 @@ else
               {
               $db_link->query
                  (
-                 "delete from " . $mode . "donation "
-                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn,$mode) . "' "
+                 "delete from donation "
+                 . "where entered_by='" . EmailAddrOfBpn($db_link,$bpn) . "' "
                  . "   and per_clerk_seq_num=$per_clerk_seq_num "
                  )
                  or die("Undo failed with error: " . mysqli_error($db_link));
@@ -267,7 +276,7 @@ else
            if ((!$add_and_cancel) && (!$cancel))
               {
               echo "<p><b><u>Current operation:</u></b></p>\n"
-                 . "<form name=CurrentOperation action=" . $mode . "form-add-donation.phtml method=post>\n"
+                 . "<form name=CurrentOperation action=form-add-donation.phtml method=post>\n"
                  . "   <input type=hidden name=bpn value=$bpn>\n"
                  . "   <table>\n"
                  . "      <tr>\n"
@@ -275,7 +284,7 @@ else
                  . "         <td colspan=2>\n"
                  . "            <input type=text name=id size=6 maxlength=6 tabindex=1 value=$cross_id>\n"
                  . "            &nbsp;&nbsp;&nbsp;\n"
-                 . "            (Click <a href=" . $mode . "form-add-donation-ooa.phtml?bpn=$bpn><b>here</b></a> to log an Out-Of-Area donation.)\n"
+                 . "            (Click <a href=form-add-donation-ooa.phtml?bpn=$bpn><b>here</b></a> to log an Out-Of-Area donation.)\n"
                  . "         </td>\n"
                  . "      </tr>\n"
                  . "      <tr><td align=right>Amount: $</td><td colspan=2><input type=text name=amount size=6 maxlength=10 tabindex=2></td></tr>\n"
@@ -284,10 +293,10 @@ else
                  . "      <tr><td align=right>Interested in volunteering:</td><td colspan=2><input type=checkbox name=be_interested_in_volunteering></td></tr>\n"
                  . "      <tr><td align=right>Interested in bequesting:</td><td colspan=2><input type=checkbox name=be_interested_in_bequesting></td></tr>\n"
                  . "      <tr><td align=right>Received via:</td><td colspan=2>\n";
-              echo MethodSelectionList($db_link,$agency,$mode);
+              echo MethodSelectionList($db_link,$agency);
               echo "      </td></tr>\n"
                  . "      <tr><td align=right>In memory of:</td><td colspan=2><input type=text name=in_mem_of size=60 maxlength=60></td></tr>\n"
-                 . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254></td></tr>\n"
+                 . "      <tr><td align=right>Email address:</td><td colspan=2><input type=text name=email_address size=60 maxlength=254 value=$cross_email_address></td></tr>\n"
                  . "      <tr><td align=right>Note:</td><td colspan=2><textarea name=note cols=40 rows=4 wrap></textarea></td></tr>\n"
                  . "      <tr>\n"
                  . "         <td colspan=2>\n"
@@ -302,7 +311,7 @@ else
                  . "      </tr>\n"
                  . "   </table>\n"
                  . "</form>\n";
-              $cross_id = "";
+              $cross_id = $cross_email_address = "";
               }
            else
               {

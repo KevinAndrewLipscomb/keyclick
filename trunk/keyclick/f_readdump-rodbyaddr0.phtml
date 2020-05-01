@@ -5,9 +5,7 @@
 function ReadDump_RODBYADDR0
    (
    $db_link,
-   $agency,
-   $bpn,
-   $mode = ""
+   $agency
    )
 {
 //
@@ -15,12 +13,12 @@ function ReadDump_RODBYADDR0
 //
 extract(
    mysqli_fetch_array(
-      $db_link->query("select value as chunk_size from " . $mode . "tuning_parm where name='rodbyaddr0-chunk-size'")));
+      $db_link->query("select value as chunk_size from tuning_parm where name='rodbyaddr0-chunk-size'")));
 //
 $statement_array = array();
-$statement_array[$i = 0] = "drop table if exists " . $mode . "rod_by_addr";
-$statement_array[++$i] = "drop table if exists " . $mode . "temp_by_addr";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
+$statement_array[$i = 0] = "drop table if exists rod_by_addr";
+$statement_array[++$i] = "drop table if exists temp_by_addr";
+$statement_array[++$i] = "CREATE TABLE temp_by_addr "
    . " SELECT resident_base.id"
    . " , resident_base.name"
    . " , house_num as numb"
@@ -28,13 +26,13 @@ $statement_array[++$i] = "CREATE TABLE " . $mode . "temp_by_addr "
    . " , city.name as city"
    . " , state.abbreviation as state"
    . " , NULL as zip"
-   . " FROM " . $mode . "resident_base"
+   . " FROM resident_base"
      . " join street on (street.id=resident_base.street_id)"
      . " join city on (city.id=street.city_id)"
      . " join state on (state.id=city.state_id)"
-   . " WHERE agency = '$agency'";
-$statement_array[++$i] = "CREATE TABLE " . $mode . "rod_by_addr "
-   . "select * from " . $mode . "temp_by_addr "
+   . " WHERE agency = '" . kix\k::Safe($agency,kix\k::PhpValueOf_safe_hint_type("ALPHA")) . "'";
+$statement_array[++$i] = "CREATE TABLE rod_by_addr "
+   . "select * from temp_by_addr "
    . "order by state,city,street,numb "
    . "limit 0,$chunk_size";
 //
@@ -49,7 +47,7 @@ for ($i = 0; $i < $num_statements; $i++)
 //
 // Figure out how many rows are in the intermediate table.
 //
-$result = $db_link->query("select count(*) as num_temp_rows from " . $mode . "temp_by_addr")
+$result = $db_link->query("select count(*) as num_temp_rows from temp_by_addr")
    or die("Count failed with error: " . mysqli_error($db_link));
 extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 //
@@ -58,7 +56,7 @@ extract(mysqli_fetch_array($result));  // Sets $num_temp_rows.
 //
 for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
    {
-   $result = $db_link->query("select id from " . $mode . "rod_by_addr limit $i,$chunk_size")
+   $result = $db_link->query("select id from rod_by_addr limit $i,$chunk_size")
       or die("Selection of IDs newly-inserted into target table failed with error: " . mysqli_error($db_link));
    $id_list = "";
    while ($row = mysqli_fetch_array($result))
@@ -68,18 +66,18 @@ for ($i = 0; $i < $num_temp_rows; $i += $chunk_size)
       }
    $id_list .= $id;  // Logically unnecessary, but a cheap cheat to make the string syntactically correct.
    //
-   $db_link->query("delete from " . $mode . "temp_by_addr where id in ($id_list)")
+   $db_link->query("delete from temp_by_addr where id in ($id_list)")
       or die("Scattered delete failed with error: " . mysqli_error($db_link) . " id_list=$id_list");
    //
    $db_link->query
       (
-      "insert into " . $mode . "rod_by_addr "
-      . "select * from " . $mode . "temp_by_addr "
+      "insert into rod_by_addr "
+      . "select * from temp_by_addr "
       . "order by state,city,street,numb "
       . "limit $chunk_size"
       )
       or die("Ordered insert failed at virtual offset " . ($i + $chunk_size) . " with error: " . mysqli_error($db_link));
    }
-$db_link->query("drop table " . $mode . "temp_by_addr") or die("Drop of temp table failed with error: " . mysqli_error($db_link));
+$db_link->query("drop table temp_by_addr") or die("Drop of temp table failed with error: " . mysqli_error($db_link));
 }
 ?>

@@ -7,7 +7,6 @@ $bpn = $bpn;
 error_reporting(E_ALL);
 //
 //
-require_once("f_putlibphotorandomplaced.phtml");
 require_once("f_bodyopen.phtml");
 require_once("f_roleemailaddress.phtml");
 require_once("f_serverstatus.phtml");
@@ -64,7 +63,7 @@ $border_thickness = 0;
                      <td colspan=5><h3>Actions</h3></td>
                   </tr>
                   <?
-                     $agency = BeValidBoardingPass($db_link,$bpn,$mode);
+                     $agency = BeValidBoardingPass($db_link,$bpn);
                      $be_valid_boarding_pass = ($agency != "");
                      if (!$be_valid_boarding_pass)
                         {
@@ -72,7 +71,7 @@ $border_thickness = 0;
                            . "   <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"
                            . "   <td colspan=4>\n"
                            . "      <table border=1><tr><td>\n";
-                        KickOff($mode);
+                        KickOff();
                         echo "      </td></tr></table>\n"
                            . "   </td>\n"
                            . "</tr>\n";
@@ -83,7 +82,7 @@ $border_thickness = 0;
                         ?>
                         <tr>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right><b><a href=<? echo $mode; ?>form-add-donation.phtml?bpn=<? echo $bpn; ?>>Log</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a new donation - <small><i><a href=<? echo $mode; ?>form-add-donation-old.phtml?bpn=<? echo $bpn; ?>>or log an old one</a></i></small>.</td></tr></table></td>
+                           <td align=right><b><a href=form-add-donation.phtml?bpn=<? echo $bpn; ?>>Log</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>a new donation - <small><i><a href=form-add-donation-old.phtml?bpn=<? echo $bpn; ?>>or log an old one</a></i></small>.</td></tr></table></td>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                            <td rowspan=6 valign=top>
                               <p><i><small>Server status: <? echo ServerStatus($db_link); ?></small></i></p>
@@ -91,7 +90,7 @@ $border_thickness = 0;
                                  <tr><td colspan=2><small><u>Summary</u></small></td></tr>
                                  <tr>
                                     <td><small># ROD records:</small></td>
-                                    <td align=right><small><?php echo number_format(NumRecsInRod($db_link,$agency,$mode)); ?></small></td>
+                                    <td align=right><small><?php echo number_format(NumRecsInRod($db_link,$agency)); ?></small></td>
                                  </tr>
                               </table>
                            </td>
@@ -100,7 +99,7 @@ $border_thickness = 0;
                         // Find action
                         ?>
                         <tr>
-                           <form action=<? echo $mode; ?>analyze.phtml method=post>
+                           <form action=analyze.phtml method=post>
                               <input type=hidden name=bpn value=<? echo $bpn; ?>>
                               <input type=hidden name=format value=html>
                               <input type=hidden name=algorithm value=FNDNAMADR>
@@ -114,28 +113,28 @@ $border_thickness = 0;
                         ?>
                         <tr>
                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                           <td align=right><b><a href=<? echo $mode; ?>form-add-resident.phtml?bpn=<? echo $bpn; ?>>Add</a></b></td>
+                           <td align=right><b><a href=form-add-resident.phtml?bpn=<? echo $bpn; ?>>Add</a></b></td>
                            <td><table border=<? echo $border_thickness; ?>><tr><td>a name and address to the ROD (Resident/Occupant Database).</td></tr></table></td>
                         </tr>
                         <?
                         // Modify action
                         ?>
                         <tr>
-                           <form action=<? echo $mode; ?>form-act-singly.phtml method=post>
+                           <form action=form-act-singly.phtml method=post>
                               <input type=hidden name=bpn value=<? echo $bpn; ?>>
                               <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                              <td align=right><b><a href=<? echo $mode; ?>form-act-singly.phtml?bpn=<? echo $bpn; ?>>Modify or remove</a></b></td>
+                              <td align=right><b><a href=form-act-singly.phtml?bpn=<? echo $bpn; ?>>Modify or remove</a></b></td>
                               <td><table border=<? echo $border_thickness; ?>><tr><td>ROD record #</td><td><input type=text name=id maxlength=6 size=6><input type=submit value="Go!"></td></tr></table></td>
                            </form>
                         </tr>
                         <?
                         // Analyse action
                         ?>
-                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-analyze.phtml?bpn=<? echo $bpn; ?>>Analyze</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>data and get reports.</td></tr></table></td></tr>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=form-analyze.phtml?bpn=<? echo $bpn; ?>>Analyze</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>data and get reports.</td></tr></table></td></tr>
                         <?
                         // Export action
                         ?>
-                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=<? echo $mode; ?>form-export.phtml?bpn=<? echo $bpn; ?>>Export</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>the ROD for mailing label generation.</td></tr></table></td></tr>
+                        <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td align=right><b><a href=form-export.phtml?bpn=<? echo $bpn; ?>>Export</a></b></td><td><table border=<? echo $border_thickness; ?>><tr><td>the ROD for mailing label generation.</td></tr></table></td></tr>
                         <?
                         }
                   ?>
@@ -144,7 +143,7 @@ $border_thickness = 0;
                   <?
                   if ($connected)
                      {
-                     echo "<b><a href=" . $mode . "faq.phtml>FAQ</a></b></td><td valign=top>Answers to frequently asked questions.";
+                     echo "<b><a href=faq.phtml>FAQ</a></b></td><td valign=top>Answers to frequently asked questions.";
                      }
                   else
                      {
@@ -156,7 +155,7 @@ $border_thickness = 0;
                   <?
                   if ($connected)
                      {
-                     echo "<b><a href=mailto:" . RoleEmailAddress($db_link,"") . ">";
+                     echo "<b><a href=mailto:" . RoleEmailAddress($db_link) . ">";
                      }
                   else
                      {
