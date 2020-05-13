@@ -1,0 +1,16 @@
+delete from resident_base where agency = 'PACHVRS' and house_num = '4320' and street_id = (select id from street where name = 'INDIAN RIVER RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '4332' and street_id = (select id from street where name = 'SALEM SPRINGS WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '4353' and street_id = (select id from street where name = 'SALEM SPRINGS WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '4361' and street_id = (select id from street where name = 'SALEM SPRINGS WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '4369' and street_id = (select id from street where name = 'SALEM SPRINGS WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '4428' and street_id = (select id from street where name = 'SALEM SPRINGS WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '822' and street_id = (select id from street where name = 'SPENCE CIR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '2076' and street_id = (select id from street where name = 'JARVIS RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '2080' and street_id = (select id from street where name = 'JARVIS RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '2108' and street_id = (select id from street where name = 'JARVIS RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '2253' and street_id = (select id from street where name = 'JARVIS RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '1052' and street_id = (select id from street where name = 'PRINCESS ANNE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '3269' and street_id = (select id from street where name = 'COLECHESTER RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '3020' and street_id = (select id from street where name = 'SANDPIPER RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'PACHVRS' and house_num = '324' and street_id = (select id from street where name = 'TEAL CRES' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'VBVRS' and house_num = '1266' and street_id = (select id from street where name = 'EAGLEWOOD DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
