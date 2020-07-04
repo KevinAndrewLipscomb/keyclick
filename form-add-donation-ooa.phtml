@@ -28,9 +28,9 @@ $cross_id = $cross_id;
 //
 error_reporting(E_ALL);
 //
-if (isset($address1)) $address1 = kix\k::Safe($address1,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($address1)) $address1 = kix\k::Safe($address1,kix\k::PhpValueOf_safe_hint_type("POSTAL_STREET_ADDRESS"));
 if (isset($amount)) $amount = kix\k::Safe($amount,kix\k::PhpValueOf_safe_hint_type("REAL_NUM"));
-if (isset($city)) $city = kix\k::Safe($city,kix\k::PhpValueOf_safe_hint_type("POSTAL_ADDRESS"));
+if (isset($city)) $city = kix\k::Safe($city,kix\k::PhpValueOf_safe_hint_type("POSTAL_STREET_ADDRESS"));
 if (isset($in_mem_of)) $in_mem_of = kix\k::Safe($in_mem_of,kix\k::PhpValueOf_safe_hint_type("PUNCTUATED"));
 if (isset($method)) $method = kix\k::Safe($method,kix\k::PhpValueOf_safe_hint_type("ALPHA"));
 if (isset($name)) $name = kix\k::Safe($name,kix\k::PhpValueOf_safe_hint_type("HUMAN_NAME"));
