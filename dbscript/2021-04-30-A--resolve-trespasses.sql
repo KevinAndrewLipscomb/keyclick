@@ -1,0 +1,65 @@
+START TRANSACTION
+;
+delete from resident_base where agency = 'OPVRS' and house_num = '4824' and street_id = (select id from street where name = 'BAY BRIDGE LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '5424' and street_id = (select id from street where name = 'BAYSIDE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2417' and street_id = (select id from street where name = 'BEAUFORT AVE' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4921' and street_id = (select id from street where name = 'BRADPOINTE LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1021' and street_id = (select id from street where name = 'CAPSTONE XING' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4612' and street_id = (select id from street where name = 'CURTISS DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4616' and street_id = (select id from street where name = 'DELCO RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4401' and street_id = (select id from street where name = 'DELMAR DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1508' and street_id = (select id from street where name = 'GARDENWOOD PKWY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1529' and street_id = (select id from street where name = 'GARDENWOOD PKWY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4212' and street_id = (select id from street where name = 'HERMITAGE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1416' and street_id = (select id from street where name = 'LAKESIDE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4922' and street_id = (select id from street where name = 'LAUDERDALE AVE' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4443' and street_id = (select id from street where name = 'LEE AVE' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4201' and street_id = (select id from street where name = 'LOOKOUT RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4845' and street_id = (select id from street where name = 'OLD HARRIS LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1016' and street_id = (select id from street where name = 'PASTERN BRIEF' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4801' and street_id = (select id from street where name = 'S OLIVER DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1113' and street_id = (select id from street where name = 'SPINDLE XING' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4305' and street_id = (select id from street where name = 'THOROUGHGOOD DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1116' and street_id = (select id from street where name = 'BAILEYWICK DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1421' and street_id = (select id from street where name = 'DUNSTAN LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '5564' and street_id = (select id from street where name = 'FROG POND LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1036' and street_id = (select id from street where name = 'HAYGOOD ESTATE LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'DCVRS' and house_num = '1453' and street_id = (select id from street where name = 'LAKESIDE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4632' and street_id = (select id from street where name = 'MILES STANDISH RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4753' and street_id = (select id from street where name = 'RED COAT RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4529' and street_id = (select id from street where name = 'WILLIAM PITT LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+
+delete from resident_base where agency = 'OPVRS' and house_num = '4773' and street_id = (select id from street where name = 'MARLBOROUGH DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '5454' and street_id = (select id from street where name = 'OLD PROVIDENCE RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '62763' and street_id = (select id from street where name = 'PO BOX' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '4608' and street_id = (select id from street where name = 'SOUTH BLVD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '957' and street_id = (select id from street where name = 'WICKHAM CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+
+delete from resident_base where agency = 'OPVRS' and house_num = '1924' and street_id = (select id from street where name = 'CLIFTON BRIDGE DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2520' and street_id = (select id from street where name = 'LOCUST GROVE LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '3009' and street_id = (select id from street where name = 'MAAT CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+
+delete from resident_base where agency = 'OPVRS' and house_num = '117' and street_id = (select id from street where name = '76TH ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '208' and street_id = (select id from street where name = '76TH ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '216A' and street_id = (select id from street where name = '76TH ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '207' and street_id = (select id from street where name = '82ND ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '223' and street_id = (select id from street where name = '88TH ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2436' and street_id = (select id from street where name = 'BLUE CASTLE LN' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1286' and street_id = (select id from street where name = 'BRIGANTINE CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1814' and street_id = (select id from street where name = 'CALASH WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2573' and street_id = (select id from street where name = 'COVE POINT PL' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2320' and street_id = (select id from street where name = 'DODD DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '833' and street_id = (select id from street where name = 'FIVE POINT RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '909' and street_id = (select id from street where name = 'FULTON CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1051' and street_id = (select id from street where name = 'HANSON WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1099' and street_id = (select id from street where name = 'HANSON WAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2348' and street_id = (select id from street where name = 'HOOD DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '905' and street_id = (select id from street where name = 'OLD CUTLER RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '700' and street_id = (select id from street where name = 'ORIOLE DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2609' and street_id = (select id from street where name = 'S KINGS RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '809' and street_id = (select id from street where name = 'S SPIGEL DR' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '2705' and street_id = (select id from street where name = 'SANDY VALLEY RD' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1745' and street_id = (select id from street where name = 'VALHALLA ARCH' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'OPVRS' and house_num = '1709' and street_id = (select id from street where name = 'VINTAGE QUAY' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+;
+COMMIT
