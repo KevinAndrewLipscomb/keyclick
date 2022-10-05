@@ -1,0 +1,3 @@
+delete from resident_base where agency = 'KVRS' and house_num = '612' and street_id = (select id from street where name = 'CAMBRIA CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '5429' and street_id = (select id from street where name = 'HEATHERTON CT' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
+delete from resident_base where agency = 'KVRS' and house_num = '2241' and street_id = (select id from street where name = 'MAPLE ST' and city_id = (select id from city where name = 'VIRGINIA BEACH'));
