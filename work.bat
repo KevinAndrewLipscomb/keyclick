@@ -1,5 +1,5 @@
 REM
-REM $Id$
+REM $Id: work.bat 7044 2020-04-17 00:17:38Z kevinanlipscomb $
 REM
 cd "C:\Inetpub\wwwroot\keyclick"
 start /max explorer /e,/select,C:\Inetpub\wwwroot\keyclick\.svn

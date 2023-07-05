@@ -1,5 +1,5 @@
 <?php
-/* $Id$ */
+/* $Id: defines.lib.php3 7054 2020-04-18 17:02:08Z kevinanlipscomb $ */
 
 /**
  * DEFINES VARIABLES & CONSTANTS

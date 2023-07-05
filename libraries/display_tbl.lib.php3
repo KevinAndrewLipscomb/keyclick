@@ -1,5 +1,5 @@
 <?php
-/* $Id$ */
+/* $Id: display_tbl.lib.php3 7063 2020-04-22 20:00:35Z kevinanlipscomb $ */
 /**
  * Set of functions used to display the records returned by a sql query
  */
