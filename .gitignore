@@ -12,6 +12,7 @@ unpublished.*
 1-user-setup.sql
 /app.ini
 /bin/*/
+/bin/*.xml
 /lib/ki/
 /obj/
 /packages/
