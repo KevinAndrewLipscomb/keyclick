@@ -23,6 +23,9 @@
     <Compile Remove="..\foundation\recaptcha-master\examples\example-captcha.php" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="scratch\000-README-RE-SETTING-PERMISSIONS-ON-THIS-FOLDER.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Peachpie.App" Version="1.0.8" />
     <PackageReference Include="Peachpie.CodeAnalysis" Version="1.0.8" />
     <PackageReference Include="Peachpie.Library" Version="1.0.8" />
