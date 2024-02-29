@@ -1,5 +1,5 @@
 Set-Location "C:\Inetpub\wwwroot\keyclick"
-Start-Process -WindowStyle Maximized "C:\Inetpub\wwwroot\keyclick"
+Start-Process -WindowStyle Maximized "."
 Start-Process -WindowStyle Maximized keyclick.sln
 IF (Test-Path "C:\Program Files\MySQL\MySQL Workbench\MySQLWorkbench.exe")
   {
