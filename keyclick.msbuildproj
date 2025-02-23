@@ -8,16 +8,15 @@
   </PropertyGroup>
   <ItemGroup Label="Compile">
     <Compile Include="*.php;*.phtml" />
-    <Compile Include="../foundation/**/*.php;../foundation/**/*.phtml" Exclude="../foundation/recaptcha-master/tests/**" />
     <Compile Include="libraries/*" />
-    <Compile Update="..\foundation\class-wp-cli-command.php" Link="linked\KiPhpFoundation\class-wp-cli-command.php" />
-    <Compile Update="..\foundation\f_appsettings.phtml" Link="linked\KiPhpFoundation\f_appsettings.phtml" />
-    <Compile Update="..\foundation\f_bodyopen.phtml" Link="linked\KiPhpFoundation\f_bodyopen.phtml" />
-    <Compile Update="..\foundation\f_dbkalipsolink.phtml" Link="linked\KiPhpFoundation\f_dbkalipsolink.phtml" />
-    <Compile Update="..\foundation\f_dblink.phtml" Link="linked\KiPhpFoundation\f_dblink.phtml" />
-    <Compile Update="..\foundation\f_putlibphotorandomplaced.phtml" Link="linked\KiPhpFoundation\f_putlibphotorandomplaced.phtml" />
-    <Compile Update="..\foundation\std_style_class.php" Link="linked\KiPhpFoundation\std_style_class.php" />
-    <Compile Update="..\foundation\whats-new.phtml" Link="linked\KiPhpFoundation\whats-new.phtml" />
+    <Compile Include="..\foundation\class-wp-cli-command.php" Link="linked\KiPhpFoundation\class-wp-cli-command.php" />
+    <Compile Include="..\foundation\f_appsettings.phtml" Link="linked\KiPhpFoundation\f_appsettings.phtml" />
+    <Compile Include="..\foundation\f_bodyopen.phtml" Link="linked\KiPhpFoundation\f_bodyopen.phtml" />
+    <Compile Include="..\foundation\f_dbkalipsolink.phtml" Link="linked\KiPhpFoundation\f_dbkalipsolink.phtml" />
+    <Compile Include="..\foundation\f_dblink.phtml" Link="linked\KiPhpFoundation\f_dblink.phtml" />
+    <Compile Include="..\foundation\f_putlibphotorandomplaced.phtml" Link="linked\KiPhpFoundation\f_putlibphotorandomplaced.phtml" />
+    <Compile Include="..\foundation\std_style_class.php" Link="linked\KiPhpFoundation\std_style_class.php" />
+    <Compile Include="..\foundation\whats-new.phtml" Link="linked\KiPhpFoundation\whats-new.phtml" />
     <Compile Remove="..\foundation\recaptcha-master\examples\example-captcha.php" />
     <Compile Remove=".git\**" />
     <Compile Remove=".vs\**" />
@@ -31,8 +30,6 @@
     <Content Remove=".git\**" />
     <Content Remove=".vs\**" />
     <Content Remove="config\Sensitive\connectionStrings.config" />
-  </ItemGroup>
-  <ItemGroup>
   </ItemGroup>
   <ItemGroup Label="None">
     <None Remove=".git\**" />
@@ -49,6 +46,7 @@
     <ProjectReference Include="..\OscarTRACK-shared-ki\ki.csproj" />
   </ItemGroup>
   <ItemGroup Label="Folder">
+    <Folder Include="linked\" />
     <Folder Include="linked\KiPhpFoundation\" />
   </ItemGroup>
 </Project>
