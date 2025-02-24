@@ -101,6 +101,14 @@ update resident_import set address = REPLACE(address,' 1/2','-1/2')
 ;
 update resident_import set address = REPLACE(address,'- ','-')
 ;
+update resident_import set address = REPLACE(address,'1/2TH ','1/2 ')
+;
+update resident_import set address = REPLACE(address,'TH-1/2 ','-1/2 ')
+;
+update resident_import set address = REPLACE(address,' APT. ',' APT ')
+;
+update resident_import set address = REPLACE(address,' PH-',' PH ')
+;
 --
 -- Extricate house_num and street from the address field, and convert Sub-Unit Designator phrases into house_num suffixes.
 --
